@@ -118,22 +118,61 @@ class GeminiBrain:
 # ==========================================
 class PrizeWheel:
     def __init__(self):
-        self.common = ["🏆 PRIZE: A firm handshake.", "🏆 PRIZE: I pick the movie.", "🏆 PRIZE: Dirty Joke."]
-        self.rare = ["✨ PRIZE: 10 Min Massage.", "✨ PRIZE: Shower Show.", "✨ PRIZE: NSFW Photo."]
-        self.legendary = ["👑 JACKPOT: The 'Full Service'.", "👑 JACKPOT: You're the boss for 1 hour.", "👑 JACKPOT: Anything you want."]
+        # 💩 BRONZE PRIZES (Low value / Funny / Mild)
+        self.common = [
+            "🏆 PRIZE: A firm handshake.",
+            "🏆 PRIZE: One (1) coupon for a 30-second hug.",
+            "🏆 PRIZE: I pick the music in the car next time (clue, its K$SHA).",
+            "🏆 PRIZE: You get to jack off in the bathroom, no interuptions.",
+            "🏆 PRIZE: I'll slowly lick ...your elbow for 10 seconds. Enjoy.",
+            "🏆 PRIZE: you can tell me a dirty joke.",
+        ]
+        
+        # ✨ SILVER PRIZES (Actually good)
+        self.rare = [
+            "✨ PRIZE: 10 Minute Back only Massage. You pick, you or me? (No strings attached).",
+            "✨ PRIZE: Shower Show (You can look, but don't touch).",
+            "✨ PRIZE: Ill bend over really slowly righ in front of you, but no touching",
+            "✨ PRIZE: 'Get out of Argument Free' Card.",
+            "✨ PRIZE: A NSFW photo sent to your phone, of me in any position you want. Sent next day.",
+        ]
+        
+        # 👑 GOLD PRIZES (The Jackpot)
+        self.legendary = [
+            "👑 JACKPOT: Wet, sloppy, Face fucking, Blow job",
+            "👑 JACKPOT: You're the boss for 1 hour. Whatever you say goes, ok Daddy?.",
+            "👑 JACKPOT: Fuck my ass until you fill it up, twice.",
+            "👑 JACKPOT: Fuck all my holes, with whatever you want, for 20 minutes, next time were alone.",
+            "👑 JACKPOT: Blow job in the car, you drive.",
+            "👑 JACKPOT: Sex Slave Day. For one day, While you do chores around the house, I'll be waiting for you when you come back, on my knees, on the bed, with my mouth, in my ass, whatever you want. Im yours.",
+        ]
 
     def spin(self, tickets_bid):
         pool = []
         tier = ""
-        if tickets_bid < 10: return "🚫 Minimum bet is 10."
+        
+        if tickets_bid < 10:
+            return "🚫 Minimum bet is 10 Tickets. Save more money, you cheap fuck." 
+            
         elif tickets_bid < 25:
-            tier = "🥉 BRONZE"; pool.extend(self.common*80 + self.rare*19 + self.legendary*1)
+            # BRONZE WHEEL
+            tier = "🥉 BRONZE WHEEL (Mostly junk, lucky if you win)"
+            pool.extend(self.common * 80)
+            pool.extend(self.rare * 19)
+            pool.extend(self.legendary * 1)
+            
         elif tickets_bid < 50:
-            tier = "🥈 SILVER"; pool.extend(self.rare*90 + self.legendary*10)
+            # SILVER WHEEL
+            tier = "🥈 SILVER WHEEL (Good stuff only)"
+            pool.extend(self.rare * 90)
+            pool.extend(self.legendary * 10)
+            
         else:
-            tier = "🥇 GOLD"; pool.extend(self.legendary*100)
-        return f"🎰 **SPINNING {tier}...**\n\n{random.choice(pool)}"
+            # GOLD WHEEL
+            tier = "🥇 GOLD WHEEL (Get Ready to Cum...litterally)"
+            pool.extend(self.legendary * 100)
 
+        return f"🎰 **SPINNING THE {tier}...**\n\n{random.choice(pool)}"
 # ==========================================
 #      PART 5: THE LOGIC ENGINE
 # ==========================================
