@@ -92,7 +92,7 @@ class RaunchyPersona:
         if mood == "payday": return random.choice(self.payday_celebration)
         return random.choice(self.casual_flirt)
 
-# 2. GOOGLE GEMINI (The Split Brain Fix)
+# 2. GOOGLE GEMINI (Persona Stripping Mode)
 class GeminiBrain:
     def __init__(self, api_key):
         self.active = False
@@ -104,32 +104,32 @@ class GeminiBrain:
     def try_response(self, context, char_name, user_name, rel):
         if not self.active: return None 
         
-        # 1. DETECT THE VIBE
-        # If you use these words, she becomes a "Financial Advisor" (Safe Mode)
-        money_triggers = ["save", "cost", "bill", "box", "plan", "worth", "buy", "spend", "afford", "price"]
-        is_financial = any(trigger in context.lower() for trigger in money_triggers)
+        # 1. DETECT MONEY TALK
+        money_words = ["save", "cost", "bill", "box", "plan", "worth", "buy", "spend", "afford", "price", "budget"]
+        is_financial = any(trigger in context.lower() for trigger in money_words)
 
         if is_financial:
-            # MODE A: The Accountant (Safe)
-            # We explicitly tell her NOT to be sexual here so Google permits the answer.
-            tone = "Strict, Sarcastic, Financially Conservative. NO sex jokes."
-            task = f"Analyze if '{context}' is a good financial decision for people trying to save money. Be ruthless."
+            # MODE A: THE ROBOT (100% Safe)
+            # We strip the "Wife" persona entirely. 
+            # We tell it to act like a calculator.
+            prompt = f"""
+            Role: Brutal Financial Advisor.
+            Task: User asked "{context}". 
+            Analysis: Is this a waste of money for someone trying to save aggressively?
+            Response: Be short, sarcastic, and ruthless. No greetings.
+            """
         else:
-            # MODE B: The Wife (Explicit)
-            # This is where we allow the dirty stuff.
-            tone = "Raunchy, Explicit, Nympho, Dirty, Submissive."
-            task = "Reply in 1-2 sentences. Be flirtatious and dirty."
-
-        prompt = f"""
-        Role: {char_name} (Wife). User: {user_name} (Husband). Rel: {rel}.
-        Tone: {tone}
-        Context: {context}
-        Task: {task}
-        """
+            # MODE B: THE WIFE (Explicit)
+            # We put the persona back on for chatting.
+            prompt = f"""
+            Role: {char_name} (Wife). User: {user_name} (Husband). Rel: {rel}.
+            Personality: Raunchy, Explicit, Nympho, Dirty, Submissive.
+            Context: {context}
+            Task: Reply in 1-2 sentences. Be flirtatious and dirty.
+            """
         
         try:
-            # 2. SAFETY SETTINGS
-            # We still keep them loose for Mode B
+            # Relaxed settings for Mode B, irrelevant for Mode A
             safety = [
                 {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
                 {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"}
@@ -137,14 +137,13 @@ class GeminiBrain:
             
             response = self.model.generate_content(prompt, safety_settings=safety)
             
-            # 3. SUCCESS CHECK
             if response.text: 
                 return response.text
-            return None # If blocked, returns None -> Falls back to Horde/Manual
+            return None 
             
         except:
-            return None # Error -> Falls back to Horde/Manual
-
+            return None
+        
 # 3. AI HORDE (Uncensored - Second Choice)
 class HordeBrain:
     def __init__(self):
