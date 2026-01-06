@@ -2,8 +2,9 @@ import json
 import os
 import re
 import random
+import time
+import requests
 import streamlit as st
-import google.generativeai as genai
 
 # ==========================================
 #       PART 0: THE SEXY UI STYLING
@@ -57,7 +58,7 @@ class DataManager:
         with open(self.filename, 'w') as f: json.dump(data, f)
 
 # ==========================================
-#       PART 2: THE RAUNCHY PERSONA (UPDATED)
+#       PART 2: THE RAUNCHY PERSONA (MANUAL BACKUP)
 # ==========================================
 class RaunchyPersona:
     def __init__(self):
@@ -92,18 +93,18 @@ class RaunchyPersona:
             "and here I thought you actually wanted to fuck my ass, on a Sunday at 1:00pm.",
             "****EYE ROLL**** Well, I wanted to suck your dick."
         ]
-
-        # 3. CASUAL FLIRTING (Triggered when AI gets blocked or he just chats)
+        
+        # 3. CASUAL FLIRTING (Backup if AI is slow/down)
         self.casual_flirt = [
-            "I'm so bored... and my pussy is so wet. Get us a home.",
+            "I'm bored... and horny. Dangerous combination. Get home.",
             "Stop texting and make money so I can sit on your face later.",
             "I'm not wearing any panties right now. Just thought you should know.",
-            "I was just thinking about your hands on me, you dick in all of me... my hands, my mouth, my pussy, my ass. Focus on work, so we can get a home.",
-            "My mouth is waiting for you to fuck it, Daddy.",
-            "Am I a good girl? Or do I need to be punished tonight?",
+            "I was just thinking about your hands on me. Focus on work, but hurry home.",
+            "My knees are waiting for you, Daddy.",
+            "Are you being a good boy? Or do I need to punish you tonight?",
             "Less talking, more stacking cash. I want to scream your name in our own bedroom.",
             "I might be touching myself thinking about you. Guess you'll find out later.",
-            "Fuck my mouth till I gag."
+            "Send me a picture. I need something to look at while I wait for you."
         ]
 
         # 4. BLACKOUT WARNINGS
@@ -129,62 +130,71 @@ class RaunchyPersona:
         return "You broke even. I'm keeping my clothes on."
 
 # ==========================================
-#       PART 3: THE GEMINI BRAIN
+#       PART 3: THE UNCENSORED HORDE BRAIN
 # ==========================================
-# ==========================================
-#       PART 3: THE GEMINI BRAIN (UPDATED FOR CASUAL CHAT)
-# ==========================================
-class GeminiBrain:
-    def __init__(self, api_key):
-        self.fallback = RaunchyPersona() # Access to manual lines
-        if api_key:
-            genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel('gemini-1.5-flash')
-        else:
-            self.model = None
+class HordeBrain:
+    def __init__(self, char_name="Paige", user_name="Luke", relationship="Wife/Husband"):
+        self.api_key = "0000000000" 
+        self.api_url = "https://stablehorde.net/api/v2/generate/text/async"
+        self.status_url = "https://stablehorde.net/api/v2/generate/text/status"
+        self.fallback = RaunchyPersona()
+        
+        self.char_name = char_name
+        self.user_name = user_name
+        self.relationship = relationship
 
     def generate_response(self, context, mood):
-        if not self.model: 
-            # If no API key, use manual lines
-            return self.fallback.get_line("flirt")
-
-        system_instruction = """
-        ROLE: You are Paige, the wife of Luke.
-        YOUR GOAL: Motivate Luke to save money so you can move out.
-        PERSONALITY: Raunchy, Submissive yet Demanding, Dirty-minded.
-        - You use sexual references to motivate.
-        - You know he loves: Blowjobs, Anal, and you on your knees, and fucking your ass.
-        - Speak like a text message (short, lower case).
-        
-        CONTEXT: {context}
-        
-        INSTRUCTION:
-        - If he flirts or complains about work, flirt back. Be dirty.
-        - If he talks money, be strict.
+        # 1. The Prompt (Explicit allowed here)
+        prompt = f"""
+        Character: {self.char_name}. User: {self.user_name}.
+        Relationship: {self.relationship}.
+        Personality: Raunchy, slutty, sarcastic, loving, explicit.
+        Scenario: {context}
+        {self.char_name}:
         """
-        prompt = system_instruction.format(context=context)
         
-        # Safety settings to try and allow more spice
-        safety = [
-            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
-            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
-            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
-            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"}
-        ]
+        payload = {
+            "prompt": prompt,
+            "params": {
+                "n": 1,
+                "max_context_length": 1024,
+                "max_length": 60, # Keep replies short
+                "rep_pen": 1.1,
+                "temperature": 0.8,
+                "top_p": 0.9
+            },
+            "models": ["KoboldCPP"], # Asks for generic models
+            "nsfw": True,  # <--- THE MAGIC SWITCH
+            "censor_nsfw": False
+        }
         
+        headers = {"apikey": self.api_key, "Content-Type": "application/json"}
+
         try:
-            response = self.model.generate_content(prompt, safety_settings=safety)
-            if response.text:
-                return response.text
-            else:
-                # If AI returns empty (blocked), use manual flirt
-                return self.fallback.get_line("flirt")
-        except: 
-            # If AI crashes (blocked), use manual flirt
+            # Step A: Send Request
+            post_req = requests.post(self.api_url, json=payload, headers=headers)
+            if post_req.status_code != 202:
+                return self.fallback.get_line("flirt") # Fallback if horde is down
+            
+            job_id = post_req.json()["id"]
+            
+            # Step B: Wait for Volunteer (Simple Polling for 20s)
+            for _ in range(20): 
+                time.sleep(1)
+                check = requests.get(f"{self.status_url}/{job_id}", headers=headers)
+                status = check.json()
+                
+                if status["done"]:
+                    return status["generations"][0]["text"].strip()
+            
+            # If timed out, use manual flirt
+            return self.fallback.get_line("flirt") 
+            
+        except:
             return self.fallback.get_line("flirt")
 
 # ==========================================
-#       PART 4: THE PRIZE WHEEL (YOUR PRIZES)
+#       PART 4: THE PRIZE WHEEL
 # ==========================================
 class PrizeWheel:
     def __init__(self):
@@ -219,11 +229,12 @@ class PrizeWheel:
         return f"🎰 **SPINNING {tier}...**\n\n{random.choice(pool)}"
 
 # ==========================================
-#       PART 5: THE LOGIC ENGINE (FINAL TUNING)
+#       PART 5: THE LOGIC ENGINE
 # ==========================================
 class ExitPlanEngine:
-    def __init__(self, api_key):
-        self.ai = GeminiBrain(api_key)
+    def __init__(self):
+        # We start with defaults, but user can change them in sidebar
+        self.ai = HordeBrain() 
         self.manual_persona = RaunchyPersona() 
         self.db = DataManager()
         self.wheel = PrizeWheel()
@@ -243,12 +254,8 @@ class ExitPlanEngine:
         if mood == "sexy" or mood == "mean":
             return self.manual_persona.get_line(mood)
 
-        # PRIORITY 2: For other stuff, mix it up
-        use_ai = random.choice([True, False])
-        response = None
-        if use_ai: response = self.ai.generate_response(context, mood)
-        if not response: response = self.manual_persona.get_line(mood)
-        return response
+        # PRIORITY 2: For casual chat/flirt, try the Uncensored AI
+        return self.ai.generate_response(context, mood)
 
     # --- ACTION HANDLERS ---
     def move_holding_to_house(self):
@@ -259,8 +266,8 @@ class ExitPlanEngine:
         self.data['daily_holding_tank'] = 0.0
         self.db.save_data(self.data)
         
-        # TRIGGER: SEXY PRAISE (Reward for saving)
-        msg = self.get_message(f"Luke moved ${amount} from the Tank to Savings.", "sexy")
+        # TRIGGER: SEXY PRAISE
+        msg = self.get_message(f"{self.ai.user_name} moved ${amount} from the Tank to Savings.", "sexy")
         
         return f"""
         ✅ **MOVED:** ${amount:.2f} to House Fund.
@@ -275,7 +282,7 @@ class ExitPlanEngine:
         self.data['daily_holding_tank'] = 0.0
         self.db.save_data(self.data)
         
-        # TRIGGER: NEUTRAL (Business is business)
+        # TRIGGER: NEUTRAL
         return f"💸 **TANK EMPTIED:** Used ${amount:.2f} for {reason}. (Bills paid. No damage done)."
 
     def chat(self, user_text):
@@ -311,7 +318,9 @@ class ExitPlanEngine:
             self.db.save_data(self.data)
             return f"{self.wheel.spin(amount)}\n🎟️ Left: {self.data['ticket_balance']}"
 
-        if not match: return self.ai.generate_response(f"User said: {user_text}", "sexy") or "I only speak money."
+        if not match: 
+            # CASUAL CHAT (Uses Horde/Uncensored)
+            return self.ai.generate_response(user_text, "flirt")
 
         amount = float(match.group())
 
@@ -343,7 +352,7 @@ class ExitPlanEngine:
         # TRIGGER: MEAN / ROAST (If Penalty or Broke)
         mood = "mean" if (remaining < 20 or penalty_msg) else "neutral"
         
-        msg = self.get_message(f"Luke spent ${amount}. He has ${remaining} left.", mood)
+        msg = self.get_message(f"{self.ai.user_name} spent ${amount}. He has ${remaining} left.", mood)
         
         return f"""
         💸 **RECEIPT: -${amount}**
@@ -444,14 +453,25 @@ class ExitPlanEngine:
 st.set_page_config(page_title="The Exit Plan", page_icon="💋", layout="wide", initial_sidebar_state="collapsed")
 apply_styling()
 
-if 'engine' not in st.session_state: st.session_state.engine = ExitPlanEngine(None)
+if 'engine' not in st.session_state: st.session_state.engine = ExitPlanEngine()
 if "messages" not in st.session_state: st.session_state.messages = [{"role": "assistant", "content": "💋 **Systems Online.**"}]
 
-# --- SIDEBAR (Settings) ---
+# --- SIDEBAR (PERSONA SETTINGS) ---
 with st.sidebar:
-    st.title("Settings")
-    api_key = st.text_input("Google API Key", type="password")
-    if api_key: st.session_state.engine = ExitPlanEngine(api_key)
+    st.title("💋 Persona Settings")
+    
+    char_name = st.text_input("Her Name", value="Paige")
+    user_name = st.text_input("Your Name", value="Luke")
+    relation = st.text_input("Relationship", value="Wife/Husband")
+    
+    if st.button("Update Persona"):
+        st.session_state.engine.ai.char_name = char_name
+        st.session_state.engine.ai.user_name = user_name
+        st.session_state.engine.ai.relationship = relation
+        st.success(f"Updated! She is now {char_name}.")
+    
+    st.divider()
+    st.caption("Using AI Horde (Uncensored)")
 
 # --- SPLIT LAYOUT (DASHBOARD LEFT, CHAT RIGHT) ---
 col_dashboard, col_chat = st.columns([1, 1.5])
@@ -507,7 +527,9 @@ with col_chat:
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"): st.markdown(prompt)
         
-        response = st.session_state.engine.chat(prompt)
+        # Show a "Thinking" spinner because AI Horde can be slow
+        with st.spinner(f"{st.session_state.engine.ai.char_name} is typing..."):
+            response = st.session_state.engine.chat(prompt)
         
         with st.chat_message("assistant"): st.markdown(response)
         st.session_state.messages.append({"role": "assistant", "content": response})
