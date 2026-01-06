@@ -6,7 +6,7 @@ import streamlit as st
 import google.generativeai as genai
 
 # ==========================================
-#      PART 0: THE SEXY UI STYLING
+#       PART 0: THE SEXY UI STYLING
 # ==========================================
 def apply_styling():
     st.markdown("""
@@ -16,19 +16,12 @@ def apply_styling():
         
         /* Metric Cards */
         div[data-testid="stMetric"] {
-            background-color: #262730; border: 1px solid #444; padding: 15px;
+            background-color: #262730; border: 1px solid #444; padding: 10px;
             border-radius: 10px; box-shadow: 0 0 10px rgba(255, 0, 80, 0.2);
+            margin-bottom: 10px;
         }
-        [data-testid="stMetricLabel"] { color: #AAAAAA !important; }
-        [data-testid="stMetricValue"] { color: #FFFFFF !important; }
-        
-        /* Tabs */
-        .stTabs [data-baseweb="tab-list"] { gap: 24px; }
-        .stTabs [data-baseweb="tab"] {
-            height: 50px; white-space: pre-wrap; background-color: #0E1117;
-            border-radius: 4px 4px 0px 0px; gap: 1px; padding-top: 10px; padding-bottom: 10px;
-        }
-        .stTabs [aria-selected="true"] { background-color: #262730; color: #FF4B4B; }
+        [data-testid="stMetricLabel"] { color: #AAAAAA !important; font-size: 0.8rem !important; }
+        [data-testid="stMetricValue"] { color: #FFFFFF !important; font-size: 1.2rem !important; }
         
         .stChatInputContainer { border-color: #FF0050 !important; }
         h1, h2, h3 { color: #FF4B4B !important; }
@@ -36,7 +29,7 @@ def apply_styling():
         """, unsafe_allow_html=True)
 
 # ==========================================
-#      PART 1: THE DATA MANAGER
+#       PART 1: THE DATA MANAGER
 # ==========================================
 class DataManager:
     def __init__(self):
@@ -64,7 +57,7 @@ class DataManager:
         with open(self.filename, 'w') as f: json.dump(data, f)
 
 # ==========================================
-#      PART 2: THE RAUNCHY PERSONA (YOUR SPECIFIC LINES)
+#       PART 2: THE RAUNCHY PERSONA (UPDATED)
 # ==========================================
 class RaunchyPersona:
     def __init__(self):
@@ -85,10 +78,10 @@ class RaunchyPersona:
             "Keep saving like that and you'll be able to fill all my holes with what ever you want in no time.",
             "Time to start looking at knee pads for our new home, becuase I have a feeling I'm gonna need them.",
             "Good boy, one step closer to filling up all my holes at 1:00pm on a Sunday if you so felt like it.",
-            "Daddy is being so good, I cant wait to be SO good for Daddy.",
+            "Daddy is being so good, I cant wait to be SO good for Daddy."
         ]
         
-        # 2. THE ROASTS (Triggered when he Steals from Savings)
+        # 2. THE ROASTS (Triggered when he Spends)
         self.roasts = [
             "You spent it? Wow. Nothing dries me up faster than being broke.",
             "Soft. Totally soft. Just like you're gonna be tonight since you spent our money.",
@@ -97,7 +90,7 @@ class RaunchyPersona:
             "Keep spending like that and the only thing you're banging is your toe on the furniture, not our furniture.",
             "Oh, so I guess you dont actualy want to fuck my mouth when you come home from work?",
             "and here I thought you actually wanted to fuck my ass, on a Sunday at 1:00pm.",
-            "****EYE ROLL**** Well, I wanted to suck your dick.",
+            "****EYE ROLL**** Well, I wanted to suck your dick."
         ]
 
         # 3. BLACKOUT WARNINGS (For Mon/Tue)
@@ -122,7 +115,7 @@ class RaunchyPersona:
         return "You broke even. I'm keeping my clothes on."
 
 # ==========================================
-#      PART 3: THE GEMINI BRAIN
+#       PART 3: THE GEMINI BRAIN
 # ==========================================
 class GeminiBrain:
     def __init__(self, api_key):
@@ -160,7 +153,7 @@ class GeminiBrain:
         except: return None
 
 # ==========================================
-#      PART 4: THE PRIZE WHEEL (YOUR PRIZES)
+#       PART 4: THE PRIZE WHEEL (YOUR PRIZES)
 # ==========================================
 class PrizeWheel:
     def __init__(self):
@@ -195,7 +188,7 @@ class PrizeWheel:
         return f"🎰 **SPINNING {tier}...**\n\n{random.choice(pool)}"
 
 # ==========================================
-#      PART 5: THE LOGIC ENGINE (FINAL TUNING)
+#       PART 5: THE LOGIC ENGINE (FINAL TUNING)
 # ==========================================
 class ExitPlanEngine:
     def __init__(self, api_key):
@@ -215,7 +208,11 @@ class ExitPlanEngine:
         self.tax_rate = 0.20 
 
     def get_message(self, context, mood):
-        # 50/50 mix of AI vs Your Written Lines
+        # PRIORITY 1: If Sexy or Mean, USE MANUAL LINES ONLY
+        if mood == "sexy" or mood == "mean":
+            return self.manual_persona.get_line(mood)
+
+        # PRIORITY 2: For other stuff, mix it up
         use_ai = random.choice([True, False])
         response = None
         if use_ai: response = self.ai.generate_response(context, mood)
@@ -411,7 +408,7 @@ class ExitPlanEngine:
         """
 
 # ==========================================
-#      PART 6: THE STREAMLIT APP (UI)
+#       PART 6: THE STREAMLIT APP (UI)
 # ==========================================
 st.set_page_config(page_title="The Exit Plan", page_icon="💋", layout="wide", initial_sidebar_state="collapsed")
 apply_styling()
@@ -425,63 +422,62 @@ with st.sidebar:
     api_key = st.text_input("Google API Key", type="password")
     if api_key: st.session_state.engine = ExitPlanEngine(api_key)
 
-# --- TABS (The New Interface) ---
-tab1, tab2 = st.tabs(["💬 **CHAT & COMMANDS**", "📊 **MONEY METRICS**"])
+# --- SPLIT LAYOUT (DASHBOARD LEFT, CHAT RIGHT) ---
+col_dashboard, col_chat = st.columns([1, 1.5])
 
-# --- TAB 1: CHAT ---
-with tab1:
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]): st.markdown(message["content"])
-
-    if prompt := st.chat_input("Type here (e.g., 'Dayforce 62', 'Spent 15', 'Spin 25')..."):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"): st.markdown(prompt)
-        response = st.session_state.engine.chat(prompt)
-        with st.chat_message("assistant"): st.markdown(response)
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        st.rerun()
-
-# --- TAB 2: METRICS ---
-with tab2:
+# --- LEFT COLUMN: DASHBOARD ---
+with col_dashboard:
     data = st.session_state.engine.db.load_data()
     
-    # 1. BILLS
-    st.subheader("🔒 Spoken For (Monthly Bills)")
-    col_a, col_b, col_c = st.columns(3)
-    total_bills = sum(data['bills'].values())
-    col_a.metric("Rent (Mom)", f"${data['bills']['Rent (Mom)']:.0f}")
-    col_b.metric("Insurance", f"${data['bills']['Insurance']:.0f}")
-    col_c.metric("Loans", f"${data['bills']['Loans']:.0f}")
-    st.caption(f"Total taken from paychecks: ${total_bills:.2f}")
-    
-    st.divider()
-    
-    # 2. THE HOLDING TANK
-    st.subheader("🚰 Daily Holding Tank (Gas + House)")
-    st.info("This is the money deducted daily ($10 Gas + $20 House). Decide where it goes.")
-    
-    tank_col1, tank_col2 = st.columns([1, 2])
-    with tank_col1:
-        st.metric("In Holding", f"${data.get('daily_holding_tank', 0):.2f}")
-    with tank_col2:
-        c1, c2 = st.columns(2)
-        if c1.button("✅ Move to House Fund"):
-            msg = st.session_state.engine.move_holding_to_house()
-            st.success(msg)
-            st.rerun()
-        if c2.button("💸 Mark as Spent (Bill)"):
-            msg = st.session_state.engine.spend_holding_tank()
-            st.warning(msg)
-            st.rerun()
-
-    st.divider()
-
-    # 3. THE BIG PICTURE
+    # 1. THE BIG PICTURE
     st.subheader("🏆 The Big Picture")
-    m1, m2, m3 = st.columns(3)
+    m1, m2 = st.columns(2)
     m1.metric("🏠 HOUSE FUND", f"${data['move_out_fund']:.2f}")
     m2.metric("😎 WALLET (Safe)", f"${data.get('allowance_balance', 0):.2f}")
-    m3.metric("🎟️ TICKETS", f"{data['ticket_balance']}")
     
     st.progress(min(data['move_out_fund'] / 4200.0, 1.0))
     st.caption("Goal: $4,200")
+    
+    st.divider()
+
+    # 2. THE HOLDING TANK
+    st.subheader("🚰 Daily Tank")
+    st.info("Gas ($10) + House ($20)")
+    
+    st.metric("In Holding", f"${data.get('daily_holding_tank', 0):.2f}")
+    
+    # Action Buttons
+    c1, c2 = st.columns(2)
+    if c1.button("✅ Move to House"):
+        msg = st.session_state.engine.move_holding_to_house()
+        st.session_state.messages.append({"role": "assistant", "content": msg})
+        st.rerun()
+    if c2.button("💸 Spend (Bills)"):
+        msg = st.session_state.engine.spend_holding_tank()
+        st.session_state.messages.append({"role": "assistant", "content": msg})
+        st.rerun()
+
+    st.divider()
+
+    # 3. TICKETS & BILLS
+    st.metric("🎟️ TICKETS", f"{data['ticket_balance']}")
+    st.caption("Earned from Paychecks over $400")
+
+# --- RIGHT COLUMN: CHAT ---
+with col_chat:
+    st.subheader("💬 Chat")
+    
+    # Display Chat History
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]): st.markdown(message["content"])
+
+    # Chat Input (Fixed to bottom)
+    if prompt := st.chat_input("Command me (e.g. 'Dayforce 62', 'Spent 15')..."):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"): st.markdown(prompt)
+        
+        response = st.session_state.engine.chat(prompt)
+        
+        with st.chat_message("assistant"): st.markdown(response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.rerun()
