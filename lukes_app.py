@@ -60,15 +60,16 @@ class GeminiBrain:
         self.api_key = api_key
         self.model = None
         if api_key:
-            # Configure specifically for this instance
             genai.configure(api_key=api_key)
-            # UPDATED: We switched to the newer model you have access to
-            self.model = genai.GenerativeModel('gemini-2.0-flash')
+            
+            # --- THE FIX IS HERE ---
+            # We switched from 'gemini-2.0-flash' (Paid/Restricted) 
+            # to 'gemini-2.0-flash-exp' (Free/Experimental)
+            self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
 
     def ask(self, context):
         if not self.model: return "⚠️ Please enter a Google API Key in the sidebar."
         
-        # 1. The Prompt
         prompt = f"""
         Act as a financial advisor (who is also the user's wife).
         User Question: "{context}"
@@ -76,7 +77,7 @@ class GeminiBrain:
         Keep it short.
         """
         
-        # 2. Safety Settings (Unblocked)
+        # Safety Settings (Unblocked)
         from google.generativeai.types import HarmCategory, HarmBlockThreshold
         
         safety_settings = {
@@ -87,15 +88,13 @@ class GeminiBrain:
         }
 
         try:
-            # Re-configure ensures the key is active
             genai.configure(api_key=self.api_key)
-            
             response = self.model.generate_content(prompt, safety_settings=safety_settings)
             return response.text
             
         except Exception as e:
-            return f"❌ SYSTEM ERROR: {str(e)}"
-        
+            # If the 'exp' model also fails, we have a backup plan in the error message
+            return f"❌ SYSTEM ERROR: {str(e)}\n\n(Try changing line 12 to 'gemini-1.5-flash')"
 # BRAIN 2: HORDE (For Casino/Prizes - Explicit/Uncensored)
 class HordeBrain:
     def __init__(self):
