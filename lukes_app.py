@@ -91,8 +91,7 @@ class RaunchyPersona:
         if mood == "comfort": return random.choice(self.warnings)
         if mood == "payday": return random.choice(self.payday_celebration)
         return random.choice(self.casual_flirt)
-
-# 2. GOOGLE GEMINI (Persona Stripping Mode)
+# 2. GOOGLE GEMINI (The "Split Personality" Fix)
 class GeminiBrain:
     def __init__(self, api_key):
         self.active = False
@@ -104,19 +103,20 @@ class GeminiBrain:
     def try_response(self, context, char_name, user_name, rel):
         if not self.active: return None 
         
-        # 1. DETECT MONEY TALK
-        money_words = ["save", "cost", "bill", "box", "plan", "worth", "buy", "spend", "afford", "price", "budget"]
+        # 1. DETECT MONEY OR PLANNING TALK
+        # We catch any words related to spending, saving, or food plans
+        money_words = ["save", "cost", "bill", "box", "plan", "worth", "buy", "spend", "afford", "price", "budget", "food", "eat", "grocery"]
         is_financial = any(trigger in context.lower() for trigger in money_words)
 
         if is_financial:
             # MODE A: THE ROBOT (100% Safe)
             # We strip the "Wife" persona entirely. 
-            # We tell it to act like a calculator.
+            # We tell it to act like a calculator. This gets past the filters.
             prompt = f"""
             Role: Brutal Financial Advisor.
             Task: User asked "{context}". 
             Analysis: Is this a waste of money for someone trying to save aggressively?
-            Response: Be short, sarcastic, and ruthless. No greetings.
+            Response: Be short, sarcastic, and ruthless. NO sex jokes.
             """
         else:
             # MODE B: THE WIFE (Explicit)
@@ -365,7 +365,7 @@ with st.sidebar:
         st.session_state.engine.user_name = un
         st.session_state.engine.relation = rel
         st.success("Updated!")
-        
+
 # LAYOUT
 col1, col2 = st.columns([1, 1.5])
 
