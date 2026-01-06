@@ -314,10 +314,22 @@ if "messages" not in st.session_state: st.session_state.messages = [{"role": "as
 # SIDEBAR
 with st.sidebar:
     st.title("Settings")
-    gemini_key = st.text_input("Google API Key (Optional)", type="password")
-    if gemini_key: st.session_state.engine.gemini = GeminiBrain(gemini_key)
+    
+    # 1. Check for Secrets first
+    if "GOOGLE_API_KEY" in st.secrets:
+        st.success("🔒 API Key loaded from Secrets")
+        gemini_key = st.secrets["GOOGLE_API_KEY"]
+    else:
+        # If no secret found, ask manually
+        gemini_key = st.text_input("Google API Key (Optional)", type="password")
+        
+    # Initialize Gemini if key exists
+    if gemini_key: 
+        st.session_state.engine.gemini = GeminiBrain(gemini_key)
     
     st.divider()
+    
+    # Persona Settings
     cn = st.text_input("Her Name", value="Paige")
     un = st.text_input("Your Name", value="Luke")
     rel = st.text_input("Relation", value="Wife/Husband")
@@ -326,7 +338,6 @@ with st.sidebar:
         st.session_state.engine.user_name = un
         st.session_state.engine.relation = rel
         st.success("Updated!")
-
 # LAYOUT
 col1, col2 = st.columns([1, 1.5])
 
