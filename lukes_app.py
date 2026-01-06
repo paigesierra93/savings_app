@@ -92,7 +92,7 @@ class RaunchyPersona:
         if mood == "payday": return random.choice(self.payday_celebration)
         return random.choice(self.casual_flirt)
 
-# 2. GOOGLE GEMINI (Fast & Smart - First Choice)
+# 2. GOOGLE GEMINI (Updated for Smarter Advice)
 class GeminiBrain:
     def __init__(self, api_key):
         self.active = False
@@ -102,24 +102,29 @@ class GeminiBrain:
             self.active = True
 
     def try_response(self, context, char_name, user_name, rel):
-        if not self.active: return None # Key missing, skip to Horde
+        if not self.active: return None 
         
+        # LOGIC: If it's a question, dial back the smut so Google doesn't block it.
+        if "?" in context:
+            tone = "Sarcastic, Intelligent, Financial, Flirty but safe."
+        else:
+            tone = "Raunchy, Explicit, Nympho, Dirty."
+
         prompt = f"""
         Role: {char_name} (Wife). User: {user_name} (Husband). Rel: {rel}.
-        Tone: Raunchy, Explicit, Sarcastic, Supportive.
+        Tone: {tone}
         Context: {context}
-        Task: Reply in 1-2 sentences. Be dirty if context allows.
+        Task: Reply in 1-2 sentences.
         """
         try:
-            # We set low thresholds, but Google might still block heavy NSFW
+            # We keep filters low, but the 'Tone' change above is the real fix
             safety = [{"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"}]
             response = self.model.generate_content(prompt, safety_settings=safety)
             
-            # If Google blocks it, response.text throws an error or is empty
             if response.text: return response.text
-            return None # Blocked -> Trigger Fallback
+            return None 
         except:
-            return None # Blocked/Error -> Trigger Fallback
+            return None
 
 # 3. AI HORDE (Uncensored - Second Choice)
 class HordeBrain:
