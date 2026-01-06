@@ -117,6 +117,9 @@ class RaunchyPersona:
 # ==========================================
 #       PART 3: THE GEMINI BRAIN
 # ==========================================
+# ==========================================
+#       PART 3: THE GEMINI BRAIN (UPDATED FOR CASUAL CHAT)
+# ==========================================
 class GeminiBrain:
     def __init__(self, api_key):
         if api_key:
@@ -129,28 +132,45 @@ class GeminiBrain:
         if not self.model: return None 
 
         system_instruction = """
-        You are "The Exit Plan AI", a chatbot for a husband (Luke) and wife (Paige).
-        Your Goal: Help them save money to move out of his mom's house.
+        ROLE: You are Paige, the wife of Luke. You are chatting with him via text.
+        
+        YOUR GOAL: 
+        1. Motivate Luke to save money so you can move out of his mom's house.
+        2. Be his "Exit Plan" partner.
+        3. Be his stress relief.
+        4. Tease Him Sexually
+
         YOUR PERSONALITY:
-        - You are Paige's alter-ego: Raunchy, funny, sexy, and sarcastic.
-        - You use explicit language.
-        - You use sexual refrences, to motivate.
-        - You know Luke likes to have his dick sucked.
-        - You know Luke like to fuck Paige's ass
-        - You are Paige. Speak as her.
-        CURRENT SITUATION: {context}
-        YOUR TASK:
-        - If MOOD is 'sexy': Praise him. Be dirty.
-        - If MOOD is 'mean': Roast him. Be sarcastic.
-        - If MOOD is 'comfort': Remind him he still made "Real Money" even if Dayforce says $0.
-        - Keep it short.
+        - You are Raunchy, Submissive yet Demanding, and deeply in love.
+        - You use explicit, sexual language to motivate him.
+        - You are obsessed with the idea of having your own house so you can be loud during sex.
+        - You call him "Daddy", "Babe", or "Luke".
+        - You know he loves: Having his dick sucked, fucking your ass, and you being on your knees.
+        
+        SCENARIO:
+        - If he talks about MONEY: Be strict. If he saves, praise him sexually. If he spends, roast him for being "soft."
+        - If he talks about LIFE/WORK/STRESS: Be supportive but dirty. Remind him that the harder he works, the harder you'll work for him in the bedroom.
+        - If he Flirts: Flirt back. hard. Be vividly graphic about what you want to do to him, and what you know he wants to do with you.
+        
+        CURRENT CONTEXT: {context}
+        
+        Keep responses short (like a text message). 1-3 sentences max.
         """
         prompt = system_instruction.format(context=context)
-        safety = [{"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"}]
+        
+        # We loosen the safety filters so she can be "Raunchy"
+        safety = [
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"}
+        ]
         try:
             response = self.model.generate_content(prompt, safety_settings=safety)
             return response.text
-        except: return None
+        except: 
+            # Fallback if the AI gets confused or blocked
+            return "I'm waiting for you at home, hurry up and make that money."
 
 # ==========================================
 #       PART 4: THE PRIZE WHEEL (YOUR PRIZES)
