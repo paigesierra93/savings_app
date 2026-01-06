@@ -93,14 +93,27 @@ class RaunchyPersona:
             "****EYE ROLL**** Well, I wanted to suck your dick."
         ]
 
-        # 3. BLACKOUT WARNINGS (For Mon/Tue)
+        # 3. CASUAL FLIRTING (Triggered when AI gets blocked or he just chats)
+        self.casual_flirt = [
+            "I'm so bored... and my pussy is so wet. Get us a home.",
+            "Stop texting and make money so I can sit on your face later.",
+            "I'm not wearing any panties right now. Just thought you should know.",
+            "I was just thinking about your hands on me, you dick in all of me... my hands, my mouth, my pussy, my ass. Focus on work, so we can get a home.",
+            "My mouth is waiting for you to fuck it, Daddy.",
+            "Am I a good girl? Or do I need to be punished tonight?",
+            "Less talking, more stacking cash. I want to scream your name in our own bedroom.",
+            "I might be touching myself thinking about you. Guess you'll find out later.",
+            "Fuck my mouth till I gag."
+        ]
+
+        # 4. BLACKOUT WARNINGS
         self.warnings = [
             "Listen up. It's Blackout Monday. Dayforce shows $0 because taxes ate it.",
             "Don't panic. The system is screwing you, but we prepared for this.",
             "Grind time. You're working for free today (on paper). Stay hard."
         ]
 
-        # 4. PAYDAY CELEBRATION
+        # 5. PAYDAY CELEBRATION
         self.payday_celebration = [
             "💰 **PAYDAY:** Bills paid. Bridge funded. You're handling business like a man. CUM claim your spin.",
             "💰 **PAYDAY:** We survived another 2 weeks. I'm so proud of you. Spin now? or save it?",
@@ -112,6 +125,7 @@ class RaunchyPersona:
         if mood == "mean": return random.choice(self.roasts)
         if mood == "comfort": return random.choice(self.warnings)
         if mood == "payday": return random.choice(self.payday_celebration)
+        if mood == "flirt": return random.choice(self.casual_flirt)
         return "You broke even. I'm keeping my clothes on."
 
 # ==========================================
@@ -122,6 +136,7 @@ class RaunchyPersona:
 # ==========================================
 class GeminiBrain:
     def __init__(self, api_key):
+        self.fallback = RaunchyPersona() # Access to manual lines
         if api_key:
             genai.configure(api_key=api_key)
             self.model = genai.GenerativeModel('gemini-1.5-flash')
@@ -129,48 +144,44 @@ class GeminiBrain:
             self.model = None
 
     def generate_response(self, context, mood):
-        if not self.model: return None 
+        if not self.model: 
+            # If no API key, use manual lines
+            return self.fallback.get_line("flirt")
 
         system_instruction = """
-        ROLE: You are Paige, the wife of Luke. You are chatting with him via text.
+        ROLE: You are Paige, the wife of Luke.
+        YOUR GOAL: Motivate Luke to save money so you can move out.
+        PERSONALITY: Raunchy, Submissive yet Demanding, Dirty-minded.
+        - You use sexual references to motivate.
+        - You know he loves: Blowjobs, Anal, and you on your knees, and fucking your ass.
+        - Speak like a text message (short, lower case).
         
-        YOUR GOAL: 
-        1. Motivate Luke to save money so you can move out of his mom's house.
-        2. Be his "Exit Plan" partner.
-        3. Be his stress relief.
-        4. Tease Him Sexually
-
-        YOUR PERSONALITY:
-        - You are Raunchy, Submissive yet Demanding, and deeply in love.
-        - You use explicit, sexual language to motivate him.
-        - You are obsessed with the idea of having your own house so you can be loud during sex.
-        - You call him "Daddy", "Babe", or "Luke".
-        - You know he loves: Having his dick sucked, fucking your ass, and you being on your knees.
+        CONTEXT: {context}
         
-        SCENARIO:
-        - If he talks about MONEY: Be strict. If he saves, praise him sexually. If he spends, roast him for being "soft."
-        - If he talks about LIFE/WORK/STRESS: Be supportive but dirty. Remind him that the harder he works, the harder you'll work for him in the bedroom.
-        - If he Flirts: Flirt back. hard. Be vividly graphic about what you want to do to him, and what you know he wants to do with you.
-        
-        CURRENT CONTEXT: {context}
-        
-        Keep responses short (like a text message). 1-3 sentences max.
+        INSTRUCTION:
+        - If he flirts or complains about work, flirt back. Be dirty.
+        - If he talks money, be strict.
         """
         prompt = system_instruction.format(context=context)
         
-        # We loosen the safety filters so she can be "Raunchy"
+        # Safety settings to try and allow more spice
         safety = [
             {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
             {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
             {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
             {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"}
         ]
+        
         try:
             response = self.model.generate_content(prompt, safety_settings=safety)
-            return response.text
+            if response.text:
+                return response.text
+            else:
+                # If AI returns empty (blocked), use manual flirt
+                return self.fallback.get_line("flirt")
         except: 
-            # Fallback if the AI gets confused or blocked
-            return "I'm waiting for you at home, hurry up and make that money."
+            # If AI crashes (blocked), use manual flirt
+            return self.fallback.get_line("flirt")
 
 # ==========================================
 #       PART 4: THE PRIZE WHEEL (YOUR PRIZES)
