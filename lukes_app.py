@@ -54,6 +54,7 @@ class DataManager:
 # ==========================================
 
 # BRAIN 1: GEMINI (For Financial Advice - Clean/Smart)
+# BRAIN 1: GEMINI (For Financial Advice - Clean/Smart)
 class GeminiBrain:
     def __init__(self, api_key):
         self.model = None
@@ -63,10 +64,29 @@ class GeminiBrain:
 
     def ask(self, context):
         if not self.model: return "⚠️ Connect Google Key in Sidebar."
+        
+        # 1. The Prompt
+        prompt = f"""
+        You are a tough, sarcastic, but loving financial advisor (who happens to be the user's wife).
+        User Input: "{context}"
+        Task: Answer the question. Is it a good financial move?
+        Keep it short. If it's a waste of money, say so.
+        """
+        
+        # 2. THE FIX: Force Safety Filters to "Low"
+        # This tells Google to stop blocking normal conversations
+        safety_settings = [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"},
+        ]
+
         try:
-            prompt = f"Role: Wife/Financial Manager. Goal: Save for house. Tone: Strict but loving. Context: {context}"
-            return self.model.generate_content(prompt).text
-        except: return "My brain hurts (Google blocked this)."
+            response = self.model.generate_content(prompt, safety_settings=safety_settings)
+            return response.text
+        except: 
+            return "Google is still blocking this. Try asking: 'Is a food box a waste of money?'"
 
 # BRAIN 2: HORDE (For Casino/Prizes - Explicit/Uncensored)
 class HordeBrain:
