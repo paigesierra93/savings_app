@@ -92,7 +92,6 @@ class RaunchyPersona:
         if mood == "payday": return random.choice(self.payday_celebration)
         return random.choice(self.casual_flirt)
 
-# 2. GOOGLE GEMINI (Updated for Smarter Advice)
 class GeminiBrain:
     def __init__(self, api_key):
         self.active = False
@@ -104,21 +103,33 @@ class GeminiBrain:
     def try_response(self, context, char_name, user_name, rel):
         if not self.active: return None 
         
-        # LOGIC: If it's a question, dial back the smut so Google doesn't block it.
-        if "?" in context:
-            tone = "Sarcastic, Intelligent, Financial, Flirty but safe."
+        # KEYWORD SCANNING
+        money_words = ["save", "spend", "cost", "bill", "afford", "buy", "price", "money", "worth it", "plan"]
+        is_financial = any(word in context.lower() for word in money_words)
+
+        if is_financial:
+            # MODE A: The Strict Financial Advisor (Safe for Google)
+            # She is sarcastic and strict, but NOT sexual. This prevents blocks.
+            tone = "Strict, Sarcastic, Financially Conservative. Call him 'Babe' but focus on the math."
+            task = "Give short, hard truth financial advice. No sex jokes."
         else:
-            tone = "Raunchy, Explicit, Nympho, Dirty."
+            # MODE B: The Raunchy Wife (Explicit)
+            # This is where we take the risk.
+            tone = "Raunchy, Explicit, Nympho, Dirty. Call him 'Daddy'."
+            task = "Be flirtatious and dirty. 1-2 sentences."
 
         prompt = f"""
         Role: {char_name} (Wife). User: {user_name} (Husband). Rel: {rel}.
         Tone: {tone}
         Context: {context}
-        Task: Reply in 1-2 sentences.
+        Task: {task}
         """
         try:
-            # We keep filters low, but the 'Tone' change above is the real fix
-            safety = [{"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"}]
+            # We relax safety settings, but the 'MODE A' prompt above is the real protection
+            safety = [
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"}
+            ]
             response = self.model.generate_content(prompt, safety_settings=safety)
             
             if response.text: return response.text
