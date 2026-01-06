@@ -334,33 +334,38 @@ apply_styling()
 if 'engine' not in st.session_state: st.session_state.engine = ExitPlanEngine()
 if "messages" not in st.session_state: st.session_state.messages = [{"role": "assistant", "content": "💋 **Systems Online.**"}]
 
-# SIDEBAR
+# SIDEBAR (DEBUG VERSION)
 with st.sidebar:
     st.title("Settings")
     
-    # 1. Check for Secrets first
+    # 1. KEY CHECK
+    gemini_key = None
     if "GOOGLE_API_KEY" in st.secrets:
-        st.success("🔒 API Key loaded from Secrets")
+        st.success("🔒 Key found in Secrets")
         gemini_key = st.secrets["GOOGLE_API_KEY"]
     else:
-        # If no secret found, ask manually
-        gemini_key = st.text_input("Google API Key (Optional)", type="password")
-        
-    # Initialize Gemini if key exists
-    if gemini_key: 
-        st.session_state.engine.gemini = GeminiBrain(gemini_key)
+        gemini_key = st.text_input("Google API Key", type="password")
     
+    # 2. STATUS INDICATOR
+    if gemini_key:
+        st.session_state.engine.gemini = GeminiBrain(gemini_key)
+        st.info("✅ Smart Brain: ONLINE")
+    else:
+        st.error("❌ Smart Brain: OFFLINE (No Key)")
+
     st.divider()
     
-    # Persona Settings
+    # 3. PERSONA
     cn = st.text_input("Her Name", value="Paige")
     un = st.text_input("Your Name", value="Luke")
     rel = st.text_input("Relation", value="Wife/Husband")
+    
     if st.button("Update Persona"):
         st.session_state.engine.char_name = cn
         st.session_state.engine.user_name = un
         st.session_state.engine.relation = rel
         st.success("Updated!")
+        
 # LAYOUT
 col1, col2 = st.columns([1, 1.5])
 
