@@ -65,7 +65,7 @@ class GeminiBrain:
             # --- THE FIX IS HERE ---
             # We switched from 'gemini-2.0-flash' (Paid/Restricted) 
             # to 'gemini-2.0-flash-exp' (Free/Experimental)
-            self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            self.model = genai.GenerativeModel('ggemini-1.5-flash')
 
     def ask(self, context):
         if not self.model: return "⚠️ Please enter a Google API Key in the sidebar."
