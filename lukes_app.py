@@ -53,40 +53,48 @@ class DataManager:
 #       PART 2: THE BRAINS
 # ==========================================
 
-# BRAIN 1: GEMINI (For Financial Advice - Clean/Smart)
-# BRAIN 1: GEMINI (For Financial Advice - Clean/Smart)
+# BRAIN 1: GEMINI (Financial Advisor)
 class GeminiBrain:
     def __init__(self, api_key):
+        self.api_key = api_key
         self.model = None
         if api_key:
+            # Configure specifically for this instance
             genai.configure(api_key=api_key)
             self.model = genai.GenerativeModel('gemini-1.5-flash')
 
     def ask(self, context):
-        if not self.model: return "⚠️ Connect Google Key in Sidebar."
+        if not self.model: return "⚠️ Please enter a Google API Key in the sidebar."
         
-        # 1. The Prompt
+        # 1. Clean Prompt (Let's try a very simple one first to rule out Safety blocks)
         prompt = f"""
-        You are a tough, sarcastic, but loving financial advisor (who happens to be the user's wife).
-        User Input: "{context}"
-        Task: Answer the question. Is it a good financial move?
-        Keep it short. If it's a waste of money, say so.
+        Act as a financial advisor.
+        User Question: "{context}"
+        Answer strictly regarding money and budget. Keep it short.
         """
         
-        # 2. THE FIX: Force Safety Filters to "Low"
-        # This tells Google to stop blocking normal conversations
-        safety_settings = [
-            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
-            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
-            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
-            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"},
-        ]
+        # 2. Safety Settings (The Correct Format)
+        from google.generativeai.types import HarmCategory, HarmBlockThreshold
+        
+        # We turn off the filters almost completely
+        safety_settings = {
+            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+        }
 
         try:
+            # We re-configure here just to be safe because Streamlit can be tricky
+            genai.configure(api_key=self.api_key)
+            
             response = self.model.generate_content(prompt, safety_settings=safety_settings)
             return response.text
-        except: 
-            return "Google is still blocking this. Try asking: 'Is a food box a waste of money?'"
+            
+        except Exception as e:
+            # THIS IS THE IMPORTANT PART:
+            # It will print the REAL error so we know what is wrong.
+            return f"❌ SYSTEM ERROR: {str(e)}"
 
 # BRAIN 2: HORDE (For Casino/Prizes - Explicit/Uncensored)
 class HordeBrain:
