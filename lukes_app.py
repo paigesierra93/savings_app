@@ -21,9 +21,6 @@ def apply_styling():
         }
         h1, h2, h3 { color: #FF4B4B !important; }
         .stButton button { width: 100%; border-radius: 5px; font-weight: bold; }
-        div[class*="stRadio"] > label > div[data-testid="stMarkdownContainer"] > p {
-            font-size: 1.2rem;
-        }
         </style>
         """, unsafe_allow_html=True)
 
@@ -67,15 +64,6 @@ class GeminiBrain:
             return self.model.generate_content(prompt).text
         except: return "My brain hurts (Google blocked this)."
 
-class HordeBrain:
-    def __init__(self):
-        self.api_key = "0000000000" # Anonymous Key
-
-    def react(self, text):
-        # We don't really need Horde for the hardcoded lines, 
-        # but we keep the structure just in case.
-        return text
-
 # ==========================================
 #       PART 3: THE ENGINE (LOGIC)
 # ==========================================
@@ -84,10 +72,12 @@ class ExitPlanEngine:
         self.gemini = GeminiBrain(gemini_key)
         self.db = DataManager()
         self.data = self.db.load_data()
-        
         self.char_name = "Paige"
 
-        # --- YOUR CUSTOM LISTS (HARDCODED) ---
+        # --- CONFIGURATION ---
+        self.daily_tax = 40.00 # How much of daily earnings goes to the "Tank" automatically
+
+        # --- TEXT LISTS ---
         self.manual_mean = [
             "Alert: Your chances of getting to fuck my mouth just dropped to None.",
             "Keep spending like that and the only thing you're banging is your toe on the furniture.",
@@ -95,9 +85,8 @@ class ExitPlanEngine:
             "and here I thought you actually wanted to fuck my ass, on a Sunday at 1:00pm.",
             "****EYE ROLL**** Well, I wanted to suck your dick."
         ]
-        
         self.manual_sexy = [
-            "Good boy, Do you want a sloppy blow job in the kitchen? I want to give it to you.",
+            "Good boy, Do you want a sloppy blow job in the kitchen?",
             "Good boy. You kept the money safe.",
             "That's hot. One more step closer to a giant bottle of Lube, and you and me.",
             "I think I just lost my panties. Oops.",
@@ -114,7 +103,6 @@ class ExitPlanEngine:
             "Good boy, one step closer to filling up all my holes at 1:00pm on a Sunday if you so felt like it.",
             "Daddy is being so good, I cant wait to be SO good for Daddy."
         ]
-        
         self.fail_prizes = [
             "I was really hoping to get my mouth fucked",
             "I was dying for you to fuck my ass",
@@ -127,14 +115,45 @@ class ExitPlanEngine:
     def process_finance(self, text):
         text = text.lower()
         match = re.search(r"[-+]?\d*\.\d+|\d+", text)
+        
+        # 1. COMMANDS (Buttons mimic these)
+        if "tank" in text:
+            if "move" in text: return self.move_tank()
+            if "pay" in text: return self.spend_tank()
+
+        # 2. MATH INPUTS
         if match:
             amt = float(match.group())
-            if any(w in text for w in ["check", "payday", "deposit"]): return self.payday(amt)
-            if "spent" in text: return self.spending(amt)
+            # "Dayforce" or "Shift" = Daily Earnings (Split Logic)
+            if any(w in text for w in ["dayforce", "shift", "daily", "earned"]): return self.shift_logic(amt)
+            # "Check" or "Payday" = Big Check (Pay Bills Logic)
+            if any(w in text for w in ["check", "payday", "deposit"]): return self.payday_logic(amt)
+            # "Spent" = Spending money
+            if "spent" in text: return self.spending_logic(amt)
+
+        # 3. CHAT
         return self.gemini.ask(text)
 
-    def payday(self, amt):
-        # Determine Tickets based on check size
+    # --- THE LOGIC FUNCTIONS ---
+    def shift_logic(self, amt):
+        # Logic: First $40 goes to Tank (Bills/House), Rest is Wallet (Safe)
+        hold = min(amt, self.daily_tax)
+        safe = max(0, amt - hold)
+        
+        self.data["daily_holding_tank"] += hold
+        self.data["allowance_balance"] += safe
+        self.db.save_data(self.data)
+        
+        return f"""
+        📊 **SHIFT LOGGED: ${amt}**
+        🔒 **To Tank:** ${hold:.2f} (For House/Bills)
+        😎 **To Wallet:** ${safe:.2f} (Safe to Spend)
+        
+        **Current Wallet:** ${self.data['allowance_balance']:.2f}
+        """
+
+    def payday_logic(self, amt):
+        # Logic: Determine Tickets & Text
         tickets_added = 0
         sexy_msg = ""
         
@@ -147,25 +166,49 @@ class ExitPlanEngine:
 
         self.data["ticket_balance"] += tickets_added
         
-        # Math for house fund
-        rem = amt - sum(self.data['bills'].values())
-        if rem > 0: self.data['move_out_fund'] += rem
+        # Math: Pay all bills first, remainder to House Fund
+        bill_total = sum(self.data['bills'].values())
+        remainder = amt - bill_total
+        
+        if remainder > 0:
+            self.data['move_out_fund'] += remainder
+            math_note = f"Bills Paid (${bill_total}). Remainder (${remainder:.2f}) moved to House Fund."
+        else:
+            # Short on bills? Take from tank/wallet? For now just log it.
+            math_note = f"Bills Paid (${bill_total}). You were short ${abs(remainder):.2f}."
+            
         self.db.save_data(self.data)
         
         return f"""
         💰 **PAYDAY: ${amt}**
         🎟️ **EARNED:** {tickets_added} Tickets
-        (Total Tickets: {self.data['ticket_balance']})
+        ({math_note})
         
         **{self.char_name}:**
         "{sexy_msg}"
         """
 
-    def spending(self, amt):
+    def spending_logic(self, amt):
         self.data["allowance_balance"] -= amt
         self.db.save_data(self.data)
         line = random.choice(self.manual_mean)
         return f"💸 **SPENT: ${amt}**\n\n**{self.char_name}:**\n{line}\n\n*Hopefully next paycheck I'll finally get my holes filled.*"
+
+    def move_tank(self):
+        # Moves money from Holding Tank -> House Fund (Saving success!)
+        amt = self.data['daily_holding_tank']
+        if amt <= 0: return "Tank is empty."
+        self.data['move_out_fund'] += amt
+        self.data['daily_holding_tank'] = 0.0
+        self.db.save_data(self.data)
+        return f"✅ **MOVED TO HOUSE:** ${amt:.2f}\n\n{random.choice(self.manual_sexy)}"
+
+    def spend_tank(self):
+        # Moves money from Tank -> Nowhere (Used for bills)
+        amt = self.data['daily_holding_tank']
+        self.data['daily_holding_tank'] = 0.0
+        self.db.save_data(self.data)
+        return f"💸 **TANK EMPTIED:** ${amt:.2f} used for bills."
 
     # --- CASINO PRIZE DICTIONARIES ---
     def get_bronze_prize(self):
@@ -192,7 +235,6 @@ class ExitPlanEngine:
         return k, prizes[k]
         
     def get_gold_prize(self):
-        # Returns the KEY only, because Gold prizes are complex and interactive
         keys = ["Upside Down BJ", "Blindfold BJ", "Anal Fuck", "All 3 Holes", "Road Head", "Slave Day"]
         return random.choice(keys)
 
@@ -218,55 +260,65 @@ with st.sidebar:
 # TABS
 tab_office, tab_casino = st.tabs(["💼 **THE OFFICE**", "🎰 **THE CASINO**"])
 
-# --- TAB 1: OFFICE ---
+# --- TAB 1: OFFICE (UPDATED WITH TANK LOGIC) ---
 with tab_office:
     col1, col2 = st.columns([1, 1.5])
     with col1:
         d = st.session_state.engine.db.load_data()
         st.metric("🏠 HOUSE FUND", f"${d['move_out_fund']:.2f}")
-        st.metric("😎 WALLET", f"${d['allowance_balance']:.2f}")
+        st.metric("😎 WALLET (Safe)", f"${d['allowance_balance']:.2f}")
+        st.info(f"🔒 TANK (Bills/Hold): ${d['daily_holding_tank']:.2f}")
+        
+        # ACTIONS
+        c1, c2 = st.columns(2)
+        if c1.button("Move Tank -> House"):
+            msg = st.session_state.engine.move_tank()
+            st.session_state.advisor_log.append({"role": "assistant", "content": msg})
+            st.rerun()
+        if c2.button("Spend Tank (Bills)"):
+            msg = st.session_state.engine.spend_tank()
+            st.session_state.advisor_log.append({"role": "assistant", "content": msg})
+            st.rerun()
+
     with col2:
         for m in st.session_state.advisor_log:
             with st.chat_message(m["role"]): st.markdown(m["content"])
-        if prompt := st.chat_input("Enter Check (e.g. 'Check 600') or Spending (e.g. 'Spent 20')..."):
+        if prompt := st.chat_input("Ex: 'Dayforce 200', 'Check 900', 'Spent 20'..."):
             st.session_state.advisor_log.append({"role": "user", "content": prompt})
             with st.chat_message("user"): st.markdown(prompt)
             resp = st.session_state.engine.process_finance(prompt)
             st.session_state.advisor_log.append({"role": "assistant", "content": resp})
             st.rerun()
 
-# --- TAB 2: CASINO ---
+# --- TAB 2: CASINO (INTERACTIVE) ---
 with tab_casino:
     d = st.session_state.engine.db.load_data()
     st.metric("🎟️ TICKETS", f"{d['ticket_balance']}")
     
-    # 1. IDLE STATE (CHOOSE WHEEL)
+    # 1. IDLE STATE
     if st.session_state.casino_stage == "IDLE":
         st.subheader("Choose Your Wheel")
         c1, c2, c3 = st.columns(3)
         
-        # BRONZE
         if c1.button("🥉 BRONZE (25 Tix)"):
             if d["ticket_balance"] >= 25:
                 st.session_state.casino_stage = "CONFIRM_BRONZE"
                 st.rerun()
             else: st.error("Not enough tickets!")
 
-        # SILVER
         if c2.button("🥈 SILVER (50 Tix)"):
             if d["ticket_balance"] >= 50:
                 st.session_state.casino_stage = "CONFIRM_SILVER"
                 st.rerun()
             else: st.error("Not enough tickets!")
 
-        # GOLD
         if c3.button("👑 GOLD (100 Tix)"):
             if d["ticket_balance"] >= 100:
                 st.session_state.casino_stage = "CONFIRM_GOLD"
                 st.rerun()
             else: st.error("Not enough tickets!")
 
-    # 2. CONFIRMATION STATES (Are you sure?)
+    # 2. CONFIRMATION STATES
     elif st.session_state.casino_stage == "CONFIRM_BRONZE":
         st.warning("You have chosen the **BRONZE TIER**. Are you sure?")
         c1, c2 = st.columns(2)
@@ -312,7 +364,7 @@ with tab_casino:
             st.info(random.choice(st.session_state.engine.fail_prizes))
             st.rerun()
 
-    # 3. RESULT STATES (SIMPLE PRIZES)
+    # 3. RESULT STATES
     elif st.session_state.casino_stage == "RESULT_SIMPLE":
         st.success(f"🏆 YOU WON: {st.session_state.current_prize['name']}")
         st.markdown(f"**Paige:** {st.session_state.current_prize['desc']}")
@@ -320,69 +372,51 @@ with tab_casino:
             st.session_state.casino_stage = "IDLE"
             st.rerun()
 
-    # 4. RESULT STATES (GOLD INTERACTIVE - COMPLEX)
     elif st.session_state.casino_stage == "RESULT_GOLD_INTERACTIVE":
         prize = st.session_state.current_prize['name']
         st.success(f"👑 JACKPOT: {prize}")
         
-        # --- SPECIFIC LOGIC FOR EACH GOLD PRIZE ---
         if prize == "Upside Down BJ":
-            st.write("Me upside down taking your dick down my throat, while i gag... Only question is: Today or Save it?")
+            st.write("Me upside down taking your dick down my throat... Today or Save it?")
             c1, c2 = st.columns(2)
             if c1.button("Today/Now"):
-                st.info("**Paige:** ok, ill be waitng mouth open for your dick when you walk to the door. Dont forget to lock it behind you. See you soon.")
-                if st.button("Done"): 
-                    st.session_state.casino_stage = "IDLE"
-                    st.rerun()
+                st.info("**Paige:** ok, ill be waitng mouth open for your dick when you walk to the door.")
+                if st.button("Done"): st.session_state.casino_stage = "IDLE"; st.rerun()
             if c2.button("Save/Later"):
                 st.info("**Paige:** ok, you just let me know when your ready for it.")
-                if st.button("Done"): 
-                    st.session_state.casino_stage = "IDLE"
-                    st.rerun()
+                if st.button("Done"): st.session_state.casino_stage = "IDLE"; st.rerun()
 
         elif prize == "Blindfold BJ":
             st.write("Intense blindfold BJ. Who gets the blindfold?")
             c1, c2 = st.columns(2)
             if c1.button("Me (User)"):
-                st.info("**Paige:** Ok get ready be blindfolded when you come home. And have me suck you dick till you cum spilling out of my mouth.")
-                if st.button("Done"): 
-                    st.session_state.casino_stage = "IDLE"
-                    st.rerun()
+                st.info("**Paige:** Ok get ready be blindfolded when you come home.")
+                if st.button("Done"): st.session_state.casino_stage = "IDLE"; st.rerun()
             if c2.button("You (Paige)"):
-                st.info("**Paige:** Ok ill be on my knees blindfolded when you walk in. All you have to do is stick your dick in my mouth and fuck it. Ok? Dont hold back.")
-                if st.button("Done"): 
-                    st.session_state.casino_stage = "IDLE"
-                    st.rerun()
+                st.info("**Paige:** Ok ill be on my knees blindfolded when you walk in.")
+                if st.button("Done"): st.session_state.casino_stage = "IDLE"; st.rerun()
 
         elif prize == "Anal Fuck":
             st.write("**Paige:** Fuck my ass until you fill it up, twice.")
             if st.button("Claim"):
-                st.info("**Paige:** Let me know if i should put that plug in now, so its ready for you to slide in when you get home.")
-                if st.button("Done"): 
-                    st.session_state.casino_stage = "IDLE"
-                    st.rerun()
+                st.info("**Paige:** Let me know if i should put that plug in now.")
+                if st.button("Done"): st.session_state.casino_stage = "IDLE"; st.rerun()
 
         elif prize == "All 3 Holes":
-            st.write("Dick in my mouth, fingers in my ass, vibrator in my pussy. For 20 minutes. Tonight or Later?")
+            st.write("Dick in my mouth, fingers in my ass, vibrator in my pussy. Tonight or Later?")
             c1, c2 = st.columns(2)
             if c1.button("Tonight"):
-                st.info("**Paige:** Ok. Ill have a plug in when you get home, you can decide from there how youll spend the next 20 minutes.")
-                if st.button("Done"): 
-                    st.session_state.casino_stage = "IDLE"
-                    st.rerun()
+                st.info("**Paige:** Ok. Ill have a plug in when you get home.")
+                if st.button("Done"): st.session_state.casino_stage = "IDLE"; st.rerun()
             if c2.button("Later"):
-                st.info("**Paige:** Ok, you just let me know when you want to see me sucking on your dick while you finger my asss, and my pussy is vibrating. Ill be ready.")
-                if st.button("Done"): 
-                    st.session_state.casino_stage = "IDLE"
-                    st.rerun()
+                st.info("**Paige:** Ok, you just let me know when you want it.")
+                if st.button("Done"): st.session_state.casino_stage = "IDLE"; st.rerun()
 
         elif prize == "Road Head":
-            st.write("**Paige:** Lucky you, youve won road head. For 3 songs lll tease, and lick and suck your dick while you dirve.")
+            st.write("**Paige:** Lucky you, youve won road head. For 3 songs.")
             if st.button("Claim"):
-                st.info("**Paige:** Dont forget to push my head down further if we get stuck at a light. All the way down so no one sees me.")
-                if st.button("Done"): 
-                    st.session_state.casino_stage = "IDLE"
-                    st.rerun()
+                st.info("**Paige:** Dont forget to push my head down further if we get stuck at a light.")
+                if st.button("Done"): st.session_state.casino_stage = "IDLE"; st.rerun()
 
         elif prize == "Slave Day":
             st.markdown("""
@@ -391,7 +425,6 @@ with tab_casino:
             * Fuck me in the shower.
             * Suck your dick while you race on your phone.
             * Waiting on my knees every time you walk into the bedroom.
-            * Think of me as your sex doll, no complaints.
             """)
             if st.button("Claim"):
                 st.session_state.casino_stage = "IDLE"
