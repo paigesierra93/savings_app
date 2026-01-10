@@ -256,7 +256,7 @@ elif st.session_state.turn_state == "DESCRIBED":
     # 2. Use Now
     if cols[1].button("Use Now"):
         add_chat("user", "Let's do this.")
-        add_chat("assistant", "Finally. Come here.", delay=True)
+        add_chat("assistant", "but remember, no touching, or MASSAGE OVER.", delay=True)
         st.session_state.turn_state = "IDLE"
         st.rerun()
 
@@ -266,3 +266,4 @@ elif st.session_state.turn_state == "DESCRIBED":
         add_chat("assistant", "Logged.", delay=True)
         st.session_state.turn_state = "IDLE"
         st.rerun()
+
