@@ -5,7 +5,6 @@ import random
 import time
 import base64
 import requests
-import google.generativeai as genai
 import streamlit as st
 from datetime import datetime
 from PIL import Image
@@ -24,6 +23,8 @@ def apply_styling():
         }
         h1, h2, h3 { color: #FF4B4B !important; }
         .stButton button { width: 100%; border-radius: 5px; font-weight: bold; }
+        /* Chat bubbles */
+        .stChatMessage { background-color: #1E1E1E; border-radius: 10px; border: 1px solid #333; }
         </style>
         """, unsafe_allow_html=True)
 
@@ -106,72 +107,115 @@ class CharacterImporter:
         }
 
 # ==========================================
-#       PART 3: THE BRAINS
+#       PART 3: THE UNCENSORED BRAIN (HORDE)
 # ==========================================
-class GeminiBrain:
-    def __init__(self, api_key):
-        self.model = None
-        if api_key:
-            genai.configure(api_key=api_key)
-            self.model = genai.GenerativeModel('gemini-1.5-flash')
+class HordeBrain:
+    def __init__(self, api_key="0000000000"):
+        self.api_key = api_key if api_key else "0000000000"
+        self.api_url = "https://stablehorde.net/api/v2/generate/text/async"
+        self.status_url = "https://stablehorde.net/api/v2/generate/text/status"
+        self.headers = {"apikey": self.api_key, "Client-Agent": "ExitPlanApp:v1.0:Anon"}
 
     def ask(self, context, persona, chat_history):
-        if not self.model: return "⚠️ Connect Google Key."
+        # 1. Format the prompt specifically for uncensored models
+        history_text = ""
+        for m in chat_history[-6:]:
+            role = persona['name'] if m['role'] == "assistant" else "User"
+            history_text += f"{role}: {m['content']}\n"
+
+        full_prompt = f"""
+        Below is a roleplay conversation.
+        Character: {persona['name']}
+        Personality: {persona['personality']}
+        Scenario: {persona['scenario']}
+        
+        {history_text}
+        User: {context}
+        {persona['name']}:"""
+
+        # 2. Send Request to Horde
+        payload = {
+            "prompt": full_prompt,
+            "params": {
+                "n": 1,
+                "max_context_length": 2048,
+                "max_length": 150,
+                "rep_pen": 1.1,
+                "temperature": 0.8,
+                "top_p": 0.9
+            },
+            "models": ["Fimbulvetr 11B v2", "lzlv_70b_fp16_hf", "Toppy M 7B"], # Good uncensored models
+            "workers": []
+        }
+
         try:
-            # We convert the chat history list into a string so the AI remembers context
-            history_text = "\n".join([f"{m['role']}: {m['content']}" for m in chat_history[-5:]])
+            # Step A: Submit Job
+            req = requests.post(self.api_url, json=payload, headers=self.headers)
+            if req.status_code != 202:
+                return f"Horde Error: {req.text}"
             
-            prompt = f"""
-            Roleplay as: {persona['name']}
-            Personality & Rules: {persona['personality']}
-            Examples: {persona['examples']}
+            job_id = req.json()['id']
             
-            RECENT CHAT HISTORY:
-            {history_text}
+            # Step B: Poll for results (Wait up to 60s)
+            start_time = time.time()
+            while time.time() - start_time < 60:
+                time.sleep(2) # Wait 2 seconds between checks
+                stat = requests.get(f"{self.status_url}/{job_id}", headers=self.headers)
+                if stat.status_code == 200:
+                    res = stat.json()
+                    if res['done']:
+                        return res['generations'][0]['text']
             
-            Current User Input: {context}
-            Task: Reply strictly in character. Keep it short (text message style).
-            """
-            return self.model.generate_content(prompt).text
-        except: return "My brain hurts (Google blocked this)."
+            return "⚠️ Horde Timed Out (Too many people generating right now)."
+            
+        except Exception as e:
+            return f"⚠️ Connection Error: {e}"
 
 # ==========================================
 #       PART 4: THE ENGINE
 # ==========================================
 class ExitPlanEngine:
-    def __init__(self, gemini_key=None):
-        self.gemini = GeminiBrain(gemini_key)
+    def __init__(self, api_key=None):
+        # SWAPPED GEMINI FOR HORDE
+        self.brain = HordeBrain(api_key)
         self.db = DataManager()
         self.importer = CharacterImporter()
         self.data = self.db.load_data()
         
+        # --- HARDCODED PAIGE ---
+        default_desc = """
+        Name: Paige. Role: Wife / Financial Controller.
+        Personality: Strict, Sarcastic, Hyper-sexual when money is saved.
+        """
+        default_rules = """
+        [SYSTEM RULES]
+        **CASINO RULES:**
+        - Gold Tier Prizes (Anal, Slave Day, All 3 Holes) must be described explicitly.
+        - Paige loves "All 3 Holes" (Mouth, Pussy, Ass) and will describe the prep vividly.
+        """
         self.persona = {
             "name": "Paige",
-            "personality": "Strict Financial Wife. Sarcastic.",
+            "personality": f"{default_desc}\n{default_rules}",
             "scenario": "Reviewing finances.",
-            "greeting": "Wallet check. Did you make us money today?",
+            "greeting": "Systems Online. Wallet check.",
             "examples": ""
         }
         self.daily_tax = 40.00 
         self.manual_mean = ["Alert: Chances of sex dropped to 0.", "****EYE ROLL****"]
-        self.manual_sexy = ["Good boy.", "That's hot.", "Daddy's making moves!"]
 
     # --- FINANCE LOGIC ---
     def process_finance(self, text):
         text = text.lower()
         match = re.search(r"[-+]?\d*\.\d+|\d+", text)
-        
         if "tank" in text:
             if "move" in text: return self.move_tank()
             if "pay" in text: return self.spend_tank()
-
         if match:
             amt = float(match.group())
             if any(w in text for w in ["dayforce", "shift", "daily"]): return self.shift_logic(amt)
             if any(w in text for w in ["check", "payday"]): return self.payday_logic(amt)
             if "spent" in text: return self.spending_logic(amt)
-
-        return None # Return None if it's not a math command (let Chat handle it)
+        return None 
 
     def shift_logic(self, amt):
         hold = min(amt, self.daily_tax)
@@ -187,7 +231,6 @@ class ExitPlanEngine:
         bill_total = sum(self.data['bills'].values())
         rem = amt - bill_total
         if rem > 0: self.data['move_out_fund'] += rem
-        
         self.db.log_event(self.data, "PAYDAY", f"Check ${amt}", f"+{tickets} Tix")
         return f"💰 **PAYDAY:** ${amt}\n🎟️ **EARNED:** {tickets} Tix\n(Bills paid, remainder to House)"
 
@@ -209,17 +252,15 @@ class ExitPlanEngine:
         self.db.log_event(self.data, "BILL", "Tank Used", f"-${amt}")
         return f"💸 **TANK EMPTIED:** ${amt:.2f}"
 
-    # --- CASINO PRIZES ---
+    # --- PRIZES ---
     def get_bronze_prize(self):
-        prizes = {"Bend Over": "I'll bend over for you.", "Flash": "I'll flash you right now.", "Dick Rub": "Rubbing you while you drive."}
+        prizes = {"Bend Over": "Look no touch.", "Flash": "Quick flash.", "Dick Rub": "Rub while driving."}
         k = random.choice(list(prizes.keys()))
         return k, prizes[k]
-
     def get_silver_prize(self):
-        prizes = {"Massage": "10 min massage.", "Shower Show": "Watch me shower.", "Toy Pic": "Dirty pic with a toy.", "Lick Pussy": "I straddle your face, you lick."}
+        prizes = {"Massage": "Shirtless backrub.", "Shower Show": "Watch me shower.", "Toy Pic": "Pic with toy.", "Lick Pussy": "Oral until I cum."}
         k = random.choice(list(prizes.keys()))
         return k, prizes[k]
-        
     def get_gold_prize(self):
         return random.choice(["Upside Down BJ", "Blindfold BJ", "Anal Fuck", "All 3 Holes", "Road Head", "Slave Day"])
 
@@ -231,18 +272,17 @@ apply_styling()
 
 if 'engine' not in st.session_state: st.session_state.engine = ExitPlanEngine()
 if "advisor_log" not in st.session_state: st.session_state.advisor_log = [{"role": "assistant", "content": st.session_state.engine.persona['greeting']}]
-
 if "casino_stage" not in st.session_state: st.session_state.casino_stage = "IDLE" 
 if "current_prize" not in st.session_state: st.session_state.current_prize = None
 
 # SIDEBAR
 with st.sidebar:
     st.title("Settings")
-    gemini_key = st.text_input("Google API Key", type="password")
-    if gemini_key: st.session_state.engine.gemini = GeminiBrain(gemini_key)
+    # NOW ASKING FOR HORDE KEY (Optional)
+    horde_key = st.text_input("Horde API Key (Optional)", type="password", help="Leave blank for Anonymous (Slower)")
+    if horde_key: st.session_state.engine.brain.api_key = horde_key
     
     st.divider()
-    st.subheader("📂 Import Character")
     uploaded_file = st.file_uploader("Drop PNG/JSON", type=["png", "json"])
     if uploaded_file:
         p = st.session_state.engine.importer.parse_card(uploaded_file)
@@ -251,12 +291,11 @@ with st.sidebar:
             if st.button("Activate New Character"):
                 st.session_state.advisor_log = [{"role": "assistant", "content": f"**{p['name']}:** {p['greeting']}"}]
                 st.rerun()
-
     st.divider()
     st.subheader("📜 Ledger")
     history = st.session_state.engine.data.get("history", [])
     if history:
-        for h in reversed(history[-10:]): 
+        for h in reversed(history[-5:]): 
             st.text(f"{h['time']} | {h['type']}\n{h['desc']} ({h['val']})")
             st.markdown("---")
 
@@ -271,7 +310,6 @@ with tab_office:
         st.metric("🏠 HOUSE FUND", f"${d['move_out_fund']:.2f}")
         st.metric("😎 WALLET", f"${d['allowance_balance']:.2f}")
         st.info(f"🔒 TANK: ${d['daily_holding_tank']:.2f}")
-        
         c1, c2 = st.columns(2)
         if c1.button("Move Tank -> House"):
             msg = st.session_state.engine.move_tank()
@@ -283,21 +321,14 @@ with tab_office:
             st.rerun()
 
     with col2:
-        # Chat History Display
         for m in st.session_state.advisor_log:
             with st.chat_message(m["role"]): st.markdown(m["content"])
-            
-        # Chat Input (OFFICE)
         if prompt := st.chat_input("Ex: 'Dayforce 200' or Chat...", key="office_chat"):
             st.session_state.advisor_log.append({"role": "user", "content": prompt})
-            
-            # 1. Try Finance Command
             resp = st.session_state.engine.process_finance(prompt)
-            
-            # 2. If not finance, ask Brain
             if not resp:
-                resp = st.session_state.engine.gemini.ask(prompt, st.session_state.engine.persona, st.session_state.advisor_log)
-            
+                with st.spinner("Paige is thinking... (Horde can be slow)"):
+                    resp = st.session_state.engine.brain.ask(prompt, st.session_state.engine.persona, st.session_state.advisor_log)
             st.session_state.advisor_log.append({"role": "assistant", "content": resp})
             st.rerun()
 
@@ -306,7 +337,6 @@ with tab_casino:
     d = st.session_state.engine.db.load_data()
     st.metric("🎟️ TICKETS", f"{d['ticket_balance']}")
     
-    # 1. WHEEL SELECTION
     if st.session_state.casino_stage == "IDLE":
         c1, c2, c3 = st.columns(3)
         if c1.button("🥉 BRONZE (25)"): 
@@ -319,14 +349,12 @@ with tab_casino:
             st.session_state.casino_stage = "CONFIRM_GOLD" if d["ticket_balance"] >= 100 else st.session_state.casino_stage
             st.rerun()
 
-    # 2. SPIN & WIN LOGIC
     elif "CONFIRM" in st.session_state.casino_stage:
         st.warning(f"Spin {st.session_state.casino_stage.split('_')[1]} Wheel?")
         if st.button("SPIN IT!"):
             cost = 100 if "GOLD" in st.session_state.casino_stage else 50 if "SILVER" in st.session_state.casino_stage else 25
             st.session_state.engine.data["ticket_balance"] -= cost
             
-            # Determine Prize
             if cost == 100:
                 pname = st.session_state.engine.get_gold_prize()
                 st.session_state.current_prize = {"name": pname}
@@ -340,18 +368,13 @@ with tab_casino:
                 st.session_state.current_prize = {"name": name, "desc": desc}
                 st.session_state.casino_stage = "RESULT_SIMPLE"
             
-            # LOG TO LEDGER AND CHAT HISTORY (So AI knows context)
             st.session_state.engine.db.log_event(st.session_state.engine.data, "CASINO", f"Won {st.session_state.current_prize['name']}", f"-{cost} Tix")
-            
             win_msg = f"🎰 **CASINO WINNER:** {st.session_state.current_prize['name']}\n(Cost: {cost} tickets)"
             st.session_state.advisor_log.append({"role": "assistant", "content": win_msg})
             st.rerun()
             
-        if st.button("Cancel"):
-            st.session_state.casino_stage = "IDLE"
-            st.rerun()
+        if st.button("Cancel"): st.session_state.casino_stage = "IDLE"; st.rerun()
 
-    # 3. SHOW PRIZE RESULTS
     elif st.session_state.casino_stage == "RESULT_SIMPLE":
         st.success(f"🏆 {st.session_state.current_prize['name']}")
         st.markdown(st.session_state.current_prize['desc'])
@@ -361,7 +384,6 @@ with tab_casino:
         prize = st.session_state.current_prize['name']
         st.success(f"👑 JACKPOT: {prize}")
         
-        # Hardcoded Interactive Logic
         if prize == "Upside Down BJ":
             st.write("Me upside down taking your dick down my throat... Today or Save it?")
             c1, c2 = st.columns(2)
@@ -395,20 +417,14 @@ with tab_casino:
 
         if st.button("Close"): st.session_state.casino_stage = "IDLE"; st.rerun()
 
-    # --- CASINO CHAT INTERFACE (NEW) ---
     st.divider()
     st.subheader("💬 Chat with Paige about your Prize")
-    
-    # Show Chat Log
-    for m in st.session_state.advisor_log[-3:]: # Show last 3 messages for context
+    for m in st.session_state.advisor_log[-3:]: 
         with st.chat_message(m["role"]): st.markdown(m["content"])
 
-    # Chat Input (CASINO)
     if prompt := st.chat_input("Ex: 'Tell me more about Slave Day'", key="casino_chat"):
         st.session_state.advisor_log.append({"role": "user", "content": prompt})
-        
-        # Send directly to Brain (No finance logic needed here)
-        resp = st.session_state.engine.gemini.ask(prompt, st.session_state.engine.persona, st.session_state.advisor_log)
-        
+        with st.spinner("Paige is thinking... (Horde can be slow)"):
+            resp = st.session_state.engine.brain.ask(prompt, st.session_state.engine.persona, st.session_state.advisor_log)
         st.session_state.advisor_log.append({"role": "assistant", "content": resp})
         st.rerun()
