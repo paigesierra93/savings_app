@@ -105,7 +105,7 @@ class CharacterImporter:
         }
 
 # ==========================================
-#       PART 3: THE BRAINS (HYBRID)
+#       PART 3: THE BRAINS (HORDE + CHUB)
 # ==========================================
 class HordeBrain:
     def __init__(self, api_key="0000000000"):
@@ -155,25 +155,48 @@ class HordeBrain:
 
 class UniversalBrain:
     def __init__(self, base_url, api_key, model_name="gpt-3.5-turbo"):
-        self.base_url = base_url.rstrip('/') + "/chat/completions"
         self.api_key = api_key
         self.model = model_name
+        
+        # SMART URL HANDLING
+        # If the user pasted a full URL ending in /v1 or /chat/completions, trust them.
+        # Otherwise, assume it's a base and append standard endpoints.
+        if "chat/completions" in base_url:
+            self.final_url = base_url
+        else:
+            self.final_url = base_url.rstrip('/') + "/chat/completions"
 
     def ask(self, context, persona, chat_history):
+        # 1. Prepare Messages
         messages = [{"role": "system", "content": f"Roleplay as {persona['name']}. {persona['personality']}"}]
         for m in chat_history[-6:]:
             role = "assistant" if m['role'] == "assistant" else "user"
             messages.append({"role": role, "content": m['content']})
         messages.append({"role": "user", "content": context})
 
-        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
-        payload = {"model": self.model, "messages": messages, "temperature": 0.8, "max_tokens": 150}
+        # 2. Prepare Request
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": 0.8,
+            "max_tokens": 150
+        }
 
+        # 3. Send
         try:
-            r = requests.post(self.base_url, json=payload, headers=headers, timeout=30)
-            if r.status_code == 200: return r.json()['choices'][0]['message']['content']
-            return f"⚠️ API Error ({r.status_code}): {r.text}"
-        except Exception as e: return f"⚠️ Connection Error: {e}"
+            r = requests.post(self.final_url, json=payload, headers=headers, timeout=30)
+            if r.status_code == 200:
+                return r.json()['choices'][0]['message']['content']
+            elif r.status_code == 401 or r.status_code == 403:
+                return "⛔ Access Denied (401/403). Your API Key might be invalid or requires a paid subscription."
+            else:
+                return f"⚠️ API Error ({r.status_code}): {r.text}"
+        except Exception as e:
+            return f"⚠️ Connection Error: {e}"
 
 # ==========================================
 #       PART 4: THE ENGINE
@@ -183,12 +206,11 @@ class ExitPlanEngine:
         self.db = DataManager()
         self.importer = CharacterImporter()
         self.data = self.db.load_data()
-        self.brain = None # Set in UI
+        self.brain = None 
         
-        # DEFAULT PAIGE
         self.persona = {
             "name": "Paige",
-            "personality": "Strict Financial Wife. Sarcastic. High Libido for savers.",
+            "personality": "Strict Financial Wife. Sarcastic.",
             "scenario": "Reviewing finances.",
             "greeting": "Systems Online. Wallet check.",
             "examples": ""
@@ -272,7 +294,7 @@ with st.sidebar:
     st.title("Settings")
     
     st.subheader("🧠 Select Brain")
-    brain_mode = st.radio("Mode:", ["🚀 Horde (Free)", "💎 Universal (Paid)"])
+    brain_mode = st.radio("Mode:", ["🚀 Horde (Free)", "💎 Universal (Paid/Chub)"])
     
     if brain_mode == "🚀 Horde (Free)":
         h_key = st.text_input("Horde Key (Optional)", type="password")
@@ -280,12 +302,13 @@ with st.sidebar:
         st.caption("Slow but free. No setup needed.")
         
     else: # Universal
-        base_url = st.text_input("API URL", value="https://api.chub.ai/v1")
+        st.info("Paste the FULL Proxy URL from Chub here.")
+        base_url = st.text_input("API URL", value="https://api.chub.ai/v1/chat/completions")
         api_key = st.text_input("API Key", type="password")
         if base_url and api_key:
             st.session_state.engine.brain = UniversalBrain(base_url, api_key)
         else:
-            st.warning("Enter Key")
+            st.warning("Enter URL and Key")
             st.session_state.engine.brain = None
 
     st.divider()
@@ -382,6 +405,7 @@ with tab_casino:
             win_msg = f"🎰 **CASINO WINNER:** {st.session_state.current_prize['name']}\n(Cost: {cost} tickets)"
             st.session_state.advisor_log.append({"role": "assistant", "content": win_msg})
             st.rerun()
+            
         if st.button("Cancel"): st.session_state.casino_stage = "IDLE"; st.rerun()
 
     elif st.session_state.casino_stage == "RESULT_SIMPLE":
