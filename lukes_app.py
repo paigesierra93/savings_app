@@ -96,7 +96,6 @@ class CharacterImporter:
         {d.get("system_prompt", "")}
         {d.get("creator_notes", "")}
         """
-
         return {
             "name": d.get("name", "Unknown"),
             "personality": full_personality,
@@ -106,8 +105,54 @@ class CharacterImporter:
         }
 
 # ==========================================
-#       PART 3: THE UNIVERSAL BRAIN (Chub/OpenAI)
+#       PART 3: THE BRAINS (HYBRID)
 # ==========================================
+class HordeBrain:
+    def __init__(self, api_key="0000000000"):
+        self.api_key = api_key if api_key else "0000000000"
+        self.api_url = "https://stablehorde.net/api/v2/generate/text/async"
+        self.status_url = "https://stablehorde.net/api/v2/generate/text/status"
+        self.headers = {"apikey": self.api_key, "Client-Agent": "ExitPlanApp:v1.0:Anon"}
+
+    def ask(self, context, persona, chat_history):
+        history_text = ""
+        for m in chat_history[-6:]:
+            role = persona['name'] if m['role'] == "assistant" else "User"
+            history_text += f"{role}: {m['content']}\n"
+
+        full_prompt = f"""
+        Below is a roleplay conversation.
+        Character: {persona['name']}
+        Personality: {persona['personality']}
+        Scenario: {persona['scenario']}
+        
+        {history_text}
+        User: {context}
+        {persona['name']}:"""
+
+        payload = {
+            "prompt": full_prompt,
+            "params": {
+                "n": 1, "max_context_length": 2048, "max_length": 150,
+                "rep_pen": 1.1, "temperature": 0.8, "top_p": 0.9
+            },
+            "models": ["Fimbulvetr 11B v2", "lzlv_70b_fp16_hf", "Toppy M 7B"],
+            "workers": []
+        }
+        try:
+            req = requests.post(self.api_url, json=payload, headers=self.headers)
+            if req.status_code != 202: return f"Horde Error: {req.text}"
+            job_id = req.json()['id']
+            start_time = time.time()
+            while time.time() - start_time < 60:
+                time.sleep(2)
+                stat = requests.get(f"{self.status_url}/{job_id}", headers=self.headers)
+                if stat.status_code == 200:
+                    res = stat.json()
+                    if res['done']: return res['generations'][0]['text']
+            return "⚠️ Horde Timed Out."
+        except Exception as e: return f"⚠️ Connection Error: {e}"
+
 class UniversalBrain:
     def __init__(self, base_url, api_key, model_name="gpt-3.5-turbo"):
         self.base_url = base_url.rstrip('/') + "/chat/completions"
@@ -115,53 +160,20 @@ class UniversalBrain:
         self.model = model_name
 
     def ask(self, context, persona, chat_history):
-        if not self.api_key or not self.base_url:
-            return "⚠️ Setup Missing: Please enter URL and API Key in the Sidebar."
-
-        # 1. Build the Message History in OpenAI Format
-        messages = []
-        
-        # System Prompt (The Rules)
-        system_msg = f"""
-        Roleplay as: {persona['name']}
-        Personality: {persona['personality']}
-        Scenario: {persona['scenario']}
-        Examples: {persona['examples']}
-        Reply strictly in character. Keep it short (text message style).
-        """
-        messages.append({"role": "system", "content": system_msg})
-
-        # Chat History
+        messages = [{"role": "system", "content": f"Roleplay as {persona['name']}. {persona['personality']}"}]
         for m in chat_history[-6:]:
             role = "assistant" if m['role'] == "assistant" else "user"
             messages.append({"role": role, "content": m['content']})
-
-        # Current Input
         messages.append({"role": "user", "content": context})
 
-        # 2. Send Request
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
-        
-        # Some providers (like Chub) need 'HTTP_REFERER' or extra headers
-        # We stick to standard OpenAI format which Chub supports
-        payload = {
-            "model": self.model,
-            "messages": messages,
-            "temperature": 0.8,
-            "max_tokens": 150
-        }
+        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+        payload = {"model": self.model, "messages": messages, "temperature": 0.8, "max_tokens": 150}
 
         try:
             r = requests.post(self.base_url, json=payload, headers=headers, timeout=30)
-            if r.status_code == 200:
-                return r.json()['choices'][0]['message']['content']
-            else:
-                return f"⚠️ API Error ({r.status_code}): {r.text}"
-        except Exception as e:
-            return f"⚠️ Connection Error: {e}"
+            if r.status_code == 200: return r.json()['choices'][0]['message']['content']
+            return f"⚠️ API Error ({r.status_code}): {r.text}"
+        except Exception as e: return f"⚠️ Connection Error: {e}"
 
 # ==========================================
 #       PART 4: THE ENGINE
@@ -171,16 +183,12 @@ class ExitPlanEngine:
         self.db = DataManager()
         self.importer = CharacterImporter()
         self.data = self.db.load_data()
+        self.brain = None # Set in UI
         
-        # Placeholder for Brain (Will be init in UI)
-        self.brain = None
-        
-        # --- HARDCODED PAIGE ---
-        default_desc = "Name: Paige. Role: Wife / Financial Controller. Strict, Sarcastic."
-        default_rules = "[SYSTEM RULES] CASINO PRIZES: Gold Tier (Anal, Slave Day) must be described explicitly."
+        # DEFAULT PAIGE
         self.persona = {
             "name": "Paige",
-            "personality": f"{default_desc}\n{default_rules}",
+            "personality": "Strict Financial Wife. Sarcastic. High Libido for savers.",
             "scenario": "Reviewing finances.",
             "greeting": "Systems Online. Wallet check.",
             "examples": ""
@@ -188,7 +196,6 @@ class ExitPlanEngine:
         self.daily_tax = 40.00 
         self.manual_mean = ["Alert: Chances of sex dropped to 0.", "****EYE ROLL****"]
 
-    # --- FINANCE LOGIC ---
     def process_finance(self, text):
         text = text.lower()
         match = re.search(r"[-+]?\d*\.\d+|\d+", text)
@@ -217,7 +224,7 @@ class ExitPlanEngine:
         rem = amt - bill_total
         if rem > 0: self.data['move_out_fund'] += rem
         self.db.log_event(self.data, "PAYDAY", f"Check ${amt}", f"+{tickets} Tix")
-        return f"💰 **PAYDAY:** ${amt}\n🎟️ **EARNED:** {tickets} Tix\n(Bills paid, remainder to House)"
+        return f"💰 **PAYDAY:** ${amt}\n🎟️ **EARNED:** {tickets} Tix"
 
     def spending_logic(self, amt):
         self.data["allowance_balance"] -= amt
@@ -237,7 +244,7 @@ class ExitPlanEngine:
         self.db.log_event(self.data, "BILL", "Tank Used", f"-${amt}")
         return f"💸 **TANK EMPTIED:** ${amt:.2f}"
 
-    # --- PRIZES ---
+    # PRIZES
     def get_bronze_prize(self):
         prizes = {"Bend Over": "Look no touch.", "Flash": "Quick flash.", "Dick Rub": "Rub while driving."}
         k = random.choice(list(prizes.keys()))
@@ -260,28 +267,29 @@ if "advisor_log" not in st.session_state: st.session_state.advisor_log = [{"role
 if "casino_stage" not in st.session_state: st.session_state.casino_stage = "IDLE" 
 if "current_prize" not in st.session_state: st.session_state.current_prize = None
 
-# SIDEBAR - API SETUP
+# --- SIDEBAR SETTINGS ---
 with st.sidebar:
     st.title("Settings")
     
-    st.subheader("🧠 API Setup")
-    api_provider = st.radio("Choose Provider:", ["Chub.ai", "OpenRouter", "Custom"])
+    st.subheader("🧠 Select Brain")
+    brain_mode = st.radio("Mode:", ["🚀 Horde (Free)", "💎 Universal (Paid)"])
     
-    # Defaults
-    default_url = "https://api.chub.ai/v1"
-    if api_provider == "OpenRouter": default_url = "https://openrouter.ai/api/v1"
-    
-    base_url = st.text_input("API URL", value=default_url)
-    api_key = st.text_input("API Key", type="password")
-    
-    # Init Brain
-    if base_url and api_key:
-        st.session_state.engine.brain = UniversalBrain(base_url, api_key)
-    else:
-        st.warning("⚠️ Enter Key to Enable Chat")
+    if brain_mode == "🚀 Horde (Free)":
+        h_key = st.text_input("Horde Key (Optional)", type="password")
+        st.session_state.engine.brain = HordeBrain(h_key)
+        st.caption("Slow but free. No setup needed.")
+        
+    else: # Universal
+        base_url = st.text_input("API URL", value="https://api.chub.ai/v1")
+        api_key = st.text_input("API Key", type="password")
+        if base_url and api_key:
+            st.session_state.engine.brain = UniversalBrain(base_url, api_key)
+        else:
+            st.warning("Enter Key")
+            st.session_state.engine.brain = None
 
     st.divider()
-    uploaded_file = st.file_uploader("Drop PNG/JSON", type=["png", "json"])
+    uploaded_file = st.file_uploader("Import Character", type=["png", "json"])
     if uploaded_file:
         p = st.session_state.engine.importer.parse_card(uploaded_file)
         if p: 
@@ -289,15 +297,17 @@ with st.sidebar:
             if st.button("Activate New Character"):
                 st.session_state.advisor_log = [{"role": "assistant", "content": f"**{p['name']}:** {p['greeting']}"}]
                 st.rerun()
+
     st.divider()
-    st.subheader("📜 Ledger")
+    # Ledger Display
     history = st.session_state.engine.data.get("history", [])
     if history:
+        st.subheader("📜 Recent Activity")
         for h in reversed(history[-5:]): 
             st.text(f"{h['time']} | {h['type']}\n{h['desc']} ({h['val']})")
             st.markdown("---")
 
-# TABS
+# --- TABS ---
 tab_office, tab_casino = st.tabs(["💼 **THE OFFICE**", "🎰 **THE CASINO**"])
 
 # --- TAB 1: OFFICE ---
@@ -328,8 +338,7 @@ with tab_office:
                 if st.session_state.engine.brain:
                     with st.spinner("Paige is thinking..."):
                         resp = st.session_state.engine.brain.ask(prompt, st.session_state.engine.persona, st.session_state.advisor_log)
-                else:
-                    resp = "⚠️ Please enter your API Key in the sidebar to chat."
+                else: resp = "⚠️ Please configure Brain in sidebar."
             st.session_state.advisor_log.append({"role": "assistant", "content": resp})
             st.rerun()
 
@@ -373,7 +382,6 @@ with tab_casino:
             win_msg = f"🎰 **CASINO WINNER:** {st.session_state.current_prize['name']}\n(Cost: {cost} tickets)"
             st.session_state.advisor_log.append({"role": "assistant", "content": win_msg})
             st.rerun()
-            
         if st.button("Cancel"): st.session_state.casino_stage = "IDLE"; st.rerun()
 
     elif st.session_state.casino_stage == "RESULT_SIMPLE":
@@ -393,11 +401,11 @@ with tab_casino:
             st.markdown("**SLAVE FOR A DAY**: I do anything you want.")
             if st.button("Today?"): st.info("I am yours."); st.session_state.casino_stage = "IDLE"
             if st.button("Save"): st.session_state.casino_stage = "IDLE"
-        # ... (Other prizes follow same pattern)
+        # ... Add other prizes logic here ...
         if st.button("Close"): st.session_state.casino_stage = "IDLE"; st.rerun()
 
     st.divider()
-    st.subheader("💬 Chat with Paige about your Prize")
+    st.subheader("💬 Chat about Prize")
     for m in st.session_state.advisor_log[-3:]: 
         with st.chat_message(m["role"]): st.markdown(m["content"])
 
@@ -406,7 +414,6 @@ with tab_casino:
         if st.session_state.engine.brain:
             with st.spinner("Paige is thinking..."):
                 resp = st.session_state.engine.brain.ask(prompt, st.session_state.engine.persona, st.session_state.advisor_log)
-        else:
-            resp = "⚠️ Please setup API in sidebar."
+        else: resp = "⚠️ Please configure Brain in sidebar."
         st.session_state.advisor_log.append({"role": "assistant", "content": resp})
         st.rerun()
