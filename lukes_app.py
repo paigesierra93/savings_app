@@ -28,7 +28,7 @@ def apply_styling():
         """, unsafe_allow_html=True)
 
 # ==========================================
-#       PART 1: DATA MANAGER (WITH LEDGER)
+#       PART 1: DATA MANAGER
 # ==========================================
 class DataManager:
     def __init__(self):
@@ -53,7 +53,6 @@ class DataManager:
         except: return defaults
 
     def save_data(self, data):
-        # Keep history limited to last 50 events
         if len(data["history"]) > 50:
             data["history"] = data["history"][-50:]
         with open(self.filename, 'w') as f: json.dump(data, f)
@@ -93,7 +92,7 @@ class CharacterImporter:
         {d.get("personality", "")}
         [DESCRIPTION]
         {d.get("description", "")}
-        [SYSTEM RULES]
+        [SYSTEM RULES & PRIZE DEFINITIONS]
         {d.get("system_prompt", "")}
         {d.get("creator_notes", "")}
         """
@@ -116,21 +115,28 @@ class GeminiBrain:
             genai.configure(api_key=api_key)
             self.model = genai.GenerativeModel('gemini-1.5-flash')
 
-    def ask(self, context, persona):
+    def ask(self, context, persona, chat_history):
         if not self.model: return "⚠️ Connect Google Key."
         try:
+            # We convert the chat history list into a string so the AI remembers context
+            history_text = "\n".join([f"{m['role']}: {m['content']}" for m in chat_history[-5:]])
+            
             prompt = f"""
             Roleplay as: {persona['name']}
-            Personality Rules: {persona['personality']}
+            Personality & Rules: {persona['personality']}
             Examples: {persona['examples']}
-            Current Context: {context}
-            Task: Reply strictly in character. Short text message style.
+            
+            RECENT CHAT HISTORY:
+            {history_text}
+            
+            Current User Input: {context}
+            Task: Reply strictly in character. Keep it short (text message style).
             """
             return self.model.generate_content(prompt).text
         except: return "My brain hurts (Google blocked this)."
 
 # ==========================================
-#       PART 4: THE ENGINE (LOGIC)
+#       PART 4: THE ENGINE
 # ==========================================
 class ExitPlanEngine:
     def __init__(self, gemini_key=None):
@@ -165,7 +171,7 @@ class ExitPlanEngine:
             if any(w in text for w in ["check", "payday"]): return self.payday_logic(amt)
             if "spent" in text: return self.spending_logic(amt)
 
-        return self.gemini.ask(text, self.persona)
+        return None # Return None if it's not a math command (let Chat handle it)
 
     def shift_logic(self, amt):
         hold = min(amt, self.daily_tax)
@@ -248,14 +254,11 @@ with st.sidebar:
 
     st.divider()
     st.subheader("📜 Ledger")
-    # SHOW LEDGER
     history = st.session_state.engine.data.get("history", [])
     if history:
-        for h in reversed(history[-10:]): # Show last 10
+        for h in reversed(history[-10:]): 
             st.text(f"{h['time']} | {h['type']}\n{h['desc']} ({h['val']})")
             st.markdown("---")
-    else:
-        st.caption("No transactions yet.")
 
 # TABS
 tab_office, tab_casino = st.tabs(["💼 **THE OFFICE**", "🎰 **THE CASINO**"])
@@ -280,12 +283,21 @@ with tab_office:
             st.rerun()
 
     with col2:
+        # Chat History Display
         for m in st.session_state.advisor_log:
             with st.chat_message(m["role"]): st.markdown(m["content"])
-        if prompt := st.chat_input("Ex: 'Dayforce 200', 'Check 900', 'Spent 20'..."):
+            
+        # Chat Input (OFFICE)
+        if prompt := st.chat_input("Ex: 'Dayforce 200' or Chat...", key="office_chat"):
             st.session_state.advisor_log.append({"role": "user", "content": prompt})
-            with st.chat_message("user"): st.markdown(prompt)
+            
+            # 1. Try Finance Command
             resp = st.session_state.engine.process_finance(prompt)
+            
+            # 2. If not finance, ask Brain
+            if not resp:
+                resp = st.session_state.engine.gemini.ask(prompt, st.session_state.engine.persona, st.session_state.advisor_log)
+            
             st.session_state.advisor_log.append({"role": "assistant", "content": resp})
             st.rerun()
 
@@ -294,7 +306,7 @@ with tab_casino:
     d = st.session_state.engine.db.load_data()
     st.metric("🎟️ TICKETS", f"{d['ticket_balance']}")
     
-    # IDLE
+    # 1. WHEEL SELECTION
     if st.session_state.casino_stage == "IDLE":
         c1, c2, c3 = st.columns(3)
         if c1.button("🥉 BRONZE (25)"): 
@@ -307,13 +319,14 @@ with tab_casino:
             st.session_state.casino_stage = "CONFIRM_GOLD" if d["ticket_balance"] >= 100 else st.session_state.casino_stage
             st.rerun()
 
-    # CONFIRM
+    # 2. SPIN & WIN LOGIC
     elif "CONFIRM" in st.session_state.casino_stage:
         st.warning(f"Spin {st.session_state.casino_stage.split('_')[1]} Wheel?")
         if st.button("SPIN IT!"):
             cost = 100 if "GOLD" in st.session_state.casino_stage else 50 if "SILVER" in st.session_state.casino_stage else 25
             st.session_state.engine.data["ticket_balance"] -= cost
             
+            # Determine Prize
             if cost == 100:
                 pname = st.session_state.engine.get_gold_prize()
                 st.session_state.current_prize = {"name": pname}
@@ -327,14 +340,18 @@ with tab_casino:
                 st.session_state.current_prize = {"name": name, "desc": desc}
                 st.session_state.casino_stage = "RESULT_SIMPLE"
             
+            # LOG TO LEDGER AND CHAT HISTORY (So AI knows context)
             st.session_state.engine.db.log_event(st.session_state.engine.data, "CASINO", f"Won {st.session_state.current_prize['name']}", f"-{cost} Tix")
+            
+            win_msg = f"🎰 **CASINO WINNER:** {st.session_state.current_prize['name']}\n(Cost: {cost} tickets)"
+            st.session_state.advisor_log.append({"role": "assistant", "content": win_msg})
             st.rerun()
             
         if st.button("Cancel"):
             st.session_state.casino_stage = "IDLE"
             st.rerun()
 
-    # RESULTS
+    # 3. SHOW PRIZE RESULTS
     elif st.session_state.casino_stage == "RESULT_SIMPLE":
         st.success(f"🏆 {st.session_state.current_prize['name']}")
         st.markdown(st.session_state.current_prize['desc'])
@@ -344,12 +361,12 @@ with tab_casino:
         prize = st.session_state.current_prize['name']
         st.success(f"👑 JACKPOT: {prize}")
         
-        # --- Interactive Gold Logic ---
+        # Hardcoded Interactive Logic
         if prize == "Upside Down BJ":
             st.write("Me upside down taking your dick down my throat... Today or Save it?")
             c1, c2 = st.columns(2)
-            if c1.button("Today/Now"): st.info("**Paige:** Ill be waitng mouth open."); st.session_state.casino_stage = "IDLE"
-            if c2.button("Save/Later"): st.info("**Paige:** Saved."); st.session_state.casino_stage = "IDLE"
+            if c1.button("Today"): st.info("**Paige:** Ill be waitng mouth open."); st.session_state.casino_stage = "IDLE"
+            if c2.button("Save"): st.info("**Paige:** Saved."); st.session_state.casino_stage = "IDLE"
 
         elif prize == "Blindfold BJ":
             st.markdown("**BLINDFOLD BJ**: First I blindfold you, then I tease you.")
@@ -374,6 +391,24 @@ with tab_casino:
         elif prize == "Slave Day":
             st.markdown("**SLAVE FOR A DAY**: I do anything you want for 8 hours.")
             if st.button("Today?"): st.info("I am yours."); st.session_state.casino_stage = "IDLE"
-            if st.button("Save"): st.session_state.casino_stage = "IDLE"; st.rerun()
+            if st.button("Save"): st.session_state.casino_stage = "IDLE"
 
         if st.button("Close"): st.session_state.casino_stage = "IDLE"; st.rerun()
+
+    # --- CASINO CHAT INTERFACE (NEW) ---
+    st.divider()
+    st.subheader("💬 Chat with Paige about your Prize")
+    
+    # Show Chat Log
+    for m in st.session_state.advisor_log[-3:]: # Show last 3 messages for context
+        with st.chat_message(m["role"]): st.markdown(m["content"])
+
+    # Chat Input (CASINO)
+    if prompt := st.chat_input("Ex: 'Tell me more about Slave Day'", key="casino_chat"):
+        st.session_state.advisor_log.append({"role": "user", "content": prompt})
+        
+        # Send directly to Brain (No finance logic needed here)
+        resp = st.session_state.engine.gemini.ask(prompt, st.session_state.engine.persona, st.session_state.advisor_log)
+        
+        st.session_state.advisor_log.append({"role": "assistant", "content": resp})
+        st.rerun()
