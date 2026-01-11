@@ -422,7 +422,7 @@ if st.session_state.turn_state == "PRIZE_LICK_STAGE2":
     if st.button("Wana see?"):
         st.empty()
         simulate_loading(4)
-        img = random.choice(["pussy_lick1.jpeg", "pussy_lick2.jpeg", "puss_lick3.jpeg"])
+        img = random.choice(["pussy_lick1.jpeg", "pussy_lick2.jpeg", "pussy_lick3.jpeg"])
         add_media(img)
         st.session_state.turn_state = "PRIZE_LICK_DECIDE"
         st.rerun()
@@ -566,4 +566,5 @@ if st.session_state.turn_state == "PRIZE_3HOLES_DECIDE":
         st.session_state.turn_state = "IDLE"; st.rerun()
     if c2.button("Later"):
         st.info("Saved."); st.session_state.turn_state = "IDLE"; st.rerun()
+
 
