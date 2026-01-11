@@ -415,7 +415,7 @@ if st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
     time.sleep(3)
     simulate_typing(3)
     simulate_loading(3)
-    add_media("chose_video1.jpeg") # Assuming image as per script
+    add_media("choose.jpeg") # Assuming image as per script
     
     simulate_typing(3)
     add_chat("assistant", "All three of my holes – my tight little asshole, my dripping wet pussy, and warm mouth are all yours for the filling. My body naked and submissive, ready for you to insert your thick dick into my eager mouth, gagging it.")
@@ -500,5 +500,6 @@ if st.session_state.turn_state == "PRIZE_SLAVE_DECIDE":
         st.info("I am yours."); st.session_state.turn_state = "IDLE"; st.rerun()
     if c2.button("Save"):
         st.session_state.turn_state = "IDLE"; st.rerun()
+
 
 
