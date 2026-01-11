@@ -17,7 +17,7 @@ st.markdown("""
         color: #000000;
     }
     
-    /* 2. CHAT CONTAINER (The White Box under chat) */
+    /* 2. CHAT CONTAINER */
     .chat-container {
         background-color: #FFFFFF;
         border-radius: 20px;
@@ -29,14 +29,13 @@ st.markdown("""
 
     /* 3. CHAT BUBBLES */
     div[data-testid="stChatMessage"] {
-        background-color: #F9FAFC; /* Very light grey for bubbles */
+        background-color: #F9FAFC; 
         border: 1px solid #D1D5DB;
         border-radius: 15px;
         padding: 15px;
         box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
     }
     
-    /* Force Text to Black */
     div[data-testid="stChatMessage"] p, .stMarkdown p {
         color: #000000 !important;
         font-family: 'Helvetica Neue', sans-serif;
@@ -46,7 +45,7 @@ st.markdown("""
     
     /* NARRATOR TEXT */
     .narrator {
-        color: #555555; /* Dark Grey for narrator */
+        color: #555555;
         font-style: italic;
         font-size: 15px;
         margin: 10px 0;
@@ -70,7 +69,7 @@ st.markdown("""
         color: #FF4B4B;
     }
 
-    /* METRICS (Tickets) */
+    /* METRICS */
     div[data-testid="stMetric"] { 
         background-color: #FFFFFF; 
         color: #000000; 
@@ -94,7 +93,7 @@ if "turn_state" not in st.session_state: st.session_state.turn_state = "IDLE"
 if "current_prize" not in st.session_state: st.session_state.current_prize = None
 
 # ==========================================
-#       PART 3: HELPER FUNCTIONS (EFFECTS)
+#       PART 3: HELPER FUNCTIONS
 # ==========================================
 def add_chat(role, content):
     st.session_state.casino_history.append({"type": "chat", "role": role, "content": content})
@@ -103,16 +102,18 @@ def add_narrator(content):
     st.session_state.casino_history.append({"type": "narrator", "content": content})
 
 def add_media(filepath, media_type="image"):
-    # media_type can be 'image' or 'video'
     st.session_state.casino_history.append({"type": "media", "path": filepath, "kind": media_type})
 
-def simulate_typing(seconds=2.0):
+def add_dual_media(path1, path2):
+    st.session_state.casino_history.append({"type": "dual_media", "path1": path1, "path2": path2})
+
+def simulate_typing(seconds=1.5):
     placeholder = st.empty()
     placeholder.caption("💬 *Paige is typing...*")
     time.sleep(seconds)
     placeholder.empty()
 
-def simulate_loading(seconds=2.0):
+def simulate_loading(seconds=1.5):
     placeholder = st.empty()
     with placeholder.container():
         with st.spinner("Loading content..."):
@@ -142,7 +143,6 @@ def spin_the_wheel_animation(tier_name, possible_prizes):
 # ==========================================
 st.title("🎰 The Casino")
 
-# Top Bar
 col1, col2 = st.columns([3,1])
 col1.metric("Tickets", st.session_state.ticket_balance)
 if col2.button("Reset System"):
@@ -154,7 +154,6 @@ if col2.button("Reset System"):
 st.divider()
 
 # --- THE CHAT CONTAINER ---
-# This creates the visual "White Box" around the chat history
 with st.container():
     st.markdown('<div class="chat-container">', unsafe_allow_html=True)
     
@@ -164,10 +163,7 @@ with st.container():
     for item in st.session_state.casino_history:
         if item["type"] == "chat":
             avatar = "paige.png" if item["role"] == "assistant" else "😎"
-            # Fallback if paige.png is missing
-            if item["role"] == "assistant" and not os.path.exists("paige.png"): 
-                avatar = "💋"
-            
+            if item["role"] == "assistant" and not os.path.exists("paige.png"): avatar = "💋"
             with st.chat_message(item["role"], avatar=avatar):
                 st.write(item["content"])
         
@@ -175,18 +171,22 @@ with st.container():
             st.markdown(f"<div class='narrator'>{item['content']}</div>", unsafe_allow_html=True)
         
         elif item["type"] == "media":
-            # MEDIA RESIZING LOGIC
-            # We use columns to center the image and restrict its width
             c1, c2, c3 = st.columns([1, 2, 1])
             with c2:
                 if os.path.exists(item["path"]):
                     if item["kind"] == "video":
                         st.video(item["path"])
                     else:
-                        # Width is capped at 350px to prevent giant images
                         st.image(item["path"], width=350)
                 else:
                     st.error(f"⚠️ Missing File: {item['path']}")
+
+        elif item["type"] == "dual_media":
+            c1, c2 = st.columns(2)
+            with c1:
+                if os.path.exists(item["path1"]): st.image(item["path1"])
+            with c2:
+                if os.path.exists(item["path2"]): st.image(item["path2"])
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -239,13 +239,80 @@ if st.session_state.turn_state == "SPIN_GOLD":
 #       PART 6: PRIZE SCENARIOS
 # ==========================================
 
+# ---------------- GOLD: SLAVE DAY (REMASTERED) ----------------
+if st.session_state.turn_state == "PRIZE_SLAVE_DAY":
+    st.markdown("### ⛓️ Slave For A Day")
+    st.markdown("Today, you can indulge in whatever you desire.")
+    
+    if st.button("Tell me more??"):
+        st.empty()
+        add_chat("assistant", "If you have video games to play and need the ultimate gaming buddy, simply sit back and let me entertain you while keeping you aroused through the pleasure of deep-throating your throbbing manhood.")
+        simulate_typing(2)
+        add_chat("assistant", "My skilled hands and tongue will not rest until your every fantasy has been met.")
+        
+        simulate_loading(2)
+        img = random.choice(["game_bj1.jpeg", "game_bj3.jpeg", "game_bj2.jpeg"])
+        add_media(img)
+        
+        simulate_typing(3)
+        add_chat("assistant", "Or being ready for you to plunge into my mouth as soon as you walk through the door. Whatever your heart desires, just say it and remember… I can't climax unless it's after you tell me to.")
+        
+        simulate_loading(3)
+        add_media("slave_video1.mp4", "video")
+        
+        st.session_state.turn_state = "PRIZE_SLAVE_DAY_PART2"
+        st.rerun()
+
+if st.session_state.turn_state == "PRIZE_SLAVE_DAY_PART2":
+    if st.button("What else can happen?"):
+        st.empty()
+        simulate_typing(2)
+        add_narrator("I tilt my head slightly, a sly grin painting my lips.")
+        add_chat("assistant", "What else? Anything… you want to fuck my little asshole, or deepthroat my face?.")
+        
+        simulate_loading(2)
+        
+        # Giant list logic for random dual images
+        big_list = ["slave1.jpeg", "Slave_1.png", "ass_cum2.jpeg", "ass_cum3.jpeg", "ass_cum4.jpeg", "blowjob1.jpeg", "blowjob4.jpeg", "blowjob6.jpeg", "bj_cum1.jpeg", "bj_cum2.jpeg", "bj_cum3.jpeg", "bj_cum4.jpeg", "behind_fuck1.jpeg", "behind_fuck4.jpeg", "behind_fuck7.jpeg", "behind_fuck8.jpeg", "behind_fuck9.jpeg", "behind_fuck10.jpeg"]
+        
+        # Pick 2 random images
+        img1 = random.choice(big_list)
+        img2 = random.choice(big_list)
+        add_dual_media(img1, img2)
+        
+        time.sleep(3)
+        simulate_typing(3)
+        add_chat("assistant", "Oh, also remember this - if you mess me up, make sure you clean me up. Perhaps even help me out in the shower, maybe you could slide your cock down my throat while we get clean.")
+        simulate_typing(3)
+        add_chat("assistant", "And remember, no matter what state you leave me in, I'm still here, waiting patiently for you next command.")
+        
+        time.sleep(3)
+        add_narrator("Or if you prefer… perhaps you'd like to tie me up and leave me blindfolded, waiting on you hand and foot, hungry for your touch yet helpless to seek it out.")
+        
+        simulate_loading(3)
+        img_last = random.choice(["slave2.jpeg", "slave_2.png", "slave_3.png"])
+        add_media(img_last)
+        
+        simulate_typing(2)
+        add_chat("assistant", "You want me to be your slave tomorrow? Or save it?")
+        st.session_state.turn_state = "PRIZE_SLAVE_DECIDE"
+        st.rerun()
+
+if st.session_state.turn_state == "PRIZE_SLAVE_DECIDE":
+    c1, c2 = st.columns(2)
+    if c1.button("i want you to be my little whore tomorrow"):
+        st.info("I am yours."); st.session_state.turn_state = "IDLE"; st.rerun()
+    if c2.button("Save"):
+        st.session_state.turn_state = "IDLE"; st.rerun()
+
+
 # ---------------- SILVER: MASSAGE ----------------
 if st.session_state.turn_state == "PRIZE_MASSAGE":
     st.markdown("### 💆 Massage")
     st.markdown("Ten minutes of me working you over, Daddy")
     
     if st.button("Want me to tell you more??"):
-        st.empty() # Clear button
+        st.empty() 
         st.info("Her fingertips trace lazy circles between your shoulder blades, applying just enough pressure to make your muscles unwind—but never straying lower, never letting you touch. Mmm.... Her breath is warm against your ear as she leans in, her nipples brushing your spine teasingly. Can you be a good boy now? Or save for later?")
         
         simulate_typing(4)
@@ -317,7 +384,7 @@ if st.session_state.turn_state == "PRIZE_TOY_PIC_STAGE2":
         add_narrator("She flips onto her stomach, arching her back to present her ass—already glistening with lube—as she reaches behind herself to slowly press the tip of the toy against her tight hole.")
         
         simulate_typing(4)
-        simulate_loading(3) # Spinning Wheel effect
+        simulate_loading(3)
         add_media("toy_ass2.jpeg")
         st.session_state.turn_state = "PRIZE_TOY_PIC_DECIDE"
         st.rerun()
@@ -346,7 +413,6 @@ if st.session_state.turn_state == "PRIZE_LICK_MY_PUSSY":
         
         time.sleep(3)
         simulate_loading(3)
-        # Random choice logic
         img = random.choice(["show1.jpeg", "show2.png"])
         add_media(img)
         st.session_state.turn_state = "PRIZE_LICK_STAGE2"
@@ -476,7 +542,7 @@ if st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
     time.sleep(3)
     simulate_typing(3)
     simulate_loading(3)
-    add_media("choose.jpeg") # Assuming image as per script
+    add_media("choose.jpeg") 
     
     simulate_typing(3)
     add_chat("assistant", "All three of my holes – my tight little asshole, my dripping wet pussy, and warm mouth are all yours for the filling. My body naked and submissive, ready for you to insert your thick dick into my eager mouth, gagging it.")
@@ -504,60 +570,3 @@ if st.session_state.turn_state == "PRIZE_3HOLES_DECIDE":
         st.session_state.turn_state = "IDLE"; st.rerun()
     if c2.button("Later"):
         st.info("Saved."); st.session_state.turn_state = "IDLE"; st.rerun()
-
-
-# ---------------- GOLD: SLAVE DAY ----------------
-if st.session_state.turn_state == "PRIZE_SLAVE_DAY":
-    st.markdown("### ⛓️ Slave For A Day")
-    st.markdown("Today, you can indulge in whatever you desire. If you have video games to play and need the ultimate gaming buddy, simply sit back and let me entertain you while keeping you aroused through the pleasure of deep-throating your throbbing manhood. My skilled hands and tongue will not rest until your every fantasy has been met.")
-    
-    time.sleep(2)
-    simulate_typing(3)
-    simulate_loading(2)
-    img = random.choice(["game_bj1.jpeg", "game_bj3.jpeg", "game_bj2.jpeg"])
-    add_media(img)
-    
-    simulate_typing(4)
-    add_chat("assistant", "Or being ready for you to plunge into my mouth as soon as you walk through the door. Whatever your heart desires, just say it and remember… I can't climax unless it's after you tell me to.")
-    
-    simulate_loading(3)
-    add_media("slave_video1.mp4", "video")
-    
-    if st.button("what else can happen?"):
-        simulate_typing(4)
-        add_narrator("I tilt my head slightly, a sly grin painting my lips.")
-        add_chat("assistant", "What else? Anything… you want to fuck my little asshole, or deepthroat my face?.")
-        
-        simulate_loading(4)
-        
-        # Giant list logic
-        big_list = ["slave1.jpeg", "slave_1.png", "ass_cum2.jpeg", "ass_cum3.jpeg", "ass_cum4.jpeg", "blowjob1.jpeg", "blowjob4.jpeg", "blowjob6.jpeg", "bj_cum1.jpeg", "bj_cum2.jpeg", "bj_cum3.jpeg", "bj_cum4.jpeg", "behind_fuck1.jpeg", "behind_fuck4.jpeg", "behind_fuck7.jpeg", "behind_fuck8.jpeg", "behind_fuck9.jpeg", "behind_fuck10.jpeg"]
-        
-        # Show 2 images side by side
-        colA, colB = st.columns(2)
-        with colA: st.image(random.choice(big_list), width=300)
-        with colB: st.image(random.choice(big_list), width=300)
-        
-        time.sleep(5)
-        simulate_typing(3)
-        add_chat("assistant", "Oh, also remember this - if you mess me up, make sure you clean me up. Perhaps even help me out in the shower, maybe you could slide your cock down my throat while we get clean. And remember, no matter what state you leave me in, I'm still here, waiting patiently for you next command.")
-        
-        time.sleep(3)
-        add_narrator("Or if you prefer… perhaps you'd like to tie me up and leave me blindfolded, waiting on you hand and foot, hungry for your touch yet helpless to seek it out.")
-        
-        time.sleep(4)
-        simulate_typing(3)
-        simulate_loading(3)
-        img_last = random.choice(["slave2.jpeg", "slave_2.png", "slave_3.png"])
-        add_media(img_last)
-        
-        add_chat("assistant", "You want me to be your slave tomorrow? Or save it?")
-        st.session_state.turn_state = "PRIZE_SLAVE_DECIDE"
-        st.rerun()
-
-if st.session_state.turn_state == "PRIZE_SLAVE_DECIDE":
-    c1, c2 = st.columns(2)
-    if c1.button("i want you to be my little whore tomorrow"):
-        st.info("I am yours."); st.session_state.turn_state = "IDLE"; st.rerun()
-    if c2.button("Save"):
-        st.session_state.turn_state = "IDLE"; st.rerun()
