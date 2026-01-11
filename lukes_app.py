@@ -470,7 +470,7 @@ if st.session_state.turn_state == "PRIZE_SLAVE_DAY":
         simulate_loading(4)
         
         # Giant list logic
-        big_list = ["slave1.jpeg", "Slave_1.png", "Ass_cum2.jpeg", "Ass_cum3.jpeg", "Ass_cum4.jpeg", "Blowjob1.jpeg", "Blowjob4.jpeg", "Blowjob6.jpeg", "Bj_cum1.jpeg", "Bj_cum2.jpeg", "Bj_cum3.jpeg", "bj_cum4.jpeg", "behind_fuck1.jpeg", "behind_fuck4.jpeg", "behind_fuck7.jpeg", "behind_fuck8.jpeg", "behind_fuck9.jpeg", "behind_fuck10.jpeg"]
+        big_list = ["slave1.jpeg", "slave_1.png", "ass_cum2.jpeg", "ass_cum3.jpeg", "ass_cum4.jpeg", "blowjob1.jpeg", "blowjob4.jpeg", "blowjob6.jpeg", "bj_cum1.jpeg", "bj_cum2.jpeg", "bj_cum3.jpeg", "bj_cum4.jpeg", "behind_fuck1.jpeg", "behind_fuck4.jpeg", "behind_fuck7.jpeg", "behind_fuck8.jpeg", "behind_fuck9.jpeg", "behind_fuck10.jpeg"]
         
         # Show 2 images side by side
         colA, colB = st.columns(2)
@@ -500,4 +500,5 @@ if st.session_state.turn_state == "PRIZE_SLAVE_DECIDE":
         st.info("I am yours."); st.session_state.turn_state = "IDLE"; st.rerun()
     if c2.button("Save"):
         st.session_state.turn_state = "IDLE"; st.rerun()
+
 
