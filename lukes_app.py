@@ -456,10 +456,6 @@ if st.session_state.turn_state == "PRIZE_ROAD_HEAD":
         st.rerun()
 
 if st.session_state.turn_state == "PRIZE_ROAD_HEAD_STAGE2":
-    if st.button("Want a preview?"):
-        st.empty()
-        simulate_loading(4)
-        add_media("road_head.jpeg")
         simulate_typing(3)
         add_chat("assistant", "We can have our little party as soon as you get home, if you want i can be waiting outside for you. I know you cant wait to to feel your cock in my mouth, sliding against you…")
         simulate_typing(3)
@@ -570,3 +566,4 @@ if st.session_state.turn_state == "PRIZE_3HOLES_DECIDE":
         st.session_state.turn_state = "IDLE"; st.rerun()
     if c2.button("Later"):
         st.info("Saved."); st.session_state.turn_state = "IDLE"; st.rerun()
+
