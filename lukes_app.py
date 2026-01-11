@@ -11,33 +11,77 @@ st.set_page_config(page_title="Casino Chat", page_icon="🎰", layout="wide")
 
 st.markdown("""
     <style>
-    .stApp { background-color: #0E1117; }
+    /* 1. LIGHT THEME BACKGROUND */
+    .stApp { 
+        background-color: #F2F4F8; 
+        color: #000000;
+    }
     
-    /* CHAT BUBBLES (PAIGE) */
+    /* 2. CHAT CONTAINER (The White Box under chat) */
+    .chat-container {
+        background-color: #FFFFFF;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        border: 1px solid #E0E0E0;
+    }
+
+    /* 3. CHAT BUBBLES */
     div[data-testid="stChatMessage"] {
-        background-color: #ffffff;
-        border: 1px solid #ccc;
+        background-color: #F9FAFC; /* Very light grey for bubbles */
+        border: 1px solid #D1D5DB;
         border-radius: 15px;
         padding: 15px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.05);
     }
-    div[data-testid="stChatMessage"] p {
+    
+    /* Force Text to Black */
+    div[data-testid="stChatMessage"] p, .stMarkdown p {
         color: #000000 !important;
-        font-family: sans-serif;
+        font-family: 'Helvetica Neue', sans-serif;
         font-size: 16px;
+        line-height: 1.5;
     }
     
     /* NARRATOR TEXT */
     .narrator {
-        color: #aaaaaa;
+        color: #555555; /* Dark Grey for narrator */
         font-style: italic;
-        font-size: 14px;
-        margin-bottom: 10px;
+        font-size: 15px;
+        margin: 10px 0;
+        padding-left: 10px;
+        border-left: 3px solid #FF4B4B;
     }
 
-    .stButton button { width: 100%; border-radius: 8px; font-weight: bold; min-height: 45px; }
-    div[data-testid="stMetric"] { background-color: #262730; color: white; border: 1px solid #444; padding: 10px; border-radius: 10px; }
-    div[data-testid="stMetric"] label { color: #FAFAFA; }
+    /* BUTTONS */
+    .stButton button { 
+        width: 100%; 
+        border-radius: 8px; 
+        font-weight: bold; 
+        min-height: 45px;
+        background-color: #FFFFFF;
+        color: #000000;
+        border: 1px solid #000000;
+    }
+    .stButton button:hover {
+        background-color: #F0F0F0;
+        border-color: #FF4B4B;
+        color: #FF4B4B;
+    }
+
+    /* METRICS (Tickets) */
+    div[data-testid="stMetric"] { 
+        background-color: #FFFFFF; 
+        color: #000000; 
+        border: 1px solid #CCCCCC; 
+        padding: 10px; 
+        border-radius: 10px; 
+        box-shadow: 0px 2px 5px rgba(0,0,0,0.05);
+    }
+    div[data-testid="stMetric"] label { color: #555555; }
+    div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #000000; }
+    
     </style>
     """, unsafe_allow_html=True)
 
@@ -64,14 +108,14 @@ def add_media(filepath, media_type="image"):
 
 def simulate_typing(seconds=2.0):
     placeholder = st.empty()
-    placeholder.info("💬 *Paige is typing...*")
+    placeholder.caption("💬 *Paige is typing...*")
     time.sleep(seconds)
     placeholder.empty()
 
 def simulate_loading(seconds=2.0):
     placeholder = st.empty()
     with placeholder.container():
-        with st.spinner("Loading..."):
+        with st.spinner("Loading content..."):
             time.sleep(seconds)
     placeholder.empty()
 
@@ -101,7 +145,7 @@ st.title("🎰 The Casino")
 # Top Bar
 col1, col2 = st.columns([3,1])
 col1.metric("Tickets", st.session_state.ticket_balance)
-if col2.button("Reset"):
+if col2.button("Reset System"):
     st.session_state.ticket_balance = 500
     st.session_state.casino_history = []
     st.session_state.turn_state = "IDLE"
@@ -109,25 +153,42 @@ if col2.button("Reset"):
 
 st.divider()
 
-# RENDER HISTORY
-for item in st.session_state.casino_history:
-    if item["type"] == "chat":
-        avatar = "paige.png" if item["role"] == "assistant" else "😎"
-        if avatar == "paige.png" and not os.path.exists("paige.png"): avatar = "💋"
-        with st.chat_message(item["role"], avatar=avatar):
-            st.write(item["content"])
+# --- THE CHAT CONTAINER ---
+# This creates the visual "White Box" around the chat history
+with st.container():
+    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
     
-    elif item["type"] == "narrator":
-        st.markdown(f"<p class='narrator'>{item['content']}</p>", unsafe_allow_html=True)
-    
-    elif item["type"] == "media":
-        if os.path.exists(item["path"]):
-            if item["kind"] == "video":
-                st.video(item["path"])
-            else:
-                st.image(item["path"])
-        else:
-            st.warning(f"[Missing File: {item['path']}]")
+    if not st.session_state.casino_history:
+        st.caption("Chat started...")
+
+    for item in st.session_state.casino_history:
+        if item["type"] == "chat":
+            avatar = "paige.png" if item["role"] == "assistant" else "😎"
+            # Fallback if paige.png is missing
+            if item["role"] == "assistant" and not os.path.exists("paige.png"): 
+                avatar = "💋"
+            
+            with st.chat_message(item["role"], avatar=avatar):
+                st.write(item["content"])
+        
+        elif item["type"] == "narrator":
+            st.markdown(f"<div class='narrator'>{item['content']}</div>", unsafe_allow_html=True)
+        
+        elif item["type"] == "media":
+            # MEDIA RESIZING LOGIC
+            # We use columns to center the image and restrict its width
+            c1, c2, c3 = st.columns([1, 2, 1])
+            with c2:
+                if os.path.exists(item["path"]):
+                    if item["kind"] == "video":
+                        st.video(item["path"])
+                    else:
+                        # Width is capped at 350px to prevent giant images
+                        st.image(item["path"], width=350)
+                else:
+                    st.error(f"⚠️ Missing File: {item['path']}")
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -474,8 +535,8 @@ if st.session_state.turn_state == "PRIZE_SLAVE_DAY":
         
         # Show 2 images side by side
         colA, colB = st.columns(2)
-        with colA: st.image(random.choice(big_list))
-        with colB: st.image(random.choice(big_list))
+        with colA: st.image(random.choice(big_list), width=300)
+        with colB: st.image(random.choice(big_list), width=300)
         
         time.sleep(5)
         simulate_typing(3)
@@ -500,6 +561,3 @@ if st.session_state.turn_state == "PRIZE_SLAVE_DECIDE":
         st.info("I am yours."); st.session_state.turn_state = "IDLE"; st.rerun()
     if c2.button("Save"):
         st.session_state.turn_state = "IDLE"; st.rerun()
-
-
-
