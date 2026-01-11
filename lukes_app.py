@@ -367,7 +367,7 @@ if st.session_state.turn_state == "PRIZE_ANAL_FUCK":
     
     time.sleep(2)
     simulate_typing()
-    img = random.choice(["Behind_fuck1.jpeg", "Behind_fuck10.jpeg", "behind_fuck4.jpeg"])
+    img = random.choice(["behind_fuck1.jpeg", "behind_fuck10.jpeg", "behind_fuck4.jpeg"])
     add_media(img)
     
     time.sleep(4)
@@ -380,7 +380,7 @@ if st.session_state.turn_state == "PRIZE_ANAL_FUCK":
     time.sleep(3)
     simulate_typing(3)
     simulate_loading(4)
-    img2 = random.choice(["Behind_fuck7.jpeg", "Behind_fuck5.jpeg", "Behind_fuck6.jpeg", "Behind_fuck8.jpeg"])
+    img2 = random.choice(["behind_fuck7.jpeg", "behind_fuck5.jpeg", "behind_fuck6.jpeg", "behind_fuck8.jpeg"])
     add_media(img2)
     
     time.sleep(4)
@@ -470,7 +470,7 @@ if st.session_state.turn_state == "PRIZE_SLAVE_DAY":
         simulate_loading(4)
         
         # Giant list logic
-        big_list = ["slave1.jpeg", "Slave_1.png", "Ass_cum2.jpeg", "Ass_cum3.jpeg", "Ass_cum4.jpeg", "Blowjob1.jpeg", "Blowjob4.jpeg", "Blowjob6.jpeg", "Bj_cum1.jpeg", "Bj_cum2.jpeg", "Bj_cum3.jpeg", "bj_cum4.jpeg", "Behind_fuck1.jpeg", "Behind_fuck4.jpeg", "Behind_fuck7.jpeg", "Behind_fuck8.jpeg", "Behind_fuck9.jpeg", "behind_fuck10.jpeg"]
+        big_list = ["slave1.jpeg", "Slave_1.png", "Ass_cum2.jpeg", "Ass_cum3.jpeg", "Ass_cum4.jpeg", "Blowjob1.jpeg", "Blowjob4.jpeg", "Blowjob6.jpeg", "Bj_cum1.jpeg", "Bj_cum2.jpeg", "Bj_cum3.jpeg", "bj_cum4.jpeg", "behind_fuck1.jpeg", "behind_fuck4.jpeg", "behind_fuck7.jpeg", "behind_fuck8.jpeg", "behind_fuck9.jpeg", "behind_fuck10.jpeg"]
         
         # Show 2 images side by side
         colA, colB = st.columns(2)
@@ -500,3 +500,4 @@ if st.session_state.turn_state == "PRIZE_SLAVE_DECIDE":
         st.info("I am yours."); st.session_state.turn_state = "IDLE"; st.rerun()
     if c2.button("Save"):
         st.session_state.turn_state = "IDLE"; st.rerun()
+
