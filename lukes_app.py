@@ -2,10 +2,11 @@ import json
 import os
 import random
 import time
+import datetime
 import streamlit as st
 
 # ==========================================
-#       PART 1: SETUP & STYLING (DARK NEON)
+#       PART 1: SETUP & STYLING (PURE WHITE TEXT)
 # ==========================================
 st.set_page_config(page_title="Exit Plan", page_icon="🎰", layout="wide")
 
@@ -13,14 +14,14 @@ st.markdown("""
     <style>
     /* MAIN BACKGROUND */
     .stApp { 
-        background-color: #050505;
+        background-color: #000000;
         background-image: linear-gradient(147deg, #000000 0%, #1a1a1a 74%);
         color: #ffffff;
     }
     
     /* SIDEBAR */
     section[data-testid="stSidebar"] {
-        background-color: #111;
+        background-color: #0a0a0a;
         border-right: 1px solid #333;
     }
     
@@ -36,17 +37,19 @@ st.markdown("""
 
     /* BUBBLES */
     div[data-testid="stChatMessage"] {
-        background-color: rgba(40, 40, 40, 0.8);
-        border: 1px solid #333;
+        background-color: rgba(40, 40, 40, 0.9); /* Darker background for contrast */
+        border: 1px solid #555;
         border-radius: 15px;
         padding: 12px 16px;
     }
-    div[data-testid="stChatMessage"] p { color: #E0E0E0 !important; }
+    /* FORCE WHITE TEXT IN CHAT */
+    div[data-testid="stChatMessage"] p { color: #FFFFFF !important; font-weight: 400; }
     
     /* NARRATOR */
     .narrator {
-        text-align: center; color: #888; font-style: italic; font-size: 14px;
-        margin: 15px 0; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 5px;
+        text-align: center; color: #ccc; /* Lighter grey for narrator */
+        font-style: italic; font-size: 14px;
+        margin: 15px 0; border-top: 1px solid #444; border-bottom: 1px solid #444; padding: 5px;
     }
 
     /* NEON BUTTONS */
@@ -58,51 +61,24 @@ st.markdown("""
     }
     .stButton button:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(255, 75, 75, 0.6); }
     
-    /* METRIC CARDS */
+    /* METRIC CARDS & LABELS */
     div[data-testid="stMetric"] {
-        background-color: rgba(255,255,255,0.05);
-        border: 1px solid #333;
+        background-color: rgba(30,30,30,0.8);
+        border: 1px solid #555;
         padding: 10px;
         border-radius: 10px;
     }
-    div[data-testid="stMetric"] label { color: #aaa; }
+    div[data-testid="stMetric"] label { color: #ffffff !important; } /* Force White Label */
+    div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #00FF00; }
+    
+    /* INPUT LABELS */
+    label, .stMarkdown p { color: #ffffff !important; }
     
     </style>
     """, unsafe_allow_html=True)
 
 # ==========================================
-#       PART 2: DIALOGUE LISTS
-# ==========================================
-
-SMART_SAVE_RESPONSES = [
-    "Good boy, Do you want a sloppy blow job in the kitchen? I want to give it to you.",
-    "Good boy. You kept the money safe.",
-    "That's hot. One more step closer to a giant bottle of Lube, and you and me.",
-    "I think I just lost my panties. Oops.",
-    "Daddy's making moves! Keep stacking cash and I'll keep arching my back.",
-    "My baby is saving, saving up to fuck my mouth in his own home.",
-    "Good job, one step closer to to a blow job in the middle of own living room.",
-    "Way to go, You'll be fucking my ass in our own house in no time.",
-    "YEAH! the screaming I'm doing now is nothing compared to the screaming I'll be doing, when we have our own house..",
-    "MMM Good job, every dollar saved is one more step closer to walking through your own door, where I'm waiting for you on my knees.",
-    "I like the way you save money, almost as much as I like it when you fuck my ass.",
-    "Seeing you save money like that, makes me want to suck your dick.",
-    "Keep saving like that and you'll be able to fill all my holes with what ever you want in no time.",
-    "Time to start looking at knee pads for our new home, becuase I have a feeling I'm gonna need them.",
-    "Good boy, one step closer to filling up all my holes at 1:00pm on a Sunday if you so felt like it.",
-    "Daddy is being so good, I cant wait to be SO good for Daddy."
-]
-
-TICKET_SAVE_RESPONSES = [
-    "I was really hoping to get my mouth fucked...",
-    "I was dying for you to fuck my ass...",
-    "I really wanted you to fill up all my holes with what ever you could find.",
-    "I was all prepared to choke on your dick...",
-    "Was really hoping to meet you at the door on my knees and my mouth open.."
-]
-
-# ==========================================
-#       PART 3: DATA ENGINE
+#       PART 2: DATA ENGINE & TIME UTILS
 # ==========================================
 DATA_FILE = "bank_of_paige.json"
 
@@ -116,17 +92,35 @@ def load_data():
 def save_data(data):
     with open(DATA_FILE, "w") as f: json.dump(data, f)
 
+# Time Helper: Check if Wednesday (0=Mon, 2=Wed, 6=Sun)
+def check_payday_window(admin_code):
+    if admin_code == "777": return True, "" # SECRET BYPASS
+    
+    today = datetime.datetime.now()
+    if today.weekday() == 2: # 2 is Wednesday
+        return True, ""
+    else:
+        # Calculate time until next Wednesday
+        days_ahead = (2 - today.weekday() + 7) % 7
+        if days_ahead == 0: days_ahead = 7
+        next_wed = today + datetime.timedelta(days=days_ahead)
+        next_wed = next_wed.replace(hour=0, minute=0, second=0)
+        remaining = next_wed - today
+        
+        hours = remaining.seconds // 3600
+        return False, f"🔒 **LOCKED.** Paycheck Input opens in {remaining.days} Days, {hours} Hours."
+
 if "data" not in st.session_state: st.session_state.data = load_data()
 if "history" not in st.session_state: 
     st.session_state.history = [{
         "type": "chat", 
         "role": "assistant", 
-        "content": "Systems Online. Wallet check. 💸\n\nShow me what Dayforce says. We need to calculate what goes into the **Tank** (Savings) and what's left for **Gas** and your spending money."
+        "content": "Systems Online. 💋\n\nI'm watching the calendar. You can only deposit Paychecks on **Wednesdays**. Don't try to cheat me."
     }]
 if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_CHECK"
 
 # ==========================================
-#       PART 4: HELPER FUNCTIONS
+#       PART 3: HELPER FUNCTIONS
 # ==========================================
 def add_chat(role, content):
     st.session_state.history.append({"type": "chat", "role": role, "content": content})
@@ -165,11 +159,38 @@ def spin_animation(tier, prizes):
     placeholder.empty()
     return winner
 
-def get_smart_response():
-    return random.choice(SMART_SAVE_RESPONSES)
+# ==========================================
+#       PART 4: DIALOGUE LISTS
+# ==========================================
+SMART_SAVE_RESPONSES = [
+    "Good boy, Do you want a sloppy blow job in the kitchen? I want to give it to you.",
+    "Good boy. You kept the money safe.",
+    "That's hot. One more step closer to a giant bottle of Lube, and you and me.",
+    "I think I just lost my panties. Oops.",
+    "Daddy's making moves! Keep stacking cash and I'll keep arching my back.",
+    "My baby is saving, saving up to fuck my mouth in his own home.",
+    "Good job, one step closer to to a blow job in the middle of own living room.",
+    "Way to go, You'll be fucking my ass in our own house in no time.",
+    "YEAH! the screaming I'm doing now is nothing compared to the screaming I'll be doing, when we have our own house..",
+    "MMM Good job, every dollar saved is one more step closer to walking through your own door, where I'm waiting for you on my knees.",
+    "I like the way you save money, almost as much as I like it when you fuck my ass.",
+    "Seeing you save money like that, makes me want to suck your dick.",
+    "Keep saving like that and you'll be able to fill all my holes with what ever you want in no time.",
+    "Time to start looking at knee pads for our new home, becuase I have a feeling I'm gonna need them.",
+    "Good boy, one step closer to filling up all my holes at 1:00pm on a Sunday if you so felt like it.",
+    "Daddy is being so good, I cant wait to be SO good for Daddy."
+]
 
-def get_ticket_save_response():
-    return random.choice(TICKET_SAVE_RESPONSES)
+TICKET_SAVE_RESPONSES = [
+    "I was really hoping to get my mouth fucked...",
+    "I was dying for you to fuck my ass...",
+    "I really wanted you to fill up all my holes with what ever you could find.",
+    "I was all prepared to choke on your dick...",
+    "Was really hoping to meet you at the door on my knees and my mouth open.."
+]
+
+def get_smart_response(): return random.choice(SMART_SAVE_RESPONSES)
+def get_ticket_save_response(): return random.choice(TICKET_SAVE_RESPONSES)
 
 # ==========================================
 #       PART 5: SIDEBAR (THE TANK)
@@ -184,10 +205,13 @@ with st.sidebar:
     st.metric("🌑 BLACKOUT FUND", f"${st.session_state.data.get('bridge_fund', 0.0):,.2f}")
     
     st.divider()
-    # Wallet (Safe Spend)
     st.metric("💵 SAFE TO SPEND", f"${st.session_state.data.get('wallet_balance', 0.0):,.2f}")
     
     st.divider()
+    
+    # ADMIN CODE INPUT
+    admin_code = st.text_input("Admin Override", type="password", placeholder="Secret Code")
+    
     if st.button("Reset Bank (Debug)"):
         st.session_state.data = {"tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0}
         save_data(st.session_state.data)
@@ -222,7 +246,7 @@ for item in st.session_state.history:
             if os.path.exists(item["path2"]): c2.image(item["path2"])
 st.markdown('</div>', unsafe_allow_html=True)
 
-# USER INPUT (Flavor)
+# USER INPUT
 user_msg = st.chat_input("Reply to Paige...")
 if user_msg:
     add_chat("user", user_msg)
@@ -231,13 +255,22 @@ if user_msg:
 st.markdown("---")
 
 # ==========================================
-#       PART 7: THE BRAIN (CALCULATOR LOGIC)
+#       PART 7: THE BRAIN (LOGIC)
 # ==========================================
 
 # --- 1. START SCREEN ---
 if st.session_state.turn_state == "WALLET_CHECK":
     c1, c2, c3 = st.columns(3)
-    if c1.button("💰 Full Paycheck"): st.session_state.turn_state="INPUT_PAYCHECK"; st.rerun()
+    
+    # WEDNESDAY CHECK
+    is_open, lock_msg = check_payday_window(admin_code)
+    
+    if is_open:
+        if c1.button("💰 Full Paycheck"): st.session_state.turn_state="INPUT_PAYCHECK"; st.rerun()
+    else:
+        # LOCKED BUTTON
+        c1.warning(lock_msg)
+        
     if c2.button("📱 Daily Dayforce"): st.session_state.turn_state="INPUT_DAILY"; st.rerun()
     if c3.button("🏦 Manage Funds"): st.session_state.turn_state="MANAGE_FUNDS"; st.rerun()
 
@@ -410,7 +443,7 @@ elif st.session_state.turn_state == "CHECK_FAIL":
 elif st.session_state.turn_state == "CASINO_BRONZE":
     add_chat("assistant", "🥉 **BRONZE TIER** unlocked. Cost: 25 Tickets.")
     c1, c2 = st.columns(2)
-    if c1.button("Spin Bronze Wheel (25 Tix)"):
+    if c1.button("Spin Bronze (25)"):
         st.session_state.turn_state = "SPIN_BRONZE"; st.rerun()
     if c2.button("Save Tickets"):
         add_chat("user", "Saving them.")
@@ -420,7 +453,7 @@ elif st.session_state.turn_state == "CASINO_BRONZE":
 elif st.session_state.turn_state == "CASINO_SILVER":
     add_chat("assistant", "🥈 **SILVER TIER** unlocked. Cost: 50 Tickets.")
     c1, c2 = st.columns(2)
-    if c1.button("Spin Silver Wheel (50 Tix)"):
+    if c1.button("Spin Silver (50)"):
         st.session_state.turn_state = "SPIN_SILVER"; st.rerun()
     if c2.button("Save Tickets"):
         add_chat("user", "Saving them.")
@@ -430,7 +463,7 @@ elif st.session_state.turn_state == "CASINO_SILVER":
 elif st.session_state.turn_state == "CASINO_GOLD":
     add_chat("assistant", "👑 **GOLD TIER** unlocked. Cost: 100 Tickets.")
     c1, c2 = st.columns(2)
-    if c1.button("SPIN GOLD WHEEL (100 Tix)"):
+    if c1.button("SPIN GOLD (100)"):
         st.session_state.turn_state = "SPIN_GOLD"; st.rerun()
     if c2.button("Save Tickets"):
         add_chat("user", "Saving them.")
@@ -787,4 +820,5 @@ elif st.session_state.turn_state == "PRIZE_DONE" or st.session_state.turn_state.
     if c1.button("Use Today"):
         st.info("Enjoy."); st.session_state.turn_state="WALLET_CHECK"; st.rerun()
     if c2.button("Save for Later"):
-        st.info("Saved."); st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+        add_chat("assistant", f"Saved. {get_ticket_save_response()}")
+        st.session_state.turn_state="WALLET_CHECK"; st.rerun()
