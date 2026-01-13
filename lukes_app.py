@@ -76,7 +76,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # ==========================================
-#       PART 2: DATA ENGINE & TIME
+#       PART 2: DATA ENGINE
 # ==========================================
 DATA_FILE = "bank_of_paige.json"
 
@@ -204,6 +204,7 @@ with st.sidebar:
     st.metric("💵 SAFE TO SPEND", f"${st.session_state.data.get('wallet_balance', 0.0):,.2f}")
     
     st.divider()
+    
     admin_code = st.text_input("Admin Override", type="password", placeholder="Secret Code")
     
     if st.button("Reset Bank (Debug)"):
@@ -253,6 +254,16 @@ st.markdown("---")
 
 # --- 1. START SCREEN ---
 if st.session_state.turn_state == "WALLET_CHECK":
+    
+    # === NEW: DIRECT CASINO ENTRY IF TICKETS EXIST ===
+    if st.session_state.data["tickets"] > 0:
+        st.info(f"🎟️ You have {st.session_state.data['tickets']} tickets banked.")
+        if st.button("🎰 ENTER CASINO FLOOR (Skip Income)"):
+            st.session_state.turn_state = "CHOOSE_TIER"
+            st.rerun()
+        st.markdown("---")
+    # =================================================
+    
     c1, c2, c3, c4 = st.columns(4)
     
     # PAYCHECK (WEDNESDAY ONLY)
@@ -266,7 +277,7 @@ if st.session_state.turn_state == "WALLET_CHECK":
     if c3.button("💸 Side Hustle"): st.session_state.turn_state="INPUT_SIDE_HUSTLE"; st.rerun()
     if c4.button("🏦 Manage Funds"): st.session_state.turn_state="MANAGE_FUNDS"; st.rerun()
 
-# --- 2. SIDE HUSTLE (UPDATED TICKETS) ---
+# --- 2. SIDE HUSTLE ---
 elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
     st.subheader("💸 Side Hustle Input")
     st.info("Side income gets special treatment. Huge ticket rewards for smaller amounts.")
@@ -276,12 +287,10 @@ elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
     if st.button("Process Extra Cash"):
         add_chat("user", f"Side Hustle: ${side_amount}")
         
-        # 50/50 Split
         split = side_amount / 2
         st.session_state.data["tank_balance"] += split
         st.session_state.data["wallet_balance"] += split
         
-        # TICKET SCALING (Generous)
         if side_amount >= 150: tickets=125
         elif side_amount >= 110: tickets=60
         elif side_amount >= 70: tickets=35
@@ -313,7 +322,6 @@ elif st.session_state.turn_state == "INPUT_PAYCHECK":
         st.session_state.data["bridge_fund"] += blackout
         st.session_state.data["wallet_balance"] = safe_spend 
         
-        # TICKET LOGIC
         if check_amount >= 601: tickets=100
         elif check_amount >= 501: tickets=50
         elif check_amount >= 450: tickets=25
@@ -355,6 +363,7 @@ elif st.session_state.turn_state == "INPUT_DAILY":
             add_chat("assistant", get_smart_response())
             msg = f"**Daily Strategy:**\nShielded $30 (House) + $10 (Gas).\n🍔 **SAFE TO SPEND:** ${safe_spend:.2f}"
             add_chat("assistant", msg)
+            add_chat("assistant", "Good job sticking to the plan. Do you want to check the Casino?")
             st.session_state.turn_state = "CHOOSE_TIER"
             st.rerun()
 
@@ -391,23 +400,21 @@ elif st.session_state.turn_state == "CHOOSE_TIER":
     
     c1, c2, c3 = st.columns(3)
     
-    # BRONZE BUTTON
     if tix >= 25:
         if c1.button("🥉 Spin Bronze (25)"): st.session_state.turn_state="SPIN_BRONZE"; st.rerun()
     else: c1.warning("🥉 Bronze: Need 25")
 
-    # SILVER BUTTON
     if tix >= 50:
         if c2.button("🥈 Spin Silver (50)"): st.session_state.turn_state="SPIN_SILVER"; st.rerun()
     else: c2.warning("🥈 Silver: Need 50")
 
-    # GOLD BUTTON
     if tix >= 100:
         if c3.button("👑 Spin Gold (100)"): st.session_state.turn_state="SPIN_GOLD"; st.rerun()
     else: c3.warning("👑 Gold: Need 100")
         
     st.divider()
     if st.button("Save Tickets & Exit"):
+        save_data(st.session_state.data) # Force Save
         add_chat("assistant", f"Walking away? {get_ticket_save_response()}")
         st.session_state.turn_state="WALLET_CHECK"
         st.rerun()
@@ -753,5 +760,6 @@ elif st.session_state.turn_state == "PRIZE_DONE" or st.session_state.turn_state.
     if c1.button("Use Today"):
         st.info("Enjoy."); st.session_state.turn_state="WALLET_CHECK"; st.rerun()
     if c2.button("Save for Later"):
+        save_data(st.session_state.data)
         add_chat("assistant", f"Saved. {get_ticket_save_response()}")
         st.session_state.turn_state="WALLET_CHECK"; st.rerun()
