@@ -108,10 +108,10 @@ DATA_FILE = "bank_of_paige.json"
 
 def load_data():
     if not os.path.exists(DATA_FILE):
-        return {"tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, "house_fund": 0.0, "wallet_balance": 0.0}
+        return {"tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0}
     try:
         with open(DATA_FILE, "r") as f: return json.load(f)
-    except: return {"tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, "house_fund": 0.0, "wallet_balance": 0.0}
+    except: return {"tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0}
 
 def save_data(data):
     with open(DATA_FILE, "w") as f: json.dump(data, f)
@@ -179,18 +179,17 @@ with st.sidebar:
     st.metric("🎟️ TICKETS", st.session_state.data["tickets"])
     st.divider()
     
-    st.metric("🏠 HOUSE FUND", f"${st.session_state.data['house_fund']:,.2f}")
+    st.metric("🏠 HOUSE FUND", f"${st.session_state.data.get('house_fund', 0.0):,.2f}")
+    st.metric("🛡️ HOLDING TANK", f"${st.session_state.data['tank_balance']:,.2f}")
+    st.metric("🌑 BLACKOUT FUND", f"${st.session_state.data.get('bridge_fund', 0.0):,.2f}")
     
-    current = st.session_state.data["tank_balance"]
-    st.write(f"### 🛡️ The Tank: ${current:,.2f}")
-    
-    # Wallet (Safe Spend)
     st.divider()
+    # Wallet (Safe Spend)
     st.metric("💵 SAFE TO SPEND", f"${st.session_state.data.get('wallet_balance', 0.0):,.2f}")
     
     st.divider()
     if st.button("Reset Bank (Debug)"):
-        st.session_state.data = {"tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, "house_fund": 0.0, "wallet_balance": 0.0}
+        st.session_state.data = {"tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0}
         save_data(st.session_state.data)
         st.session_state.history = []
         st.session_state.turn_state = "WALLET_CHECK"
@@ -242,52 +241,84 @@ if st.session_state.turn_state == "WALLET_CHECK":
     if c2.button("📱 Daily Dayforce"): st.session_state.turn_state="INPUT_DAILY"; st.rerun()
     if c3.button("🏦 Manage Funds"): st.session_state.turn_state="MANAGE_FUNDS"; st.rerun()
 
-# --- 2. PAYCHECK CALCULATOR ---
+# --- 2. PAYCHECK CALCULATOR (UPDATED) ---
 elif st.session_state.turn_state == "INPUT_PAYCHECK":
-    st.subheader("💰 Paycheck Breakdown")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        total_pay = st.number_input("Dayforce Total ($):", min_value=0.0, step=10.0, key="n1")
-    with col2:
-        gas_cost = st.number_input("Gas / Expenses ($):", min_value=0.0, step=10.0, key="n2")
-    with col3:
-        savings_amt = st.number_input("Move to Savings ($):", min_value=0.0, step=10.0, key="n3")
+    st.subheader("💰 Full Paycheck Entry")
+    st.info("Enter the full Dayforce Amount. I will subtract the bills automatically.")
     
-    available_pay = total_pay - gas_cost - savings_amt
+    check_amount = st.number_input("Enter Total Paycheck Amount ($):", min_value=0.0, step=10.0)
     
-    if available_pay < 0:
-        st.error(f"❌ Overdrawn! You are short ${abs(available_pay):.2f}")
-    else:
-        st.success(f"✅ Available Pay: ${available_pay:.2f}")
-        if st.button("CONFIRM TRANSACTION"):
-            if savings_amt <= 0:
-                st.error("You must save something to play.")
-            else:
-                add_chat("user", f"Dayforce: ${total_pay} | Gas: ${gas_cost} | Savings: ${savings_amt}")
-                
-                # UPDATE BACKEND
-                st.session_state.data["tank_balance"] += savings_amt
-                st.session_state.data["wallet_balance"] = available_pay # Reset wallet to avail pay
-                
-                # REACTION: SMART MONEY MOVE
-                simulate_typing(1.5)
-                add_chat("assistant", get_smart_response())
-                
-                # TICKET LOGIC (BASED ON SAVINGS AMOUNT)
-                if savings_amt < 450:
-                    st.session_state.turn_state = "CHECK_FAIL"
-                elif 450 <= savings_amt <= 500:
-                    st.session_state.turn_state = "CHECK_BRONZE"
-                    st.session_state.data["tickets"] += 25
-                elif 501 <= savings_amt <= 600:
-                    st.session_state.turn_state = "CHECK_SILVER"
-                    st.session_state.data["tickets"] += 50
-                else: # 601+
-                    st.session_state.turn_state = "CHECK_GOLD"
-                    st.session_state.data["tickets"] += 100
-                
-                save_data(st.session_state.data)
-                st.rerun()
+    if st.button("Process Paycheck"):
+        add_chat("user", f"Paycheck is ${check_amount}")
+        
+        # FIXED DEDUCTIONS
+        rent = 200.0
+        insurance = 80.0
+        loans = 100.0
+        blackout = 50.0 # Bridge Fund
+        
+        total_deductions = rent + insurance + loans + blackout
+        safe_spend = check_amount - total_deductions
+        
+        # UPDATE BACKEND
+        if "bridge_fund" not in st.session_state.data: st.session_state.data["bridge_fund"] = 0.0
+        st.session_state.data["bridge_fund"] += blackout
+        
+        # Money available goes to wallet
+        st.session_state.data["wallet_balance"] = safe_spend 
+        
+        save_data(st.session_state.data)
+        
+        # TICKET LOGIC (BASED ON GROSS AMOUNT)
+        if check_amount >= 601: 
+            tier = "GOLD"; tickets = 100; st.session_state.turn_state = "CASINO_GOLD"
+        elif check_amount >= 501: 
+            tier = "SILVER"; tickets = 50; st.session_state.turn_state = "CASINO_SILVER"
+        elif check_amount >= 450: 
+            tier = "BRONZE"; tickets = 25; st.session_state.turn_state = "CASINO_BRONZE"
+        else: 
+            tier = "NONE"; tickets = 0; st.session_state.turn_state = "CHECK_FAIL"
+            
+        st.session_state.data["tickets"] += tickets
+        save_data(st.session_state.data)
+        
+        # OUTPUT RECEIPT
+        if safe_spend < 0:
+            msg = f"""
+            ⚠️ **PAYCHECK SHORTAGE**
+            
+            💵 Gross: ${check_amount:.2f}
+            
+            **Deductions:**
+            - Rent: $200.00
+            - Insurance: $80.00
+            - Loans: $100.00
+            - Blackout Fund: $50.00
+            
+            ❌ **YOU ARE SHORT:** -${abs(safe_spend):.2f}
+            """
+            add_chat("assistant", msg)
+            add_chat("assistant", "We have a problem. You didn't make enough to cover the basics.")
+        else:
+            msg = f"""
+            ✅ **PAYCHECK PROCESSED**
+            
+            💵 Gross: ${check_amount:.2f}
+            
+            **Automatic Deductions:**
+            - Rent (Mom): $200.00
+            - Insurance: $80.00
+            - Loans: $100.00
+            - Blackout Fund: $50.00 (Saved for Mon/Tue)
+            
+            💰 **SAFE TO SPEND:** ${safe_spend:.2f}
+            *(Added to your Wallet)*
+            
+            🎟️ **TICKETS EARNED:** {tickets} ({tier})
+            """
+            add_chat("assistant", msg)
+            
+        st.rerun()
 
 # --- 3. DAILY CALCULATOR ---
 elif st.session_state.turn_state == "INPUT_DAILY":
@@ -376,7 +407,7 @@ elif st.session_state.turn_state == "CHECK_FAIL":
         st.rerun()
     if st.button("Reset"): st.session_state.turn_state="WALLET_CHECK"; st.session_state.history=[]; st.rerun()
 
-elif st.session_state.turn_state == "CHECK_BRONZE" or st.session_state.turn_state == "CASINO_BRONZE":
+elif st.session_state.turn_state == "CASINO_BRONZE":
     add_chat("assistant", "🥉 **BRONZE TIER** unlocked. Cost: 25 Tickets.")
     c1, c2 = st.columns(2)
     if c1.button("Spin Bronze Wheel (25 Tix)"):
@@ -386,7 +417,7 @@ elif st.session_state.turn_state == "CHECK_BRONZE" or st.session_state.turn_stat
         add_chat("assistant", f"{get_ticket_save_response()}")
         st.session_state.turn_state="WALLET_CHECK"; st.rerun()
 
-elif st.session_state.turn_state == "CHECK_SILVER" or st.session_state.turn_state == "CASINO_SILVER":
+elif st.session_state.turn_state == "CASINO_SILVER":
     add_chat("assistant", "🥈 **SILVER TIER** unlocked. Cost: 50 Tickets.")
     c1, c2 = st.columns(2)
     if c1.button("Spin Silver Wheel (50 Tix)"):
@@ -396,7 +427,7 @@ elif st.session_state.turn_state == "CHECK_SILVER" or st.session_state.turn_stat
         add_chat("assistant", f"{get_ticket_save_response()}")
         st.session_state.turn_state="WALLET_CHECK"; st.rerun()
 
-elif st.session_state.turn_state == "CHECK_GOLD" or st.session_state.turn_state == "CASINO_GOLD":
+elif st.session_state.turn_state == "CASINO_GOLD":
     add_chat("assistant", "👑 **GOLD TIER** unlocked. Cost: 100 Tickets.")
     c1, c2 = st.columns(2)
     if c1.button("SPIN GOLD WHEEL (100 Tix)"):
@@ -756,5 +787,4 @@ elif st.session_state.turn_state == "PRIZE_DONE" or st.session_state.turn_state.
     if c1.button("Use Today"):
         st.info("Enjoy."); st.session_state.turn_state="WALLET_CHECK"; st.rerun()
     if c2.button("Save for Later"):
-        add_chat("assistant", f"Saved. {get_ticket_save_response()}")
-        st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+        st.info("Saved."); st.session_state.turn_state="WALLET_CHECK"; st.rerun()
