@@ -446,7 +446,7 @@ elif st.session_state.turn_state == "SPIN_SILVER":
 elif st.session_state.turn_state == "SPIN_GOLD":
     if st.session_state.data["tickets"] >= 100:
         st.session_state.data["tickets"] -= 100; save_data(st.session_state.data)
-        prizes = ["Anal Fuck", "All 3 Holes", "Slave Day", "Creampie Claiming", "Upside Down Throat Fuck", "Romantic Fantasy", "Doggy Style Ready"]
+        prizes = ["Anal Fuck", "All 3 Holes", "Slave Day", "Creampie Claiming", "Cum Swallow", "Romantic Fantasy", "Doggy Style Ready"]
         win = spin_animation("Gold", prizes)
         add_chat("assistant", f"👑 JACKPOT: **{win}**")
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
@@ -787,7 +787,7 @@ elif st.session_state.turn_state == "PRIZE_CREAMPIE_CLAIMING":
                     st.session_state.turn_state = "PRIZE_DONE"
                     st.rerun()
 
-# --- UPSIDE DOWN THROAT FUCK ---
+# ---CUM SWALLOW---
 elif st.session_state.turn_state == "PRIZE_CUM_SWALLOW":
     add_chat("assistant", "Mmm… you won Cum Swallow tonight, baby. I’ve been thinking about this all day.")
     add_chat("assistant", "I want your cock in my mouth… deep, slow at first, then harder… until you give me every thick, hot drop straight down my throat.")
@@ -1058,6 +1058,7 @@ elif st.session_state.turn_state == "PRIZE_DONE" or st.session_state.turn_state.
         save_data(st.session_state.data)
         add_chat("assistant", f"Saved. {get_ticket_save_response()}")
         st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+
 
 
 
