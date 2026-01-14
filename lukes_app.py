@@ -482,128 +482,157 @@ elif st.session_state.turn_state == "PRIZE_MASSAGE_3":
         add_narrator("I shift in my seat, pressing my thighs together.")
         add_chat("assistant", "Your prize is waiting, good boy. Don't keep me waiting.")
         st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
+        
 # --- SHOWER SHOW ---
 elif st.session_state.turn_state == "PRIZE_SHOWER_SHOW":
-    add_narrator("My eyes flick up from my screen pupils dilating just a fraction. The corner of my mouth lifts in a slow, wicked smile.")
-    add_chat("assistant", "Ohhh… look at that. Oh, honey—you know this one's going to be cheeky.")
-    if st.button("Tell me more"):
-        simulate_typing(2)
-        add_chat("assistant", "Rules are simple, baby: You sit on the edge of the bathtub. You watch. You dry me off when I’m done.")
-        add_chat("assistant", "I’m already getting wet just thinking about you watching me. But here’s the twist—you can’t touch until the water’s off.")
-        simulate_loading(3); add_media("shower.jpeg")
-        add_chat("assistant", "Hot water steaming up the glass, soap dripping down my curves… I’ll face you so you can see everything.")
-        st.session_state.turn_state = "PRIZE_SHOWER_2"; st.rerun()
-elif st.session_state.turn_state == "PRIZE_SHOWER_2":
-    if st.button("Show Video"):
-        simulate_loading(3); add_media("shower_video1.mp4", "video")
-        simulate_typing(2)
-        add_chat("assistant", "I’m going to tease you until you’re begging to get in here with me.")
-        add_narrator("Dripping with mischief.")
-        add_chat("assistant", "Maybe I'll let you dry me off with your tongue.")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_narrator("My eyes lock on yours through the screen, pupils widening with heat as a slow, wicked smile spreads across my lips.")
+    add_chat("assistant", "A steamy shower show just for you? Oh honey, this is going to leave you throbbing.")
+    
+    if st.button("Lay out the rules", key="shower_rules"):
+        simulate_typing(2.5)
+        add_chat("assistant", "You sit on the tub's edge—no touching me until every drop is rinsed off. But you can stroke yourself while you watch.")
+        add_chat("assistant", "The glass fogs with hot steam... water pounds my skin, soap bubbles sliding over my full breasts, down my stomach, teasing between my thighs.")
+        simulate_loading(3)
+        add_media("shower.jpeg")  # Tease the steamy view
+        add_narrator("I press my palms to the glass, arching so you see the rivulets tracing my curves.")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Watch me lather up slowly", key="shower_lather"):
+                simulate_loading(3.5)
+                add_media("shower_video1.mp4", "video")
+                add_chat("assistant", "Fingers glide over slick nipples... dip lower, circling my clit until my breath fogs the glass more. See how swollen and needy I am?")
+        with col2:
+            if st.button("Beg me to let you in", key="shower_beg"):
+                add_chat("assistant", "Not quite yet... but keep watching. When the water stops, your tongue can replace the towel.")
+        
+        if st.button("End the tease—dry me off", key="shower_end"):
+            add_narrator("I turn off the faucet, water still dripping from my lashes and nipples.")
+            add_chat("assistant", "Come here... lick every bead off my skin, starting wherever you crave most.")
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
 
 # --- TOY PIC ---
 elif st.session_state.turn_state == "PRIZE_TOY_PIC":
-    add_narrator("My eyes flick up from my screen pupils dilating just a fraction.")
-    add_chat("assistant", "Looks like you’ve leveled up. Rules are simple: You pick the toy. You pick the spot. I take the photo.")
-    if st.button("Show me the pic"):
-        simulate_loading(3); add_media("toy_pic.jpeg")
-        simulate_typing(2)
-        add_chat("assistant", "I know what you like, maybe the end of your screwdriver, deep in my pussy, or the vibrating bullet tucked in my tight ass. Tell me exactly which hole to fill.")
-        st.session_state.turn_state = "PRIZE_TOY_2"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_TOY_2":
-    if st.button("See result"):
-        simulate_loading(3); add_media("toy_ass1.jpeg")
-        add_chat("assistant", "I’ll make sure you can see how deep it goes and how dripping wet I am.")
-        add_narrator("You imagine me reaching into the drawer, my fingers brushing over the silicone.")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_narrator("My breath hitches, eyes sparkling with filthy anticipation.")
+    add_chat("assistant", "Custom toy pic time. You pick the toy, the hole, the angle—I snap it dripping and ready.")
+    
+    if st.button("Choose your weapon", key="toy_choose"):
+        choices = [
+            "Vibrating bullet buzzing deep in my tight ass",
+            "Thick ridged dildo stretching my pussy wide",
+            "Household screwdriver handle plunging in",
+            "Jeweled plug filling my ass completely"
+        ]
+        selected = st.radio("What do you want me to stuff inside?", choices, key="toy_selection")
+        
+        if st.button("Snap & show", key="toy_snap"):
+            simulate_loading(3)
+            add_media("toy_pic.jpeg")
+            add_chat("assistant", f"Here it is... {selected.lower()}. My lips gripping it tight, juices glistening down my thighs.")
+            add_narrator("I push it deeper for the camera, a soft whimper escaping as it hits just right.")
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
 
 # --- LICK PUSSY ---
 elif st.session_state.turn_state == "PRIZE_LICK_PUSSY":
-    add_chat("assistant", "Tonight you get to worship me properly.")
-    add_narrator("I’m already getting wet just thinking about it.")
-    if st.button("How?"):
-        add_chat("assistant", "Rules are simple, baby. You kneel. You use only your mouth. You lick me exactly how I like it.")
+    add_chat("assistant", "Time to worship me with that talented mouth of yours.")
+    add_narrator("I'm already slick and aching just imagining your tongue.")
+    
+    if st.button("Teach me how you like it", key="lick_teach"):
+        add_chat("assistant", "Kneel. Start with feather-light kisses on my thighs... then long, slow drags of your tongue along my folds.")
+        add_chat("assistant", "Swirl around my clit, suck it gently... then fuck me with your tongue, tasting every drop of how wet you make me.")
         simulate_typing(2)
-        add_chat("assistant", "Slow circles around my clit first, then long flicks up my slit… tease the entrance, push your tongue inside.")
-        st.session_state.turn_state = "PRIZE_LICK_2"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_LICK_2":
-    if st.button("Show me"):
-        simulate_loading(3)
-        img = random.choice(["pussy_lick2.jpeg", "pussy_lick1.jpeg", "pussy_lick3.jpeg"])
-        add_media(img)
-        add_chat("assistant", "I'll ride your tongue until my thighs shake and I soak you.")
-        add_narrator("You imagine one finger hooking under the waistband. I tug it aside, showing you how glistening I am already.")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+        if st.button("Show the view", key="lick_view"):
+            simulate_loading(3)
+            img = random.choice(["pussy_lick1.jpeg", "pussy_lick2.jpeg", "pussy_lick3.jpeg"])
+            add_media(img)
+            add_chat("assistant", "I'll ride your face hard, thighs squeezing, until I cum all over your chin and tongue.")
+            add_narrator("My fingers twist in your hair, holding you exactly where I need you.")
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
 
 # --- TONGUE TEASE ---
 elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
-    add_chat("assistant", "Oh this is a good one. Stroke it slow for me but won't cum until I say.")
-    if st.button("Rules?"):
+    add_chat("assistant", "Stroke that cock slow for me... edge yourself. No cumming until I say.")
+    
+    if st.button("Start the tease", key="tease_start"):
         add_media("tease1.jpeg")
-        add_chat("assistant", "Stroke it slow... I'll use only my tongue.")
-        add_narrator("I lean forward just enough that you feel the heat of my breath ghosting over the head.")
-        st.session_state.turn_state = "PRIZE_TEASE_2"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_TEASE_2":
-    if st.button("Continue"):
-        add_narrator("My tongue slips out and hovers an inch away.")
-        add_chat("assistant", "Keep stroking. Nice and slow.")
-        add_narrator("I open wider, letting my tongue slide over and over your head.")
-        add_chat("assistant", "God, you’re so fucking hard… you’re close, aren’t you?")
-        simulate_loading(3); add_media("tease2.jpeg")
-        add_narrator("I pull back again—cruelly. Then I lean in once more, licking your head slowly.")
-        add_chat("assistant", "Come for me—right on my tongue—give it all to me—")
-        time.sleep(2); add_media("jerking1.jpeg")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+        add_chat("assistant", "My hot breath ghosts over your swollen head... tongue hovering so close you feel the wetness.")
+        add_narrator("Just one cruel flick across the tip, tasting your pre-cum.")
+        
+        if st.button("More tongue?", key="tease_more"):
+            add_chat("assistant", "Keep stroking... watch me swirl slow circles around the head, then drag flat down the shaft.")
+            simulate_loading(3)
+            add_media("tease2.jpeg")
+            add_chat("assistant", "You're leaking for me... so close. Beg, and I'll let you explode right on my waiting tongue.")
+            time.sleep(2)
+            add_media("jerking1.jpeg")
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
 
 # --- NO PANTIES ---
 elif st.session_state.turn_state == "PRIZE_NO_PANTIES":
-    add_chat("assistant", "Rules are simple, baby. I wear a dress or skirt. I wear nothing underneath. You get to verify.")
-    if st.button("Tell me more"):
-        add_chat("assistant", "At the grocery store… bending over to get food from the bottom shelf. No one else knows that I’m completely bare.")
-        simulate_loading(3); add_media("exposed2.jpeg")
-        st.session_state.turn_state = "PRIZE_NO_PANTIES_2"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_NO_PANTIES_2":
-    if st.button("Show me"):
-        simulate_loading(3); add_media("exposed1.jpeg")
-        add_chat("assistant", "I’m going to be dripping wet by the time we get home.")
-        add_narrator("You imagine me lifting my hips slightly, sliding the fabric down and tossing it aside.")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_chat("assistant", "Short skirt, bare underneath. You get full access to verify... anytime.")
+    
+    if st.button("Take me shopping", key="nopanties_shop"):
+        add_chat("assistant", "Grocery aisle... I bend for the lowest shelf, skirt riding up, cool air kissing my naked, dripping pussy.")
+        simulate_loading(3)
+        add_media("exposed2.jpeg")
+        add_chat("assistant", "Every step rubs my thighs together, slickness building. By checkout, I'm soaked and desperate.")
+        
+        if st.button("Lift for proof", key="nopanties_proof"):
+            simulate_loading(3)
+            add_media("exposed1.jpeg")
+            add_narrator("I flash you discreetly—glistening, swollen, all yours.")
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
 
 # --- PLUG TEASE ---
 elif st.session_state.turn_state == "PRIZE_PLUG_TEASE":
-    add_narrator("I've been planning this whole thing out for days now.")
-    if st.button("Show me"):
-        add_chat("assistant", "I'll get the oil and find the toy you left me. Ill slide it in, without making a sound."); 
-        simulate_loading(3); add_media("plug3.jfif")
-        add_chat("assistant", "Ill get dressed and continue on with my day. Every movement reminding me of the secret. You'll come home and remove it."); 
-        simulate_loading(3); add_media("plug2.jfif")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_narrator("This has been on my mind for days... the constant reminder.")
+    
+    if st.button("Watch the insertion", key="plug_insert"):
+        add_chat("assistant", "Warm oil coats my hole... I ease the plug in inch by inch, biting my lip to stifle the moan.")
+        simulate_loading(3)
+        add_media("plug3.jfif")
+        add_chat("assistant", "It's seated deep now. Every sway of my hips, every sit, makes me clench around it, thinking of you.")
+        simulate_loading(3)
+        add_media("plug2.jfif")
+        add_chat("assistant", "When you get home, pull it out slow... then replace it with whatever you crave.")
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
 
 # --- ROAD HEAD ---
 elif st.session_state.turn_state == "PRIZE_ROAD_HEAD":
-    add_chat("assistant", "You've won yourself a little something extra special tonight… 'Road Head'.")
-    add_narrator("A gleam of excitement sparkles in my eyes…")
-    if st.button("Preview"):
-        add_chat("assistant", "Baby, there's so much more to it than just putting your dick in my mouth while driving… It's an art form.")
-        simulate_typing(3)
-        add_chat("assistant", "And the thrill of risk adds another layer of excitement. Knowing that if you don't pay attention, we could both end up in a terrible accident…")
-        simulate_loading(3); add_media("road_head.jpeg")
-        time.sleep(2); add_media("road_head_video.mp4", "video")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_chat("assistant", "Road head—the risky, heart-pounding kind.")
+    add_narrator("Excitement dances in my eyes like danger.")
+    
+    if st.button("Feel the thrill", key="road_thrill"):
+        add_chat("assistant", "One hand on the wheel, the other guiding my head. I take you deep while cars zoom by.")
+        add_chat("assistant", "The risk... knowing one glance from another driver could catch my lips wrapped around you.")
+        simulate_loading(3)
+        add_media("road_head.jpeg")
+        simulate_loading(3)
+        add_media("road_head_video.mp4", "video")
+        add_chat("assistant", "Swallow you at stoplights... make you grip the wheel tighter as I work you to the edge.")
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
 
 # --- NUDE PIC ---
 elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
-    add_chat("assistant", "Ohhh… look at that. Rules are simple: You pick the pose. You pick the part. I send the proof.")
-    if st.button("Send it"):
-        simulate_loading(3); add_media("nude_pic1.jpeg")
-        add_chat("assistant", "Do you want my ass in the air? Maybe a close-up of my tits? I’ll make sure the lighting is perfect.")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_chat("assistant", "Your personal nude—custom pose, custom focus, all for you.")
+    
+    if st.button("Design it", key="nude_design"):
+        poses = ["Ass arched high in the air", "Legs wide, close-up on my wet pussy", "Tits pressed together and squeezed", "Full-body mirror shot, hair cascading"]
+        selected = st.radio("How should I pose for you?", poses, key="nude_selection")
+        
+        if st.button("Send the proof", key="nude_send"):
+            simulate_loading(3)
+            add_media("nude_pic1.jpeg")
+            add_chat("assistant", f"Here you go... {selected.lower()}. Skin flushed, eyes begging, perfectly lit just for your pleasure.")
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
 
 # ==========================================
 #       PART 9: GOLD PRIZES
@@ -817,4 +846,5 @@ elif st.session_state.turn_state == "PRIZE_DONE" or st.session_state.turn_state.
         save_data(st.session_state.data)
         add_chat("assistant", f"Saved. {get_ticket_save_response()}")
         st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+
 
