@@ -453,7 +453,7 @@ elif st.session_state.turn_state == "SPIN_BRONZE":
 elif st.session_state.turn_state == "SPIN_SILVER":
     if st.session_state.data["tickets"] >= 50:
         st.session_state.data["tickets"] -= 50; save_data(st.session_state.data)
-        prizes = ["Massage", "Toy Pic", "Lick Pussy", "Nude Pic", "Tongue Tease", , "Road Head", "Plug Tease"]
+        prizes = ["Massage", "Toy Pic", "Lick Pussy", "Nude Pic", "Tongue Tease", "Road Head", "Plug Tease"]
         win = spin_animation("Silver", prizes)
         add_chat("assistant", f"🥈 WINNER: **{win}**")
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
@@ -1992,3 +1992,4 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
       
+
