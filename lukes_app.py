@@ -837,29 +837,41 @@ elif st.session_state.turn_state == "PRIZE_CUM_SWALLOW_TEASE_2":
         simulate_loading(4); add_media("wet_bobbing_slow.jpeg")  # Placeholder: mid-motion, lips stretched around shaft, spit shining on cock, focused eye contact
         add_chat("assistant", "Every time I go down I take a little more… until you’re hitting the back of my throat. I moan around you, letting you feel how much I love this.")
         st.session_state.turn_state = "PRIZE_CUM_SWALLOW_DEEP_2"; st.rerun()
-
-    if c2.button("Grab my hair and guide me"):
+        
+    if st.button("Grab my hair and guide me"):
         add_chat("user", "Grab my hair and guide me")
         simulate_typing(3.5)
         add_chat("assistant", "Your fingers twist in my hair… I love when you take control. You pull me down deeper, setting the rhythm while I relax my throat for you.")
-        simulate_loading(4); add_media("hair_pull_throat.jpeg")  # Placeholder: hand gripping hair firmly, cock buried deep, throat working visibly, spit dripping
+        simulate_loading(4)
+        add_media("hair_pull_throat.jpeg") 
         add_chat("assistant", "Yes… use my mouth, baby. Fuck my face slow at first… then faster. I’m dripping between my legs just from how full you make me feel.")
-        st.session_state.turn_state = "PRIZE_CUM_SWALLOW_DEEP_2"; st.rerun()
+        st.session_state.turn_state = "PRIZE_THROAT_FINISH" 
+        st.rerun()
 
 # ── DEEP / INTENSE BRANCH ─────────────────────────────────────────────
-elif st.session_state.turn_state= "throat fuck":
+elif st.session_state.turn_state == "PRIZE_THROAT_FINISH":
     add_chat("assistant", "God you’re throbbing so hard in my throat… I can feel how close you are.")
     add_chat("assistant", "Tell me how you want to finish, baby… I’m ready for it all.")
+    
     c1, c2, c3 = st.columns(3)
 
     if c1.button("Deep throat until I cum"):
-        simulate_loading(5); add_media("full_throat_bury_cum.jpeg")  # Placeholder: nose pressed to pelvis, eyes watering, throat full, moment of release
+        add_chat("user", "Take it all.")
+        simulate_loading(5)
+        add_media("full_throat_bury_cum.jpeg") 
         add_chat("assistant", "You hold my head still and thrust deep… I take every inch, throat squeezing around you as you start to pulse.")
         add_chat("assistant", "Hot, thick ropes shoot straight down my throat — I swallow fast, milking you with my muscles, humming so you feel every vibration.")
         simulate_typing(3)
         add_chat("assistant", "When you finally pull out, I gasp for air… then lean back in to lick every last drop from your tip, cleaning you slowly while staring up at you with a satisfied smile.")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
+        
+    if c2.button("Cum on my face"):
+        add_chat("user", "I'm coating your face.")
+        simulate_loading(4)
+        add_media("facial_messy.jpeg")
+        add_chat("assistant", "I pull back just in time, sticking my tongue out as you paint my skin. Hot, sticky, and marking me as yours.")
+        st.session_state.turn_state = "PRIZE_DONE"
 
     if c2.button("Pull out — cum on my tongue"):
         simulate_loading(5); add_media("tongue_cum_pool.jpeg")  # Placeholder: tongue extended, thick white ropes landing across it, some dripping down chin
@@ -1046,6 +1058,7 @@ elif st.session_state.turn_state == "PRIZE_DONE" or st.session_state.turn_state.
         save_data(st.session_state.data)
         add_chat("assistant", f"Saved. {get_ticket_save_response()}")
         st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+
 
 
 
