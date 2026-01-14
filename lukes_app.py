@@ -204,7 +204,6 @@ with st.sidebar:
     st.metric("💵 SAFE TO SPEND", f"${st.session_state.data.get('wallet_balance', 0.0):,.2f}")
     
     st.divider()
-    
     admin_code = st.text_input("Admin Override", type="password", placeholder="Secret Code")
     
     if st.button("Reset Bank (Debug)"):
@@ -483,74 +482,113 @@ elif st.session_state.turn_state == "PRIZE_MASSAGE_3":
         add_chat("assistant", "Your prize is waiting, good boy. Don't keep me waiting.")
         st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
         
-# --- SHOWER SHOW ---
+# --- SHOWER SHOW (branching paths) ---
 elif st.session_state.turn_state == "PRIZE_SHOWER_SHOW":
-    add_narrator("My eyes lock on yours through the screen, pupils widening with heat as a slow, wicked smile spreads across my lips.")
-    add_chat("assistant", "A steamy shower show just for you? Oh honey, this is going to leave you throbbing.")
+    add_narrator("My pupils dilate, voice dropping to a sultry purr.")
+    add_chat("assistant", "Private shower show… but how much tease, how much touch you get after… your call.")
     
-    if st.button("Lay out the rules", key="shower_rules"):
-        simulate_typing(2.5)
-        add_chat("assistant", "You sit on the tub's edge—no touching me until every drop is rinsed off. But you can stroke yourself while you watch.")
-        add_chat("assistant", "The glass fogs with hot steam... water pounds my skin, soap bubbles sliding over my full breasts, down my stomach, teasing between my thighs.")
-        simulate_loading(3)
-        add_media("shower.jpeg")  # Tease the steamy view
-        add_narrator("I press my palms to the glass, arching so you see the rivulets tracing my curves.")
+    tease_level = st.radio("Tease intensity:", 
+        ["Slow sensual soap show", "Filthy explicit fingering", "Denial & begging game"], 
+        key="shower_tease_level")
+    
+    if st.button("Start the show", key="shower_start"):
+        simulate_loading(4)
+        add_media("shower.jpeg")
         
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("Watch me lather up slowly", key="shower_lather"):
-                simulate_loading(3.5)
-                add_media("shower_video1.mp4", "video")
-                add_chat("assistant", "Fingers glide over slick nipples... dip lower, circling my clit until my breath fogs the glass more. See how swollen and needy I am?")
-        with col2:
-            if st.button("Beg me to let you in", key="shower_beg"):
-                add_chat("assistant", "Not quite yet... but keep watching. When the water stops, your tongue can replace the towel.")
+        if "Slow sensual" in tease_level:
+            add_chat("assistant", "Steam rises… I lather my breasts slowly, thumbs circling nipples until they pebble… hands gliding down, parting folds gently.")
+            after_choice = st.radio("After water stops?", ["Lick me dry", "Join & fuck in shower"], key="shower_after_sensual")
+        elif "Filthy explicit" in tease_level:
+            add_media("shower_video1.mp4", "video")
+            add_chat("assistant", "I turn, press ass to glass… fingers plunge deep, fucking myself while moaning your name… juices mixing with water.")
+            after_choice = st.radio("After?", ["Cum on my tits", "Finger me to orgasm"], key="shower_after_filthy")
+        else:  # Denial
+            add_chat("assistant", "I touch everywhere except where I need it most… circling clit, never quite… leaving you aching.")
+            after_choice = st.radio("Reward?", ["Finally let you in", "Keep denying"], key="shower_after_deny")
         
-        if st.button("End the tease—dry me off", key="shower_end"):
-            add_narrator("I turn off the faucet, water still dripping from my lashes and nipples.")
-            add_chat("assistant", "Come here... lick every bead off my skin, starting wherever you crave most.")
+        if st.button("Water off… your turn", key="shower_end"):
+            if "Lick" in after_choice or "Join" in after_choice:
+                add_chat("assistant", "Come here… tongue or cock—taste or fill me while I'm still dripping.")
+            elif "Cum on" in after_choice:
+                add_chat("assistant", "Kneel me down… paint my wet tits with your load.")
+            elif "Finger" in after_choice:
+                add_chat("assistant", "Finger me hard until I squirt on the tile.")
+            else:
+                add_chat("assistant", "You leave me edged and trembling… cruel, but so hot.")
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
 
-# --- TOY PIC ---
+            
+# --- TOY PIC (custom + intensity branches) ---
 elif st.session_state.turn_state == "PRIZE_TOY_PIC":
-    add_narrator("My breath hitches, eyes sparkling with filthy anticipation.")
-    add_chat("assistant", "Custom toy pic time. You pick the toy, the hole, the angle—I snap it dripping and ready.")
+    add_narrator("My breath quickens, cheeks flushing.")
+    add_chat("assistant", "Pick toy, hole, depth… I'll snap it exactly how you command.")
     
-    if st.button("Choose your weapon", key="toy_choose"):
-        choices = [
-            "Vibrating bullet buzzing deep in my tight ass",
-            "Thick ridged dildo stretching my pussy wide",
-            "Household screwdriver handle plunging in",
-            "Jeweled plug filling my ass completely"
-        ]
-        selected = st.radio("What do you want me to stuff inside?", choices, key="toy_selection")
+    toy_type = st.radio("Toy?", 
+        ["Vibrating bullet", "Thick dildo", "Household object (screwdriver)", "Jeweled plug"], 
+        key="toy_type_choice")
+    hole = st.radio("Hole?", ["Pussy", "Ass"], key="toy_hole")
+    depth = st.radio("Depth?", ["Teasing shallow", "All the way buried"], key="toy_depth")
+    
+    if st.button("Insert & photograph", key="toy_snap"):
+        simulate_loading(4)
+        add_media("toy_pic.jpeg")
+        add_chat("assistant", f"{toy_type} in my {hole.lower()}… ")
         
-        if st.button("Snap & show", key="toy_snap"):
-            simulate_loading(3)
-            add_media("toy_pic.jpeg")
-            add_chat("assistant", f"Here it is... {selected.lower()}. My lips gripping it tight, juices glistening down my thighs.")
-            add_narrator("I push it deeper for the camera, a soft whimper escaping as it hits just right.")
+        if "shallow" in depth:
+            add_chat("assistant", "…just the tip, lips gripping, clit throbbing above it.")
+        else:
+            add_chat("assistant", "…all the way, base flush, my walls stretched tight around it.")
+        
+        reaction = st.radio("My reaction?", ["Moaning & begging", "Silent trembling", "Dirty talk"], key="toy_reaction")
+        if st.button("Show final pic", key="toy_final"):
+            if "Moaning" in reaction:
+                add_media("toy_ass1.jpeg")
+                add_chat("assistant", "I can't stop whimpering your name… please let me cum with it inside.")
+            elif "Silent" in reaction:
+                add_chat("assistant", "My thighs shake silently… eyes pleading.")
+            else:
+                add_chat("assistant", "\"Fuck… look how deep you made me take it… I'm your little toy slut.\"")
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
 
-# --- LICK PUSSY ---
+
+
+# --- LICK PUSSY (technique + finish branches) ---
 elif st.session_state.turn_state == "PRIZE_LICK_PUSSY":
-    add_chat("assistant", "Time to worship me with that talented mouth of yours.")
-    add_narrator("I'm already slick and aching just imagining your tongue.")
+    add_chat("assistant", "Worship me with that mouth… choose how you please me.")
     
-    if st.button("Teach me how you like it", key="lick_teach"):
-        add_chat("assistant", "Kneel. Start with feather-light kisses on my thighs... then long, slow drags of your tongue along my folds.")
-        add_chat("assistant", "Swirl around my clit, suck it gently... then fuck me with your tongue, tasting every drop of how wet you make me.")
-        simulate_typing(2)
-        if st.button("Show the view", key="lick_view"):
-            simulate_loading(3)
-            img = random.choice(["pussy_lick1.jpeg", "pussy_lick2.jpeg", "pussy_lick3.jpeg"])
-            add_media(img)
-            add_chat("assistant", "I'll ride your face hard, thighs squeezing, until I cum all over your chin and tongue.")
-            add_narrator("My fingers twist in your hair, holding you exactly where I need you.")
+    technique = st.radio("Technique:", 
+        ["Slow teasing circles", "Deep tongue fucking", "Suck & finger combo", "Edge me forever"], 
+        key="lick_technique")
+    
+    if st.button("Start licking", key="lick_begin"):
+        simulate_loading(3.5)
+        img = random.choice(["pussy_lick1.jpeg", "pussy_lick2.jpeg", "pussy_lick3.jpeg"])
+        add_media(img)
+        
+        if "Slow" in technique:
+            add_chat("assistant", "Your tongue traces lazy circles around my clit… I shiver, hips lifting for more.")
+        elif "Deep" in technique:
+            add_chat("assistant", "You plunge inside… fucking me with your tongue while I grind down hard.")
+        elif "Suck" in technique:
+            add_chat("assistant", "You suck my clit hard… two fingers curling inside, hitting that spot perfectly.")
+        else:  # Edge
+            add_chat("assistant", "You bring me close… then pull away… over and over until I'm crying.")
+        
+        finish_choice = st.radio("Finish?", 
+            ["Let me cum on your face", "Pull back & deny", "Make me squirt"], 
+            key="lick_finish")
+        if st.button("End it", key="lick_final"):
+            if "squirt" in finish_choice:
+                add_chat("assistant", "I explode… soaking your face, chest, everything.")
+            elif "deny" in finish_choice:
+                add_chat("assistant", "You stop right at the edge… leaving me shaking and desperate.")
+            else:
+                add_chat("assistant", "I cum hard… thighs clamping your head, flooding your mouth.")
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
+
 
 # --- TONGUE TEASE ---
 elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
@@ -636,35 +674,67 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
 
 # ==========================================
 #       PART 9: GOLD PRIZES
-# ==========================================# --- ANAL FUCK ---
+# ==========================================#
+# --- ANAL FUCK (deep branching) ---
 elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
-    add_narrator("My blue eyes sparkle with wicked delight as I lean in close, voice dropping to a husky whisper.")
-    add_chat("assistant", "Your prize? You get to claim my tight little asshole... slowly at first, then pounding deep until you fill me with every hot drop.")
+    add_narrator("My blue eyes darken with lust, lips parting as I whisper.")
+    add_chat("assistant", "Your prize is my tight asshole… but how you take it, how hard, how long… that's your choice tonight.")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Tease me first", key="anal_tease"):
-            simulate_loading(1.5)
+    style = st.radio("Claim style:", 
+        ["Slow & sensual build", "Rough & dominant", "Teasing denial first", "Romantic & eye-locked"], 
+        key="anal_style_choice")
+    
+    if st.button("Start claiming me", key="anal_begin"):
+        simulate_loading(3)
+        
+        if "Slow" in style:
             add_media(random.choice(["behind_fuck1.jpeg", "behind_fuck10.jpeg"]))
-            add_chat("assistant", "Mmm... watch me arch my back, spreading my cheeks for you. Feel how warm and ready I am?")
-            st.session_state.anal_progress = "teased"
+            add_chat("assistant", "I arch slowly, cheeks spread with trembling fingers. You drizzle warm lube… press just the head in… I gasp softly, walls fluttering around you.")
+            depth_choice = st.radio("How deep?", ["Halfway teasing", "All the way gentle"], key="slow_depth")
+            if st.button("Push", key="slow_push"):
+                if "Halfway" in depth_choice:
+                    add_chat("assistant", "You stay shallow… I rock back begging for more, whimpering sweetly.")
+                else:
+                    add_chat("assistant", "You sink all the way… slow, deep strokes until I'm trembling and dripping.")
+        
+        elif "Rough" in style:
+            add_media(random.choice(["behind_fuck4.jpeg", "behind_fuck7.jpeg", "behind_fuck8.jpeg"]))
+            add_chat("assistant", "I push back hard. You slam in one brutal thrust—my scream echoes as you stretch me wide, balls slapping skin.")
+            pace_choice = st.radio("Pace?", ["Fast & punishing", "Slow brutal grinds"], key="rough_pace")
+            if st.button("Fuck harder", key="rough_fuck"):
+                if "Fast" in pace_choice:
+                    add_chat("assistant", "You pound relentlessly—my hole gaping slightly each withdrawal, drool on the sheets.")
+                else:
+                    add_chat("assistant", "Deep, grinding rolls… holding me pinned while I shake.")
+        
+        elif "Teasing denial" in style:
+            add_media("behind_fuck10.jpeg")
+            add_chat("assistant", "You circle my hole with your tip… press in just the head… pull out… over and over.")
+            if st.button("Please let me have it", key="denial_beg"):
+                add_chat("assistant", "After minutes of torment, you finally sink deep… I cry out in relief.")
+            else:
+                add_chat("assistant", "You keep denying… leaving me clenching on nothing, begging louder.")
+        
+        else:  # Romantic
+            add_media("behind_fuck5.jpeg")
+            add_chat("assistant", "We face the mirror. You enter slowly while our eyes stay locked… hands caressing my breasts, lips brushing my neck.")
+            if st.button("Cum with me", key="romantic_cum"):
+                add_chat("assistant", "We move together… deep, rolling thrusts until we shatter as one.")
+        
+        cum_choice = st.radio("Finish?", ["Cum deep inside", "Pull out & paint my ass", "Edge & deny"], key="anal_finish")
+        if st.button("End it", key="anal_final"):
+            simulate_loading(3.5)
+            if "inside" in cum_choice:
+                add_media(random.choice(["ass_cum1.jpeg", "ass_cum3.jpeg"]))
+                add_chat("assistant", "Yes… flood my ass… feel me clench and milk every pulse.")
+            elif "paint" in cum_choice:
+                add_media("ass_cum4.jpeg")
+                add_chat("assistant", "Pull out… hot ropes across my cheeks… I shiver as it drips.")
+            else:
+                add_chat("assistant", "You stop just before… leaving me quivering, empty, desperate for next time.")
+            st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
-    
-    with col2:
-        if st.button("Take me now", key="anal_now") or st.session_state.get("anal_progress") == "teased":
-            simulate_loading(2)
-            img = random.choice(["behind_fuck4.jpeg", "behind_fuck7.jpeg", "behind_fuck5.jpeg"])
-            add_media(img)
-            add_chat("assistant", "I drop to all fours, ass high, quivering in anticipation. Your thick cock presses against my puckered hole... push in, Daddy. Stretch me open.")
-            add_narrator("My moans fill the room as you slide deeper, inch by throbbing inch.")
-            
-            if st.button("Cum inside me", key="anal_cum"):
-                simulate_loading(2.5)
-                cum_img = random.choice(["ass_cum1.jpeg", "ass_cum3.jpeg", "ass_cum4.jpeg"])
-                add_media(cum_img)
-                add_chat("assistant", "Yes! Flood my ass with your hot cum... I can feel it pulsing, leaking out around you as I clench and milk every last drop.")
-                st.session_state.turn_state = "PRIZE_DONE"
-                st.rerun()
+
 
 # --- SLAVE DAY ---
 elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
@@ -779,15 +849,32 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
 
-# --- BEND OVER ---
+## Bend Over - Pure visual tease & shake (no touching from her)
 elif st.session_state.turn_state == "PRIZE_BEND_OVER":
-    add_chat("assistant", "This is where you get to bend over for me. Sounds fun huh?")
-    if st.button("Reply: No"):
-        add_narrator("Laughing hysterically...")
-        add_chat("assistant", "Just kidding, just the opposite. For just a few seconds, ill bend over right in front of you whenever you say so.")
-        simulate_loading(3)
-        add_media("bend_over1.jfif")
-        add_chat("assistant", "Make sure im wearing something extra see through to make it worth it")
+    add_chat("assistant", "Bend Over prize, baby… Whenever you say it, I hike my skirt up high, bend over deep, and let you drink in the view.")
+    add_chat("assistant", "No hands from me on you, no touching back — just me presenting this fat ass and dripping pussy for your eyes only.")
+    simulate_loading(3.5); add_media("bend_over_skirt_hike_tease.jpeg")  # Placeholder: standing, skirt just starting to lift, hint of bare ass cheeks, looking back with a needy smirk
+    add_chat("assistant", "I’m already soaked thinking about you staring… come closer and look all you want.")
+    st.session_state.turn_state = "PRIZE_BEND_OVER_1"; st.rerun()
+
+elif st.session_state.turn_state == "PRIZE_BEND_OVER_1":
+    add_chat("assistant", "How deep do you want the view?")
+    c1, c2, c3 = st.columns(3)
+
+    if c1.button("Full spread — show me inside"):
+        simulate_typing(3)
+        add_chat("assistant", "Mmm… like this?")
+        simulate_loading(4); add_media("bend_over_full_spread.jpeg")  # Placeholder: bent fully over, hands pulling cheeks wide apart, pussy lips slightly parted, wetness shining, tight asshole visible
+        add_chat("assistant", "Look how my pussy lips glisten… swollen and dripping slow down my thighs. Every time I clench, you can see my hole pulse. I’m aching so bad, but tonight you only get to watch.")
+        add_chat("assistant", "Stroke yourself if you need to… I love knowing you’re throbbing just from looking.")
+        st.session_state.turn_state = "PRIZE_BEND_OVER_2"; st.rerun()
+
+elif st.session_state.turn_state == "PRIZE_BEND_OVER_2":
+    add_chat("assistant", "I can feel your eyes burning into me… want one last tease?")
+    if st.button("Clench & drip for me"):
+        simulate_loading(5); add_media("bend_over_clench_drip.jpeg")  # Placeholder: close-up of pussy clenching visibly, a slow drop of wetness falling, ass cheeks still spread
+        add_chat("assistant", "I clench hard… watch my pussy tighten and release, a thick drop of my juices slowly falling to the floor. I moan your name, body trembling.")
+        add_chat("assistant", "God I want you inside… but not yet. Save up for Silver, baby.")
         st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
 
 # --- JACKOFF PASS ---
@@ -811,31 +898,70 @@ elif st.session_state.turn_state == "PRIZE_JACKOFF_2":
         add_narrator("Puts phone down and gets back to work.")
         st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
 
-# --- FLASH ME ---
+#Flash Me - Pure visual tit tease (no touching from her)
 elif st.session_state.turn_state == "PRIZE_FLASH_ME":
-    add_chat("assistant", "Oh darling, you really know how to pick 'em. Don't worry though; I won't make you walk around naked. Instead…")
-    add_chat("assistant", "Do you want me to just flash you quickly? Or sit on your lap?")
-    if st.button("Reply: Tell me more"):
-        add_chat("user", "Tell me more.")
-        add_chat("assistant", "Oh baby, you seem a bit confused about our little game. Since you've only managed to spin Bronze this time… your options aren't as thrilling.")
-        st.session_state.turn_state = "PRIZE_FLASH_2"; st.rerun()
-elif st.session_state.turn_state == "PRIZE_FLASH_2":
-    if st.button("Reply: I still want details"):
-        add_chat("user", "Details please.")
-        add_chat("assistant", "Fine. You'll be seated somewhere, in the car maybe, and ill lift my shirt over my breasts allowing them to be exposed for you for a quick second.")
-        simulate_loading(3)
-        add_media("flash2.jfif")
-        add_chat("assistant", "Was it a mirage?")
+    add_chat("assistant", "Tit flash time… but remember the rules — no hands, no mouth from me. Just the reveal and the jiggle.")
+    add_chat("assistant", "I’ve been waiting to show these off… ready?")
+    simulate_loading(3); add_media("flash_tease_shirt_lift.jpeg")  # Placeholder: shirt lifted halfway, underboob and side curve visible, nipples still hidden, playful/turned-on expression
+    st.session_state.turn_state = "PRIZE_FLASH_1"; st.rerun()
+
+elif st.session_state.turn_state == "PRIZE_FLASH_1":
+    add_chat("assistant", "How do you want your flash?")
+    c1, c2, c3 = st.columns(3)
+
+    if c1.button("Quick drop & bounce"):
+        simulate_loading(2.5); add_media("quick_tit_drop_bounce.jpeg")  # Placeholder: shirt yanked up, tits dropping heavily, natural bounce, nipples hard
+        add_chat("assistant", "Shirt up fast — my heavy tits drop and bounce free, nipples stiff and pointing right at you. They jiggle a few times before I let the shirt fall back down.")
+        add_chat("assistant", "Did you see how they moved? So full… so ready… but tonight you only get the quick peek.")
         st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
 
-# --- DICK RUB ---
+    if c2.button("Slow peel — make me wait"):
+        simulate_typing(4)
+        add_chat("assistant", "I peel my top up so slowly… first the soft undercurve, then the full roundness… finally both nipples pop out, hard and begging for attention they won’t get.")
+        simulate_loading(4); add_media("slow_tit_peel_nipples.jpeg")  # Placeholder: shirt almost fully up, tits fully exposed, nipples erect and prominent, no hands touching them
+        add_chat("assistant", "Look at them… so warm, so heavy. I shake my chest a little — watch them sway. Then the shirt drops again.")
+        add_chat("assistant", "Fuck… I’m so turned on showing them to you. But Bronze means look, don’t touch.")
+        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+
+    if c3.button("Shake & jiggle"):
+        simulate_loading(4); add_media("tit_shake_flash_full.jpeg")  # Placeholder: tits out, her shaking shoulders side to side, tits swinging freely, nipples tracing arcs
+        add_chat("assistant", "I shake them for you… tits swinging left and right, bouncing up and down. Nipples hard, tracing little circles in the air while I moan softly.")
+        add_chat("assistant", "Imagine your mouth on them… but not tonight. Just the tease.")
+        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+
+
+## Dick Rub - Over-the-jeans only (frustrating clothed friction)
 elif st.session_state.turn_state == "PRIZE_DICK_RUB":
-    add_chat("assistant", "You want me to provide a sensual cock tease without actually touching that throbbing piece of heaven.")
-    simulate_typing(3)
-    add_chat("assistant", "There's plenty else on this gorgeous body that deserves attention. Imagine feeling my hot breath against your neck...")
-    simulate_loading(3)
-    add_media("rub1.jfif")
-    st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_chat("assistant", "Over-the-jeans dick rub, baby… I’m gonna grind my oiled-up body all over your clothed cock — no skin on skin, no hands, no mouth. Just thick, teasing friction.")
+    add_chat("assistant", "You stay zipped up… I stay dressed (mostly). Let’s see how hard I can make you throb through the denim.")
+    simulate_loading(3.5); add_media("jeans_grind_start.jpeg")  # Placeholder: Paige straddling lap, hips positioned over jeans-covered bulge, oil on her thighs/chest, teasing hover
+    st.session_state.turn_state = "PRIZE_DICK_RUB_1"; st.rerun()
+
+elif st.session_state.turn_state == "PRIZE_DICK_RUB_1":
+    add_chat("assistant", "Where do you want my body first?")
+    c1, c2 = st.columns(2)
+
+    if c1.button("Tits rubbing over jeans"):
+        simulate_typing(3.5)
+        add_chat("assistant", "I press my oiled tits down onto your jeans-covered bulge… sliding them up and down, letting the denim feel every soft curve and hard nipple dragging across.")
+        simulate_loading(4); add_media("oiled_tits_jeans_rub.jpeg")  # Placeholder: breasts pressed against jeans zipper, oil leaving shiny trails on fabric, slow up/down motion
+        add_chat("assistant", "Feel how warm and slippery they are through your pants? I can feel you getting harder, straining against the zipper. I moan every time your tip pushes up.")
+        st.session_state.turn_state = "PRIZE_DICK_RUB_2"; st.rerun()
+
+    if c2.button("Pussy grind along the length"):
+        simulate_loading(4); add_media("pussy_jeans_grind.jpeg")  # Placeholder: straddling, pussy (through thin fabric or bare under skirt) grinding along full jeans-covered shaft, wetness darkening denim
+        add_chat("assistant", "I straddle you, lower my dripping pussy right onto your jeans… sliding forward and back along the entire length, letting my clit drag over the rough fabric.")
+        add_chat("assistant", "Fuck… the denim is rough against my swollen lips. I’m soaking your pants, leaving wet streaks, moaning how much I want to feel you bare… but not yet.")
+        st.session_state.turn_state = "PRIZE_DICK_RUB_2"; st.rerun()
+
+elif st.session_state.turn_state == "PRIZE_DICK_RUB_2":
+    add_chat("assistant", "You’re so fucking hard under there… leaking through your jeans. Want to finish like this?")
+    if st.button("Cum in your jeans"):
+        simulate_loading(5); add_media("jeans_cum_wet_spot.jpeg")  # Placeholder: dark wet spot spreading on jeans crotch, her hips still rocking slightly, satisfied/teasing smile
+        add_chat("assistant", "I keep grinding harder… faster… until you can’t hold back. You explode in your pants, hot cum soaking through the denim while I moan and ride the pulses.")
+        add_chat("assistant", "Look at the mess we made… your jeans ruined with your load. I love knowing I did that to you — but next time, Silver means skin on skin.")
+        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+
 
 # --- DONE STATE ---
 elif st.session_state.turn_state == "PRIZE_DONE" or st.session_state.turn_state.startswith("PRIZE_"):
@@ -846,5 +972,3 @@ elif st.session_state.turn_state == "PRIZE_DONE" or st.session_state.turn_state.
         save_data(st.session_state.data)
         add_chat("assistant", f"Saved. {get_ticket_save_response()}")
         st.session_state.turn_state="WALLET_CHECK"; st.rerun()
-
-
