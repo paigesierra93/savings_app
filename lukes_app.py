@@ -847,7 +847,7 @@ elif st.session_state.turn_state == "PRIZE_CUM_SWALLOW_TEASE_2":
         st.session_state.turn_state = "PRIZE_CUM_SWALLOW_DEEP_2"; st.rerun()
 
 # ── DEEP / INTENSE BRANCH ─────────────────────────────────────────────
-elif st.session_state.turn_state= throat fucj":
+elif st.session_state.turn_state= throat fuck":
     add_chat("assistant", "God you’re throbbing so hard in my throat… I can feel how close you are.")
     add_chat("assistant", "Tell me how you want to finish, baby… I’m ready for it all.")
     c1, c2, c3 = st.columns(3)
@@ -1046,4 +1046,5 @@ elif st.session_state.turn_state == "PRIZE_DONE" or st.session_state.turn_state.
         save_data(st.session_state.data)
         add_chat("assistant", f"Saved. {get_ticket_save_response()}")
         st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+
 
