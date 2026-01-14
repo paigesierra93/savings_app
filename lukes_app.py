@@ -607,94 +607,148 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
 
 # ==========================================
 #       PART 9: GOLD PRIZES
-# ==========================================
-
-# --- ANAL FUCK ---
+# ==========================================# --- ANAL FUCK ---
 elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
-    add_narrator("My eyes flicker with amusement as I announce the prize. A provocative smirk plays upon my full lips.")
-    if st.button("Tell me more"):
-        simulate_loading(2)
-        img = random.choice(["behind_fuck1.jpeg", "behind_fuck10.jpeg", "behind_fuck4.jpeg"])
-        add_media(img)
-        add_chat("assistant", "That's where you get to fuck my little ass hole with your throbbing hard dick, till you explode with cum inside of me…")
-        add_chat("assistant", "Imagine me on my hands and knees before you, my round ass presented enticingly towards you. Feel the heat radiating from my tight little hole, just begging for your touch.")
-        st.session_state.turn_state = "PRIZE_ANAL_2"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_ANAL_2":
-    if st.button("Continue"):
-        img2 = random.choice(["behind_fuck7.jpeg", "behind_fuck5.jpeg", "behind_fuck6.jpeg", "behind_fuck8.jpeg"])
-        add_media(img2)
-        time.sleep(2)
-        add_chat("assistant", "Now, why don't you go ahead and claim your well-deserved prize?")
-        img3 = random.choice(["ass_cum1.jpeg", "ass_cum2.jpeg", "ass_cum3.jpeg", "ass_cum4.jpeg"])
-        add_media(img3)
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_narrator("My blue eyes sparkle with wicked delight as I lean in close, voice dropping to a husky whisper.")
+    add_chat("assistant", "Your prize? You get to claim my tight little asshole... slowly at first, then pounding deep until you fill me with every hot drop.")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Tease me first", key="anal_tease"):
+            simulate_loading(1.5)
+            add_media(random.choice(["behind_fuck1.jpeg", "behind_fuck10.jpeg"]))
+            add_chat("assistant", "Mmm... watch me arch my back, spreading my cheeks for you. Feel how warm and ready I am?")
+            st.session_state.anal_progress = "teased"
+            st.rerun()
+    
+    with col2:
+        if st.button("Take me now", key="anal_now") or st.session_state.get("anal_progress") == "teased":
+            simulate_loading(2)
+            img = random.choice(["behind_fuck4.jpeg", "behind_fuck7.jpeg", "behind_fuck5.jpeg"])
+            add_media(img)
+            add_chat("assistant", "I drop to all fours, ass high, quivering in anticipation. Your thick cock presses against my puckered hole... push in, Daddy. Stretch me open.")
+            add_narrator("My moans fill the room as you slide deeper, inch by throbbing inch.")
+            
+            if st.button("Cum inside me", key="anal_cum"):
+                simulate_loading(2.5)
+                cum_img = random.choice(["ass_cum1.jpeg", "ass_cum3.jpeg", "ass_cum4.jpeg"])
+                add_media(cum_img)
+                add_chat("assistant", "Yes! Flood my ass with your hot cum... I can feel it pulsing, leaking out around you as I clench and milk every last drop.")
+                st.session_state.turn_state = "PRIZE_DONE"
+                st.rerun()
 
 # --- SLAVE DAY ---
 elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
-    add_chat("assistant", "Today, you can indulge in whatever you desire.")
-    if st.button("Tell me more"):
-        add_chat("assistant", "If you have video games to play and need the ultimate gaming buddy, simply sit back and let me entertain you while keeping you aroused.")
-        img = random.choice(["game_bj1.jpeg", "game_bj3.jpeg", "game_bj2.jpeg"]); add_media(img)
-        simulate_loading(3); add_media("slave_video1.mp4", "video")
-        st.session_state.turn_state = "PRIZE_SLAVE_2"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_SLAVE_2":
-    if st.button("What else?"):
-        add_narrator("I tilt my head slightly, a sly grin painting my lips.")
-        add_chat("assistant", "Anything... you want to fuck my little asshole, or deepthroat my face?")
-        big_list = ["slave1.jpeg", "slave_1.png", "ass_cum2.jpeg", "ass_cum3.jpeg", "ass_cum4.jpeg", "blowjob1.jpeg", "blowjob4.jpeg", "blowjob6.jpeg", "bj_cum1.jpeg", "bj_cum2.jpeg", "bj_cum3.jpeg", "bj_cum4.jpeg", "behind_fuck1.jpeg", "behind_fuck4.jpeg", "behind_fuck7.jpeg", "behind_fuck8.jpeg", "behind_fuck9.jpeg", "behind_fuck10.jpeg"]
-        add_dual_media(random.choice(big_list), random.choice(big_list))
-        add_chat("assistant", "Oh, also remember this - if you mess me up, make sure you clean me up.")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_chat("assistant", "For a full day, I'm your devoted slave... your every filthy whim is my command.")
+    
+    if st.button("Tell me more", key="slave_more"):
+        add_narrator("I kneel gracefully before you, eyes upturned with eager submission.")
+        choices = [
+            "Gaming session with under-desk service",
+            "Full body worship while you relax",
+            "Rough anal or throat training"
+        ]
+        choice = st.radio("What do you desire first, Master?", choices, key="slave_choice")
+        
+        if st.button("Begin", key="slave_begin"):
+            simulate_loading(2)
+            if "Gaming" in choice:
+                img = random.choice(["game_bj1.jpeg", "game_bj2.jpeg"])
+                add_media(img)
+                add_chat("assistant", "I crawl between your legs while you play... lips wrapping around you, sucking slow and deep as you rack up kills.")
+                simulate_loading(3)
+                add_media("slave_video1.mp4", "video")  # assuming video plays looped tease
+            elif "worship" in choice.lower():
+                add_chat("assistant", "I massage, lick, and adore every inch... starting at your feet and working my way up.")
+            else:
+                add_chat("assistant", "Tie me up? Use my throat or ass however rough you want...")
+            
+            if st.button("More? Anything goes...", key="slave_any"):
+                add_narrator("My lips curl into a naughty smile.")
+                big_list = ["slave1.jpeg", "blowjob6.jpeg", "behind_fuck8.jpeg", "bj_cum2.jpeg", "ass_cum3.jpeg"]
+                add_dual_media(random.choice(big_list), random.choice(big_list))
+                add_chat("assistant", "Fuck any hole, cum wherever... just remember: if you make a mess of your slave, you clean her up with your tongue.")
+                st.session_state.turn_state = "PRIZE_DONE"
+                st.rerun()
 
 # --- CREAMPIE CLAIMING ---
 elif st.session_state.turn_state == "PRIZE_CREAMPIE_CLAIMING":
-    if st.button("Tell me more"):
-        add_chat("assistant", "Imagine you having full control over the pleasure I receive. Pick a hole, any tight little hole on me.")
-        simulate_loading(2); add_media("dripping_cum1.jpeg")
-        add_chat("assistant", "And let me be your beautiful cum dumpster. I'll be right here, eagerly awaiting your command.")
-        add_chat("assistant", "Shower me with your essence wherever you want to.")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_chat("assistant", "You own every dripping creampie today. Pick your hole... and fill it until I'm overflowing.")
+    
+    if st.button("Tell me more", key="creampie_more"):
+        cols = st.columns(3)
+        holes = ["Pussy", "Ass", "Mouth"]
+        for i, hole in enumerate(holes):
+            with cols[i]:
+                if st.button(hole, key=f"creampie_{hole.lower()}"):
+                    simulate_loading(2)
+                    add_media("dripping_cum1.jpeg")
+                    add_chat("assistant", f"Yes... {hole.lower()} it is. Pound me deep, breed me full. Watch your thick load leak out as I quiver.")
+                    add_narrator("I spread wider, begging with my body.")
+                    st.session_state.turn_state = "PRIZE_DONE"
+                    st.rerun()
 
 # --- UPSIDE DOWN THROAT FUCK ---
 elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT_FUCK":
-    add_narrator("She pulls off with a gasp, lips slick and swollen.")
-    add_chat("assistant", "Upside down? Oh, Daddy... you are full of surprises tonight.")
-    if st.button("Tell me more"):
-        add_narrator("She rises fluidly to her feet, guiding you toward the bed getting on top of it, and lying with her head hanging over the edge.")
-        simulate_loading(2); add_media("throat_fuck1.jpeg")
-        add_narrator("The angle lets her swallow you whole, her throat fluttering around you in slow, deliberate pulses.")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_narrator("I pull off your cock with a wet pop, lips glossy and swollen, gasping for air.")
+    add_chat("assistant", "Upside down throat fuck? Fuck yes, Daddy... use my mouth like a toy.")
+    
+    if st.button("Show me how", key="throat_show"):
+        add_narrator("I flip onto the bed, head hanging off the edge, throat perfectly aligned for you.")
+        simulate_loading(1.8)
+        add_media("throat_fuck1.jpeg")
+        add_chat("assistant", "Slide in slow... feel my throat flutter and squeeze around every inch. Deeper... make me gag and drool for you.")
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
 
 # --- DOGGY STYLE READY ---
 elif st.session_state.turn_state == "PRIZE_DOGGY_STYLE_READY":
-    add_narrator("I can feel the heat rising to my cheeks as I imagine the scene in my head.")
-    if st.button("Tell me more"):
-        add_chat("assistant", "I will remain exactly where I am: on my knees, presented deliciously for your gaze and pleasure.")
-        simulate_loading(2); add_media("doggy_style3.jpeg")
-        add_chat("assistant", "Will you walk in and stick your dick right in me? Or will you choose to take a shower first?")
-        simulate_loading(2); add_media("doggy_style2.jpeg")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_narrator("Heat floods my cheeks as I hold the pose, ass arched high, waiting.")
+    
+    if st.button("Tell me more", key="doggy_more"):
+        add_chat("assistant", "I'm staying right here on my knees, cheeks spread, pussy glistening and ready for you.")
+        simulate_loading(2)
+        add_media("doggy_style3.jpeg")
+        add_chat("assistant", "Will you slam in raw and deep right now... or tease me first with your tongue?")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Fuck me now", key="doggy_now"):
+                add_media("doggy_style2.jpeg")
+                add_chat("assistant", "Yes! Ram it in... make me scream your name.")
+        with col2:
+            if st.button("Tease first", key="doggy_tease"):
+                add_chat("assistant", "Your tongue circles my clit... I push back, desperate for more.")
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
 
 # --- ROMANTIC FANTASY ---
 elif st.session_state.turn_state == "PRIZE_ROMANTIC_FANTASY":
-    add_chat("assistant", "That means I get to lie back on this bed, pull you down with me, and let you take me slow… deep…")
-    if st.button("Tell me more"):
-        add_chat("assistant", "Skin on skin, eye contact, hands everywhere. Deep lazy thrusts that make us both sigh.")
-        add_narrator("We come together, wrapped so tight neither of us knows where one ends and the other begins.")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_chat("assistant", "Slow, deep, intimate... just us, lost in each other.")
+    
+    if st.button("Paint the scene", key="romantic_paint"):
+        add_chat("assistant", "I pull you down onto silk sheets, legs wrapping around you as you slide in inch by inch.")
+        add_narrator("Our eyes lock, breaths mingling, hands roaming with tender hunger.")
+        add_chat("assistant", "Lazy, rolling thrusts... building that perfect heat until we shatter together, whispering sweet filth.")
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
 
 # --- ALL 3 HOLES ---
 elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
-    add_chat("assistant", "To fulfill your fantasy of fucking all three of my holes simultaneously, we'll need a bit of creativity.")
-    if st.button("Explain"):
-        simulate_loading(3); add_media("chose_video1.jpeg") 
-        add_chat("assistant", "Your thick cock buried deep in one, a fat plug stretching another, my fingers working the third.")
-        simulate_loading(3); add_media("3_holes1.jpeg")
-        add_narrator("At the same time, your slick fingers can easily slide into that sensitive little asshole of mine.")
-        time.sleep(2); add_media("3_holes2.jpeg")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    add_chat("assistant", "All three holes at once? Mmm... creativity required, but I'm game.")
+    
+    if st.button("Explain how", key="3holes_explain"):
+        simulate_loading(2.5)
+        add_media("chose_video1.jpeg")
+        add_chat("assistant", "Your cock deep in my pussy... a thick plug stretching my ass... my own fingers circling and plunging into my mouth, tasting myself.")
+        simulate_loading(2)
+        add_media("3_holes1.jpeg")
+        add_narrator("I moan around my fingers, body trembling as you're everywhere at once.")
+        time.sleep(1.5)
+        add_media("3_holes2.jpeg")
+        add_chat("assistant", "Overwhelm me... use me completely.")
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
 
 # --- BEND OVER ---
 elif st.session_state.turn_state == "PRIZE_BEND_OVER":
@@ -763,3 +817,4 @@ elif st.session_state.turn_state == "PRIZE_DONE" or st.session_state.turn_state.
         save_data(st.session_state.data)
         add_chat("assistant", f"Saved. {get_ticket_save_response()}")
         st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+
