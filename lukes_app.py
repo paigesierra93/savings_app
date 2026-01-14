@@ -453,7 +453,7 @@ elif st.session_state.turn_state == "SPIN_BRONZE":
 elif st.session_state.turn_state == "SPIN_SILVER":
     if st.session_state.data["tickets"] >= 50:
         st.session_state.data["tickets"] -= 50; save_data(st.session_state.data)
-        prizes = ["Massage", "Toy Pic", "Lick Pussy", "Nude Pic", "Tongue Tease", "Road Head", "Plug Tease"]
+        prizes = ["Massage", "Toy Pic", "Lick Pussy", "Nude Pic", "Tongue Tease", , "Road Head", "Plug Tease"]
         win = spin_animation("Silver", prizes)
         add_chat("assistant", f"🥈 WINNER: **{win}**")
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
@@ -1763,6 +1763,232 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
         add_narrator("I collapse forward… panting… smiling weakly…")
         add_chat("assistant", "“Thank you… for using every fucking part of me…” 🖤")
 
+# --- ROMANTIC FANTASY (Ultra-Immersive) ---
+elif st.session_state.turn_state == "PRIZE_ROMANTIC_FANTASY":
+    if "romantic_fantasy" not in st.session_state:
+        st.session_state.romantic_fantasy = {
+            "stage": 0,
+            "setting": "Candlelit bedroom", # Default safe value
+            "intimacy_level": "tender",
+            "pace": "slow"
+        }
+
+    data = st.session_state.romantic_fantasy
+
+    # ── Stage 0: Choose Setting ──
+    if data["stage"] == 0:
+        add_chat("assistant", "Tonight is slow… sensual… every touch meant to be felt for hours.")
+        add_chat("assistant", "Close your eyes. Where do we disappear together?")
+
+        settings = [
+            "Candlelit bedroom — vanilla & sandalwood, silk sheets",
+            "Rain-lashed windows — thunder rolling low, warm blankets",
+            "Crackling fireplace — cedar smoke & amber glow, rug under us",
+            "Steaming bath — jasmine oil in the water, rose petals"
+        ]
+
+        # Use radio for selection, store full string
+        data["setting"] = st.radio("Our sanctuary:", settings)
+
+        cols = st.columns(2)
+        if cols[0].button("Tender & reverent", key="rom_tender"):
+            data["intimacy_level"] = "tender"
+            data["stage"] = 1
+            st.rerun()
+        
+        if cols[1].button("Deep, hungry passion", key="rom_hungry"):
+            data["intimacy_level"] = "hungry"
+            data["stage"] = 1
+            st.rerun()
+
+    # ── Stage 1: Entering the Moment ──
+    elif data["stage"] == 1:
+        # Safe string parsing
+        setting_text = data["setting"].lower()
+        
+        if "candle" in setting_text:
+            add_chat("assistant", "The air is heavy with vanilla… warm light flickering across your bare shoulders.")
+            add_chat("assistant", "Dozens of tiny flames dance, painting golden streaks on my skin as I crawl toward you.")
+        elif "rain" in setting_text:
+            add_chat("assistant", "Rain taps rhythmically against the glass… like a heartbeat keeping time with ours.")
+            add_chat("assistant", "Warm blankets cocoon us while thunder rolls in the distance.")
+        elif "fire" in setting_text:
+            add_chat("assistant", "The fire crackles… cedar smoke mixes with your scent. The rug is soft beneath my knees.")
+        else: # Bath
+            add_chat("assistant", "Steam curls around us… jasmine oil makes the water slick. Rose petals cling to my wet skin.")
+
+        simulate_loading(2)
+        add_media("romantic_ambient_start.jpg") 
+
+        if data["intimacy_level"] == "tender":
+            add_chat("assistant", "My fingertips ghost down your chest… cool silk dragging behind them.")
+            add_chat("assistant", "I kiss the hollow of your throat — slow, open-mouthed — tasting salt and warmth.")
+        else:
+            add_chat("assistant", "I tug you down hard, legs already hooking around your hips, nails biting into your back.")
+            add_chat("assistant", "Our mouths crash — tongues hungry, tasting wine and need.")
+
+        add_narrator("Your heartbeat thuds against my palm. Mine answers faster.")
+
+        if st.button("Slide into me… feel everything…", key="rom_enter"):
+            data["stage"] = 2
+            st.rerun()
+
+    # ── Stage 2: The Union ──
+    elif data["stage"] == 2:
+        simulate_loading(3)
+        add_media("romantic_penetration_extreme_close.jpg") 
+
+        add_chat("assistant", "You press forward… the first slow stretch makes me gasp — velvet heat enveloping you inch by burning inch.")
+        add_chat("assistant", "My inner walls flutter, gripping, pulling you deeper like I’m afraid you’ll ever leave.")
+
+        if data["intimacy_level"] == "tender":
+            add_chat("assistant", "We rock together in long, languid waves… every withdrawal a cool whisper of air, every return a molten rush.")
+            add_chat("assistant", "My breath fans your ear — soft moans, broken whispers of your name, 'stay… just like this… forever…'")
+        else:
+            add_chat("assistant", "The rhythm builds — deeper, more insistent. Wet sounds fill the room, obscene and perfect.")
+            add_chat("assistant", "My thighs tremble around you. Nails rake down your back hard enough to leave marks you’ll feel tomorrow.")
+
+        add_narrator("The coil winds tighter… your breathing turns ragged against my neck.")
+
+        col1, col2 = st.columns(2)
+        if col1.button("Finish slow… melt into each other", key="rom_cum_slow"):
+            data["pace"] = "slow"
+            data["stage"] = 3
+            st.rerun()
+        
+        if col2.button("Let it break… hard & shattering", key="rom_cum_hard"):
+            data["pace"] = "hard"
+            data["stage"] = 3
+            st.rerun()
+
+    # ── Stage 3: Climax & Afterglow ──
+    elif data["stage"] == 3:
+        simulate_loading(2)
+        add_media("romantic_climax_detail.jpg") 
+
+        if data["pace"] == "slow":
+            add_chat("assistant", "Pleasure rolls through us like a slow tide… I pulse around you in long, luxurious waves.")
+            add_chat("assistant", "You spill inside me — warm, deep pulses I feel everywhere. I tremble, clinging, whispering 'I feel all of you…'")
+        else:
+            add_chat("assistant", "Everything snaps — I arch hard, crying out as my body clamps down, milking you through the storm.")
+            add_chat("assistant", "You flood me while I shake violently beneath you, nails dug in, voice hoarse with your name.")
+
+        simulate_loading(3)
+        add_media("romantic_afterglow_intimate.jpg") 
+
+        add_chat("assistant", "We don’t move. Just breathe. Sweat cooling on skin. Heartbeats gradually slowing into one rhythm.")
+        add_chat("assistant", "I trace lazy hearts on your chest… kiss the corner of your mouth… murmur against your lips:")
+        add_chat("assistant", "“Again… soon… but slower next time.” 😘")
+# --- ALL 3 HOLES (Total Overload) ---
+elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
+    if "all_3_holes" not in st.session_state:
+        st.session_state.all_3_holes = {
+            "stage": 0,
+            "main_hole": "Cock buried in my dripping pussy", # Default
+            "ass_fill": "plug"
+        }
+
+    data = st.session_state.all_3_holes
+
+    # ── Stage 0: Choose Primary & Ass Fill ──
+    if data["stage"] == 0:
+        add_chat("assistant", "Every hole filled… no part of me left untouched. Completely, obscenely owned.")
+        add_chat("assistant", "Tell me how you want to ruin me tonight.")
+
+        main_options = [
+            "Cock buried in my dripping pussy",
+            "Cock stretching my tight ass",
+            "Cock filling my throat (double stuffed below)"
+        ]
+
+        data["main_hole"] = st.radio("Where do you claim first?", main_options)
+
+        cols = st.columns(2)
+        if cols[0].button("Thick, heavy plug in my ass", key="ass_plug"):
+            data["ass_fill"] = "plug"
+            data["stage"] = 1
+            st.rerun()
+        
+        if cols[1].button("Your fingers / toy stretching my ass", key="ass_fingers"):
+            data["ass_fill"] = "fingers"
+            data["stage"] = 1
+            st.rerun()
+
+    # ── Stage 1: Filling Sequence ──
+    elif data["stage"] == 1:
+        simulate_loading(3)
+
+        if "pussy" in data["main_hole"].lower():
+            add_media("triple_pussy_entry_close.jpg")
+            add_chat("assistant", "You sink into my pussy — hot, slick walls sucking you in with every inch.")
+            add_chat("assistant", "I’m already clenching, dripping down your balls before anything else even touches me.")
+        elif "ass" in data["main_hole"].lower():
+            add_media("triple_ass_entry.jpg")
+            add_chat("assistant", "You force your way into my ass — tight ring resisting, then yielding with a slick pop.")
+            add_chat("assistant", "I whimper, thighs shaking, the stretch burning deliciously.")
+        else:
+            add_chat("assistant", "You grab my hair and pull me deep onto you, choking me beautifully.")
+
+        add_chat("assistant", "And then… the second invasion…")
+
+        if data["ass_fill"] == "plug":
+            simulate_loading(2)
+            add_media("plug_stretch_triple.jpg")
+            add_chat("assistant", "Cold lube, then the blunt, heavy plug — pushing, stretching, filling the last empty space.")
+            add_chat("assistant", "I gasp — the pressure is overwhelming, everything feels tighter, fuller, obscene.")
+        else:
+            add_chat("assistant", "Your fingers slide in beside the main stretch — scissoring, curling, making me sob with fullness.")
+
+        add_narrator("My whole body is trembling. Overloaded. Every nerve singing.")
+
+        if st.button("Now fill my mouth… make me complete", key="fill_mouth"):
+            data["stage"] = 2
+            st.rerun()
+
+    # ── Stage 2: Total Overload ──
+    elif data["stage"] == 2:
+        simulate_loading(3)
+        add_media("all_three_filled_extreme.jpg") 
+
+        add_chat("assistant", "All three… stuffed so full I can barely breathe.")
+        add_chat("assistant", "Pussy/ass clenching desperately around cock and plug. Throat working around whatever you feed me.")
+        add_chat("assistant", "Drool runs down my chin. Tears prick my eyes from the intensity. I’m moaning around the intrusion — muffled, desperate.")
+
+        add_narrator("The room smells of sex and lube and sweat. Wet, filthy sounds echo with every tiny movement.")
+
+        cols = st.columns(3)
+        if cols[0].button("Pound me hard", key="triple_hard"):
+            add_chat("assistant", "You slam into me — each thrust jostling the plug, making everything clench tighter.")
+            add_chat("assistant", "I gag, cry out, body jerking helplessly between all the invasions.")
+        
+        if cols[1].button("Slow, grinding torture", key="triple_slow"):
+            add_chat("assistant", "You grind deep… tiny circles… every millimeter amplified by how packed I am.")
+            add_chat("assistant", "I’m whimpering continuously, drooling, shaking, completely lost.")
+        
+        if cols[2].button("Edge me incoherently", key="triple_edge"):
+            add_chat("assistant", "You bring me to the brink over and over… stopping just as my body starts to convulse.")
+            add_chat("assistant", "I’m crying around your cock, pleading with my eyes, body trembling violently.")
+
+        st.write("---") # Visual separator
+        if st.button("Finish… flood one of them", key="triple_finish"):
+            data["stage"] = 3
+            st.rerun()
+
+    # ── Stage 3: Climax & Collapse ──
+    elif data["stage"] == 3:
+        simulate_loading(3)
+        add_media("triple_climax_messy.jpg")
+
+        add_chat("assistant", "You choose your target… and let go.")
+        add_chat("assistant", "Hot, thick pulses deep inside whichever hole you claim — I shatter instantly, clenching around everything, screaming muffled against whatever fills my mouth.")
+        
+        simulate_typing(3)
+        add_chat("assistant", "When it’s over… I’m a trembling, dripping, ruined mess — holes slowly pulsing, body slick with sweat and cum and lube.")
+        add_chat("assistant", "You pull out one by one… each withdrawal makes me whimper… until I’m empty, gaping, and blissfully wrecked.")
+        
+        add_narrator("I collapse forward… panting… smiling weakly…")
+        add_chat("assistant", "“Thank you… for using every fucking part of me…” 🖤")
+
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
-
+      
