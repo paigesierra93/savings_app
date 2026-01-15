@@ -786,7 +786,7 @@ elif st.session_state.turn_state == "PRIZE_PLUG_TEASE":
         simulate_loading(1); add_media("plug_insertion_slow.jpg")
         add_chat("assistant", "omg. im gaping for you")
         simulate_loading(3); add_media("final_plug_seated.jpg")
-        .session_state.turn_state = "PLUG_ACT"; st.rerun()
+        st.session_state.turn_state = "PLUG_ACT"; st.rerun()
 
 elif st.session_state.turn_state == "PLUG_ACT":
     simulate_loading(2); add_media("plug_walk_tease.jpg") 
@@ -886,3 +886,4 @@ else:
     st.error(f"Error: Undefined state '{st.session_state.turn_state}'")
     if st.button("Reset App"):
         st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
