@@ -406,145 +406,95 @@ elif st.session_state.turn_state == "SPIN_GOLD":
     else: st.error("Not enough tickets"); st.session_state.turn_state="CHOOSE_TIER"; st.rerun()
 # ==========================================
 #       PRIZE SCRIPTS
-# ==========================================
-# ------- NUDE PIC PRIZE --------
+# ======================================
+# --- NUDE PIC PRIZE ---
 elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
-    # 1. Initialize the session state dictionary if it doesn't exist
+    # 1. Init Data
     if "nude_pic" not in st.session_state:
-        st.session_state.nude_pic = {
-            "stage": 0,
-            "substage": 0,
-            "focus": None,       # tits, pussy, ass
-            "mood": "teasing"
-        }
-    
-    # 2. CRITICAL FIX: Define 'data' so the rest of the script can use it
+        st.session_state.nude_pic = {"stage": 0, "focus": None}
     data = st.session_state.nude_pic
 
-    # ── STAGE 0: Intro + Choose focus (Tits / Pussy / Ass)
+    # ── STAGE 0: Intro ──
     if data["stage"] == 0:
         add_chat("assistant", "You've won, your very own photo set of me... however you want it 😈")
-        add_chat("assistant", "I'm gonna tease you so fucking slow and nasty with every inch of my body… "
-                             "until you're throbbing and begging to fuck me stupid. "
-                             "Ready to collect your reward, daddy?")
         
-        simulate_loading(4)
-        add_media("nude_1.jpg")   # opening teaser image
+        simulate_loading(3)
+        show_media("nude_1.jpg")
+        
+        # Typing effect with pauses
+        type_out("I'm gonna tease you so fucking slow and nasty with every inch of my body…")
+        time.sleep(1.0) # Explicit Pause
+        type_out("until you're throbbing and begging to fuck me stupid.")
+        
+        type_out("Ready to collect your reward, daddy? Which piece of your slutty prize do you want to torture yourself with?")
 
-        add_chat("assistant", "Mmm such a greedy winner… which piece of your slutty prize do you want to torture yourself with first?")
-
+        # Buttons
         c1, c2, c3 = st.columns(3)
-
-        if c1.button("Tits – completely braless", key="nude_focus_tits"):
+        if c1.button("Tits"):
             data["focus"] = "tits"
             data["stage"] = 1
             st.rerun()
-
-        if c2.button("Pussy – slide down my pants", key="nude_focus_pussy"):
+        if c2.button("Ass"):
+            data["focus"] = "ass"
+            data["stage"] = 1
+            st.rerun()
+        if c3.button("Pussy"):
             data["focus"] = "pussy"
             data["stage"] = 1
             st.rerun()
 
-        if c3.button("Ass – bent over", key="nude_focus_ass"):
-            data["focus"] = "ass"
-            data["stage"] = 1
-            st.rerun()
-
-    # ── STAGE 1: Confirm focus + Choose mood
+    # ── STAGE 1: The Tease (Specific Branch) ──
     elif data["stage"] == 1:
-        focus_title = data["focus"].capitalize()
-        add_chat("assistant", f"{focus_title}? Are you sure, daddy?")
-
-        if st.button("Yes – show me.", key="nude_confirm_focus"):
-            simulate_loading(3)
-
-            # Show first focused image
-            if data["focus"] == "tits":
-                add_media("nude_6.jpg")   # tits reveal
-            elif data["focus"] == "pussy":
-                add_media("nude_2.jpg")   # pussy reveal
-            elif data["focus"] == "ass":
-                add_media("nude_4.jpg")   # ass reveal
-
-            add_chat("assistant", "Mmm such a greedy winner… how nasty do you want this tease to get?")
-
-            c1, c2 = st.columns(2)
-
-            if c1.button("Slow filthy tease", key="nude_tease"):
-                data["mood"] = "teasing"
+        
+        # TITS PATH
+        if data["focus"] == "tits":
+            add_chat("assistant", "Tits? Are you sure, daddy?")
+            simulate_loading(2)
+            show_media("nude_6.jpg")
+            if st.button("Show me"):
                 data["stage"] = 2
-                data["substage"] = 0
                 st.rerun()
 
-            if c2.button("Desperate dripping mess", key="nude_desperate"):
-                data["mood"] = "desperate"
+        # ASS PATH
+        elif data["focus"] == "ass":
+            add_chat("assistant", "Ass? Are you sure, daddy?")
+            simulate_loading(2)
+            show_media("nude_4.jpg")
+            if st.button("Let me see it"):
                 data["stage"] = 2
-                data["substage"] = 0
                 st.rerun()
 
-    # ── STAGE 2: Photo sequence
+        # PUSSY PATH
+        elif data["focus"] == "pussy":
+            add_chat("assistant", "Pussy? Are you sure, daddy?")
+            simulate_loading(2)
+            show_media("nude_2.jpg") # Teaser before the spread
+            if st.button("Spread it"):
+                data["stage"] = 2
+                st.rerun()
+
+    # ── STAGE 2: The Reveal ──
     elif data["stage"] == 2:
-        if data["substage"] == 0:
-            simulate_loading(3)
-            add_media("nude_1.jpg")
-            add_chat("assistant", "Here's the first piece of your prize baby… look how fucking needy I already am for you 🥵")
+        simulate_loading(3)
 
-            if st.button("Want more of your prize?", key="nude_next1"):
-                data["substage"] = 1
-                st.rerun()
-
-        elif data["substage"] == 1:
-            simulate_loading(2)
-            add_media("nude_3.jpg")
-            add_chat("assistant", "There it is daddy… full spread, swollen, dripping, all for the winner.")
-
-            if st.button("Keep going – show me that ass", key="nude_next2"):
-                data["substage"] = 2
-                st.rerun()
-
-        elif data["substage"] == 2:
-            simulate_loading(2)
-            add_media("nude_4.jpg")
-            add_chat("assistant", "You love when your prize turns around don't you… this fat ass is all yours now")
-
-            if st.button("Take the panties off", key="nude_next3"):
-                data["substage"] = 3
-                st.rerun()
-
-        elif data["substage"] == 3:
-            simulate_loading(2)
-            add_media("nude_5.jpg")
+        if data["focus"] == "tits":
+            show_media("nude_7.jpg")
+            add_chat("assistant", "My nipples are fucking aching… can you see them poking through for you?")
+        
+        elif data["focus"] == "ass":
+            show_media("nude_5.jpg")
             add_chat("assistant", "All bare, spread, tight little holes ready for whatever you want to do to them… 🍑")
 
-            if st.button("Now the tits", key="nude_next4"):
-                data["substage"] = 4
-                st.rerun()
+        elif data["focus"] == "pussy":
+            show_media("nude_3.jpg")
+            add_chat("assistant", "You love when your prize turns around don't you… this fat ass is all yours now")
 
-        elif data["substage"] == 4:
-            simulate_loading(2)
-            add_media("nude_3.jpg")
-            add_chat("assistant", "My nipples are fucking aching… can you see them poking through for you?")
-
-            if st.button("Final prize piece – show me everything", key="nude_next5"):
-                data["substage"] = 5
-                st.rerun()
-
-        elif data["substage"] == 5:
-            simulate_loading(3)
-            add_media("nude_7.jpg")
-            add_chat("assistant", "There… full fucking prize delivered. Tits out, pussy dripping, ass spread.")
-            add_chat("assistant", "Come collect the rest in person and fuck me like the winner you are 😈")
-
-            if st.button("Prize complete – I'm all yours now", key="nude_finish"):
-                st.session_state.pop("nude_pic", None)
-                st.session_state.turn_state = "PRIZE_DONE"
-                st.rerun()
-
-        # Allow early exit
-        if st.button("That's enough for now… claim this prize now?", key="nude_exit"):
-            st.session_state.pop("nude_pic", None)
+        # Exit Button
+        if st.button("That's enough for now… claim this prize now?"):
+            del st.session_state.nude_pic
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
+
 
 # BEND OVER
 elif st.session_state.turn_state == "PRIZE_BEND_OVER":
@@ -1718,6 +1668,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
