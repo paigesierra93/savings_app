@@ -660,14 +660,14 @@ elif st.session_state.turn_state == "PRIZE_JACKOFF_FUN":
 # --- SHOWER SHOW ---
 elif st.session_state.turn_state == "PRIZE_SHOWER_SHOW":
     add_narrator("Steam is rising… your naughty little prize is about to get wet and slippery for you 😈")
-    add_chat("assistant", "Mmm daddy… you won the Shower Show. Time to watch your slutty girlfriend soap up every inch of this body you own — slowly, teasingly, while I think about your cock the whole time.")
+    add_chat("assistant", "Mmm daddy… you won the Shower Show. Time to watch your girlfriend soap up every inch of this body — slowly, teasingly, while I think about your cock the whole time. One rule: no touching.")
    
     simulate_loading(4)
-    add_media("example_shower_wide.jpg")  # Replaced placeholder
+    add_media("shower_water.jpg")  # Replaced placeholder
     tease_level = st.radio(
         "How nasty do you want this shower to get, baby?",
         ["Slow and sensual tease – make you throb watching me lather up",
-         "Full filthy show – hands everywhere, moaning your name"],
+         "Full filthy show – watch me put my fingers...."],
         key="shower_tease_level"
     )
    
@@ -677,7 +677,7 @@ elif st.session_state.turn_state == "PRIZE_SHOWER_SHOW":
         st.rerun()
 elif st.session_state.turn_state == "PRIZE_SHOWER_ACTION":
     simulate_loading(4)
-    add_media("example_shower_close.jpg")  # Replaced placeholder
+    add_media("shower_finger.jpeg")  # Replaced placeholder
    
     if st.session_state.shower_choice == "Slow and sensual tease – make you throb watching me lather up":
         add_chat("assistant", "Mmm… nice and slow just like you like. Watch my hands glide over these wet tits, circling my hard nipples… down my stomach to my slippery pussy. "
@@ -689,25 +689,24 @@ elif st.session_state.turn_state == "PRIZE_SHOWER_ACTION":
     add_chat("assistant", "Show's almost over… but I’ve got one last treat when I step out. What do you want as your post-shower reward, daddy?")
     after_choice = st.radio(
         "Pick your final prize piece:",
-        ["Just watch me towel off slowly – tease you more",
-         "Drop the towel completely – full nude dry-off",
-         "Come closer… let me 'accidentally' flash you everything while drying"]
+        ["take the towel and dry me off completely",
+         "lick all the water off my pussy"]
     )
    
-    if st.button("End the shower… give me my reward"):
+    if st.button("End the shower"):
         simulate_loading(3)
-        add_media("example_shower_towel.jpg")  # Replaced placeholder
+        add_media("shower_towe3.jpeg")  # Replaced placeholder
        
-        if "towel off slowly" in after_choice:
-            add_chat("assistant", "Mmm… watch me pat down slow – towel sliding over my wet tits, between my thighs, teasing those sensitive spots. "
+        if "take the towel" in after_choice:
+            add_chat("assistant", "Mmm… pat me down slow – towel sliding over my wet tits, between my thighs, teasing those sensitive spots. "
                                  "Still dripping… still thinking about you fucking me dry. Save that hard cock for next time, baby.")
-        elif "Drop the towel completely" in after_choice:
+            simulate_loading(4)
+            add_media("shower_towel1.jpeg")
+        elif "lick all" in after_choice:
             add_chat("assistant", "There it goes… towel on the floor. Full naked, skin still glistening, nipples hard from the cool air. "
-                                 "Turn around – ass still wet, pussy peeking. All yours to stare at and stroke to, winner 😏")
-        else:
-            add_chat("assistant", "Oops… 'accidentally' letting the towel slip while I bend to dry my legs. Full view of everything – tits hanging, ass up, pussy lips still swollen from the hot water. "
-                                 "Come get this prize in person soon… I need you inside me bad.")
-           
+                                 "Turn around – ass still wet, pussy, needs drying. get to licking 😏")
+            simulate_loading(4)
+            add_media("naked_shower.jpeg")
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
 # MASSAGE PRIZE ---
@@ -1671,6 +1670,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
