@@ -421,30 +421,30 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
 
     # ── STAGE 0: Intro ──
     if data["stage"] == 0:
-        add_chat("assistant", "You've won, your very own photo set of me... however you want it 😈")
+        add_chat("assistant", "You've won, your very own photo of me... which ever part you want to see...😈")
         
         simulate_loading(3)
         show_media("nude_1.jpg")
         
         # Typing effect with pauses
         type_out("I'm gonna tease you so fucking slow and nasty with every inch of my body…")
-        time.sleep(1.0) # Explicit Pause
-        type_out("until you're throbbing and begging to fuck me stupid.")
+        time.sleep(3.0) # Explicit Pause
+        type_out("until you're throbbing and begging to fuck me dead.")
         
         type_out("Ready to collect your reward, daddy? Which piece of your slutty prize do you want to torture yourself with?")
 
         # Buttons
         c1, c2, c3 = st.columns(3)
         if c1.button("Tits"):
-            data["focus"] = "tits"
+            data["focus"] = "TITS"
             data["stage"] = 1
             st.rerun()
         if c2.button("Ass"):
-            data["focus"] = "ass"
+            data["focus"] = "TIGHT ASS"
             data["stage"] = 1
             st.rerun()
         if c3.button("Pussy"):
-            data["focus"] = "pussy"
+            data["focus"] = "WET PUSSY"
             data["stage"] = 1
             st.rerun()
 
@@ -452,55 +452,53 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
     elif data["stage"] == 1:
         
         # TITS PATH
-        if data["focus"] == "tits":
+        if data["focus"] == "TITS":
             add_chat("assistant", "Tits? Are you sure, daddy?")
-            simulate_loading(2)
+            simulate_loading(4)
             show_media("nude_6.jpg")
-            if st.button("Show me"):
+            if st.button("enough teasing, show me your tits"):
                 data["stage"] = 2
                 st.rerun()
 
         # ASS PATH
-        elif data["focus"] == "ass":
+        elif data["focus"] == "TIGHT ASS":
             add_chat("assistant", "Ass? Are you sure, daddy?")
-            simulate_loading(2)
+            simulate_loading(4)
             show_media("nude_4.jpg")
             if st.button("Let me see it"):
                 data["stage"] = 2
                 st.rerun()
 
         # PUSSY PATH
-        elif data["focus"] == "pussy":
-            add_chat("assistant", "Pussy? Are you sure, daddy?")
-            simulate_loading(2)
+        elif data["focus"] == "WET PUSSY":
+            add_chat("assistant", "This little Pussy....Are you sure, daddy?")
+            simulate_loading(4)
             show_media("nude_2.jpg") # Teaser before the spread
-            if st.button("Spread it"):
+            if st.button("Pull them down already"):
                 data["stage"] = 2
                 st.rerun()
 
     # ── STAGE 2: The Reveal ──
     elif data["stage"] == 2:
-        simulate_loading(3)
+        simulate_loading(5)
 
-        if data["focus"] == "tits":
-            show_media("nude_7.jpg")
-            add_chat("assistant", "My nipples are fucking aching… can you see them poking through for you?")
+        if data["focus"] == "TITS":
+            show_media("Nude_7.jpg")
+            add_chat("assistant", "They would look so much better around your hard cock, huh?")
         
-        elif data["focus"] == "ass":
+        elif data["focus"] == "TIGHT ASS":
             show_media("nude_5.jpg")
-            add_chat("assistant", "All bare, spread, tight little holes ready for whatever you want to do to them… 🍑")
+            add_chat("assistant", "All bare, spread, tight little holes all wet and ready....maybe next spin, they'll get fucked. 🍑")
 
-        elif data["focus"] == "pussy":
+        elif data["focus"] == "WET PUSSY":
             show_media("nude_3.jpg")
-            add_chat("assistant", "You love when your prize turns around don't you… this fat ass is all yours now")
+            add_chat("assistant", "wet and dripping...now")
 
         # Exit Button
         if st.button("That's enough for now… claim this prize now?"):
             del st.session_state.nude_pic
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
-
-
 # BEND OVER
 elif st.session_state.turn_state == "PRIZE_BEND_OVER":
     enter_state(
@@ -1673,6 +1671,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
