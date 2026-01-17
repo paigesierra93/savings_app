@@ -416,9 +416,6 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
             "focus": None,       # tits, pussy, ass
             "mood": "teasing"
         }
-    
-    data = st.session_state.nude_pic
-
     # ── STAGE 0: Intro + Choose focus (Tits / Pussy / Ass)
     if data["stage"] == 0:
         add_chat("assistant", "You've won, your very own photo set of me... however you want it 😈")
@@ -1721,6 +1718,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
