@@ -116,8 +116,8 @@ if "history" not in st.session_state:
     }]
 if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_CHECK"
 
-# ==========================================
-#       PART 3: HELPER FUNCTIONS
+# =========================================
+#       PART 3: HELPER FUNCTIONS (SMART)
 # ==========================================
 def add_chat(role, content):
     st.session_state.history.append({"type": "chat", "role": role, "content": content})
@@ -157,12 +157,22 @@ def spin_animation(tier, prizes):
     placeholder.empty()
     return winner
 
+# --- SMART HELPERS (PREVENT DOUBLE PRINTING) ---
+
 def enter_state(state_name, role, content):
     if st.session_state.get("last_state") != state_name:
         add_chat(role, content)
         st.session_state.last_state = state_name
 
 def type_out(text, delay=0.04):
+    # 1. Anti-Duplicate Shield: 
+    # If this exact text is ALREADY ast thing in history, 
+    # the main loop at the top of the app is already showing it.
+    # So we SKIP typing it again.
+    if st.session_state.history and st.session_state.history[-1].get("content") == text:
+        return
+
+    # 2. If it's new, animate it:
     with st.chat_message("assistant", avatar="paige.png"):
         placeholder = st.empty()
         rendered = ""
@@ -170,33 +180,28 @@ def type_out(text, delay=0.04):
             rendered += word + " "
             placeholder.markdown(rendered)
             time.sleep(delay)
-    # Save to history so it doesn't vanish
+    
+    # 3. Save to history
     add_chat("assistant", text)
 
 def show_media(path, delay=2.5):
+    # Anti-Duplicate Shield for Images
+    if st.session_state.history:
+        last_item = st.session_state.history[-1]
+        if last_item.get("type") == "media" and last_item.get("path") == path:
+            return
+
     with st.chat_message("assistant", avatar="paige.png"):
         with st.spinner("Loading..."):
             time.sleep(delay)
         if os.path.exists(path):
             st.image(path, width=300)
-            add_media(path)
         else:
             st.warning(f"Media unavailable: {path}")
+            
+    if os.path.exists(path):
+        add_media(path)
 
-def get_smart_response(): 
-    return random.choice([
-        "Good boy. You kept the money safe.",
-        "That's hot. One more step closer to a giant bottle of Lube.",
-        "Daddy's making moves! Keep stacking cash.",
-        "My baby is saving to fuck my mouth in his own home."
-    ])
-
-def get_ticket_save_response():
-    return random.choice([
-        "I was really hoping to get my mouth fucked...",
-        "I was dying for you to fuck my ass...",
-        "Was really hoping to meet you at the door on my knees..."
-    ])
 
 # ==========================================
 #       PART 5: SIDEBAR (THE TANK)
@@ -1668,6 +1673,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
