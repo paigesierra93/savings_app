@@ -115,7 +115,7 @@ if "history" not in st.session_state:
 	"type": "chat",
 	"role": "assistant",
 	"content": "Systems Online. 💋\n\nI'm ready. Did we get a full Paycheck, Dayforce Daily, or some **Side Cash**?"
-    }]
+     }]
 if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_CHECK"
 
 ## ==========================================
