@@ -388,7 +388,7 @@ elif st.session_state.turn_state == "SPIN_BRONZE":
 elif st.session_state.turn_state == "SPIN_SILVER":
     if st.session_state.data["tickets"] >= 50:
         st.session_state.data["tickets"] -= 50; save_data(st.session_state.data)
-        prizes = ["Massage", "Toy Pic", "Lick Pussy", "Nude Pic", "Tongue Tease", "Road Head", "Plug Tease"]
+        prizes = ["Massage", "Toy Pic", "Lick Pussy", " Pic", "Tongue Tease", "Road Head", "Plug Tease"]
         win = spin_animation("Silver", prizes)
         add_chat("assistant", f"🥈 WINNER: **{win}**")
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
@@ -459,11 +459,11 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
 
             # Show first focused image
             if data["focus"] == "tits":
-                add_media("nude_2.jpg")   # tits reveal
+                add_media("nude_6.jpg")   # tits reveal
             elif data["focus"] == "pussy":
-                add_media("nude_4.jpg")   # pussy reveal
+                add_media("nude_2.jpg")   # pussy reveal
             elif data["focus"] == "ass":
-                add_media("nude_5.jpg")   # ass reveal
+                add_media("nude_4.jpg")   # ass reveal
 
             add_chat("assistant", "Mmm such a greedy winner… how nasty do you want this tease to get?")
 
@@ -489,7 +489,7 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
             add_chat("assistant", "Here's the first piece of your prize baby… look how fucking needy I already am for you 🥵")
 
             simulate_loading(2)
-            add_media("nude_2.jpg")
+            add_media("nude_5.jpg")
             add_chat("assistant", "Fuck… see how wet winning you made me? That's just the start…")
 
             if st.button("Want more of your prize already? Greedy boy 😏", key="nude_next1"):
@@ -498,7 +498,7 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
 
         elif data["substage"] == 1:
             simulate_loading(2)
-            add_media("nude_3.jpg")
+            add_media("nude_7.jpg")
             add_chat("assistant", "There it is daddy… full spread, swollen, dripping, all for the winner. "
                                  "God I'm such a mess thinking about your cock right now 🍑💦")
 
@@ -1722,3 +1722,4 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
