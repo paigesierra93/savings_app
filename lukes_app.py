@@ -81,17 +81,18 @@ st.markdown("""
 DATA_FILE = "bank_of_paige.json"
 
 def load_data():
-    default_data = {
-        "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0,
-        "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0
-    }
-    if not os.path.exists(DATA_FILE): return default_data
-    try:
-        with open(DATA_FILE, "r") as f:
-            data = json.load(f)
-            for key, val in default_data.items():
-                if key not in data: data[key] = val
-            return data
+    default_data = {
+        "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, 
+        "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0
+    }
+    if not os.path.exists(DATA_FILE): return default_data
+    try:
+        with open(DATA_FILE, "r") as f:
+            data = json.load(f)
+            for key, val in default_data.items():
+                if key not in data: data[key] = val
+            return data
+    except: return default_data
     except: return default_data
 
 def save_data(data):
@@ -2315,4 +2316,5 @@ elif st.session_state.turn_state == "PRIZE_DICK_RUB":
                 st.session_state.pop("dick_rub", None)
                 st.session_state.turn_state = "PRIZE_DONE"
                 st.rerun()
+
 
