@@ -585,7 +585,7 @@ elif st.session_state.turn_state == "PRIZE_FLASH_CHOICE":
     c1, c2 = st.columns(2)
     if c1.button("Show me your tits"):
         add_chat("user", "Show me your tits.")
-        show_media("tit_flash1.jpeg", delay=3)
+        show_media("Nude_7.jpg", delay=3)
         type_out(
             "There they are daddy… quick little flash of these soft, bouncy tits just for you. "
             "Nipples already hard thinking about your mouth on them 😏"
@@ -597,7 +597,7 @@ elif st.session_state.turn_state == "PRIZE_FLASH_CHOICE":
         st.rerun()
     if c2.button("Show me your pussy"):
         add_chat("user", "Show me your pussy.")
-        show_media("pussy_flash1.jpeg", delay=3)
+        show_media("flash_pussy1.jpg", delay=3)
         type_out(
             "Mmm fuck… here’s your sneak peek, winner. My pussy’s already glistening and swollen, "
             "dripping just from teasing you like this 🍑💦"
@@ -1673,6 +1673,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
