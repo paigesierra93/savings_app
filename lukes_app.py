@@ -93,7 +93,6 @@ def load_data():
                 if key not in data: data[key] = val
             return data
     except: return default_data
-    except: return default_data
 
 def save_data(data):
     with open(DATA_FILE, "w") as f: json.dump(data, f)
@@ -2316,5 +2315,6 @@ elif st.session_state.turn_state == "PRIZE_DICK_RUB":
                 st.session_state.pop("dick_rub", None)
                 st.session_state.turn_state = "PRIZE_DONE"
                 st.rerun()
+
 
 
