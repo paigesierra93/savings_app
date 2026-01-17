@@ -652,7 +652,7 @@ elif st.session_state.turn_state == "PRIZE_JACKOFF_FUN":
                                  "all that was just for you, winner. Now stroke faster — picture sliding into every hole I teased you with.")
             add_chat("assistant", "Here’s a little visual reminder of what you own… all these prizes waiting for your cock.")
             simulate_loading(4)
-            add_media("jackoff1.jpeg")  # Replaced placeholder
+            add_media("Jackkoff1.jpeg")  # Replaced placeholder
             simulate_typing(2)
             add_chat("assistant", "Cum for me now baby… shoot that load thinking about fucking your dirty little prize in person next time. "
                                  "I’m touching myself watching you lose it 😈")
@@ -1672,6 +1672,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
