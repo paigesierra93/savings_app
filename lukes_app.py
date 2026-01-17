@@ -1,4 +1,3 @@
-will this work? i think i got it right.... 
 import json
 import os
 import random
@@ -83,7 +82,7 @@ DATA_FILE = "bank_of_paige.json"
 
 def load_data():
     default_data = {
-        "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, 
+        "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0,
         "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0
     }
     if not os.path.exists(DATA_FILE): return default_data
@@ -2316,3 +2315,4 @@ elif st.session_state.turn_state == "PRIZE_DICK_RUB":
                 st.session_state.pop("dick_rub", None)
                 st.session_state.turn_state = "PRIZE_DONE"
                 st.rerun()
+
