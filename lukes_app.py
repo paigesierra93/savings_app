@@ -1684,3 +1684,41 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
         add_chat("assistant", "I will serve you with complete devotion.")
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
+# ... (Your last prize script ends above this) ...
+
+# ==========================================
+#       ENDING & CLEANUP
+# ==========================================
+# CRITICAL: This line must be touching the LEFT edge. Do NOT indent it.
+elif st.session_state.turn_state == "PRIZE_DONE":
+    st.success("✅ Session Complete. Prize Claimed & Saved.")
+    
+    # Create 3 Columns for the buttons you asked for
+    c1, c2, c3 = st.columns(3)
+    
+    with c1:
+        if st.button("🏦 Back to Bank"):
+            st.session_state.turn_state = "WALLET_CHECK"
+            st.rerun()
+            
+    with c2:
+        if st.button("🎰 Back to Casino"):
+            st.session_state.turn_state = "CHOOSE_TIER"
+            st.rerun()
+            
+    with c3:
+        if st.button("💾 Save & Logout"):
+            # Force save strictly here just in case
+            save_data(st.session_state.data) 
+            st.session_state.history = []
+            st.session_state.turn_state = "WALLET_CHECK"
+            st.rerun()
+
+# Fallback for undefined states (Debug Safety Net)
+else:
+    # Only show this if something really breaks
+    if st.session_state.turn_state != "PRIZE_DONE":
+        st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
+        if st.button("♻️ Hard Reset"):
+            st.session_state.turn_state = "WALLET_CHECK"
+            st.rerun()
