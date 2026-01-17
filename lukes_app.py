@@ -95,7 +95,7 @@ def load_data():
     except: return default_data
 
 def save_data(data):
-    with open(DATA_FILE, "w") as f: json.dump(data, f)
+    with open(DATA_FILE, "w") as f: json.dump(data, f)
 
 def check_payday_window(admin_code):
     if admin_code == "777": return True, "" 
@@ -2315,6 +2315,7 @@ elif st.session_state.turn_state == "PRIZE_DICK_RUB":
                 st.session_state.pop("dick_rub", None)
                 st.session_state.turn_state = "PRIZE_DONE"
                 st.rerun()
+
 
 
 
