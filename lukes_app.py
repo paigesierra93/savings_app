@@ -695,7 +695,7 @@ elif st.session_state.turn_state == "PRIZE_SHOWER_ACTION":
    
     if st.button("End the shower"):
         simulate_loading(3)
-        add_media("shower_towe3.jpeg")  # Replaced placeholder
+        add_media("shower_towel3.jpeg")  # Replaced placeholder
        
         if "take the towel" in after_choice:
             add_chat("assistant", "Mmm… pat me down slow – towel sliding over my wet tits, between my thighs, teasing those sensitive spots. "
@@ -1670,6 +1670,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
