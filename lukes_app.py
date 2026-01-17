@@ -407,7 +407,6 @@ elif st.session_state.turn_state == "SPIN_GOLD":
 # ==========================================
 #       PRIZE SCRIPTS
 # ==========================================
-
 # ------- NUDE PIC PRIZE --------
 elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
     # 1. Initialize the session state dictionary if it doesn't exist
@@ -461,11 +460,11 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
 
             # Show first focused image
             if data["focus"] == "tits":
-                add_media("nude_2.jpg")   # tits reveal
+                add_media("nude_6.jpg")   # tits reveal
             elif data["focus"] == "pussy":
-                add_media("nude_4.jpg")   # pussy reveal
+                add_media("nude_2.jpg")   # pussy reveal
             elif data["focus"] == "ass":
-                add_media("nude_5.jpg")   # ass reveal
+                add_media("nude_4.jpg")   # ass reveal
 
             add_chat("assistant", "Mmm such a greedy winner… how nasty do you want this tease to get?")
 
@@ -489,10 +488,6 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
             simulate_loading(3)
             add_media("nude_1.jpg")
             add_chat("assistant", "Here's the first piece of your prize baby… look how fucking needy I already am for you 🥵")
-
-            simulate_loading(2)
-            add_media("nude_2.jpg")
-            add_chat("assistant", "Fuck… see how wet winning you made me? That's just the start…")
 
             if st.button("Want more of your prize?", key="nude_next1"):
                 data["substage"] = 1
@@ -527,7 +522,7 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
 
         elif data["substage"] == 4:
             simulate_loading(2)
-            add_media("nude_6.jpg")
+            add_media("nude_3.jpg")
             add_chat("assistant", "My nipples are fucking aching… can you see them poking through for you?")
 
             if st.button("Final prize piece – show me everything", key="nude_next5"):
@@ -1723,6 +1718,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
