@@ -615,11 +615,13 @@ elif st.session_state.turn_state == "PRIZE_DONE":
 # --- JACKOFF PASS ---
 elif st.session_state.turn_state == "PRIZE_JACKOFF_PASS":
     add_chat("assistant", "Mmm fuck yes baby… you just won the **Jackoff Pass** 😈 Your special prize: I give you full permission to stroke that thick cock while I tease the absolute shit out of you.")
-    simulate_typing(2)
-   
+    simulate_typing(4)
+    
     add_chat("assistant", "No guilt, no holding back — I want you pumping hard, edging, leaking precum, imagining every filthy thing you’d do to me while I describe it in detail.")
     add_narrator("Your slutty girlfriend Paige is gonna make this so fucking hard for you… literally.")
-   
+
+    simulate_loading(4)
+    add_media("jackoff3.jpeg")
     add_chat("assistant", "Rule #1: You can’t cum until I say so. Edge for me like a good boy.")
     add_chat("assistant", "Rule #2: Tell me exactly what you’re doing to that dick while you’re doing it… I want every dirty detail.")
    
@@ -650,7 +652,7 @@ elif st.session_state.turn_state == "PRIZE_JACKOFF_FUN":
                                  "all that was just for you, winner. Now stroke faster — picture sliding into every hole I teased you with.")
             add_chat("assistant", "Here’s a little visual reminder of what you own… all these prizes waiting for your cock.")
             simulate_loading(4)
-            add_media("example_recap.jpg")  # Replaced placeholder
+            add_media("jackoff1.jpeg")  # Replaced placeholder
             simulate_typing(2)
             add_chat("assistant", "Cum for me now baby… shoot that load thinking about fucking your dirty little prize in person next time. "
                                  "I’m touching myself watching you lose it 😈")
@@ -1670,6 +1672,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
