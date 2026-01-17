@@ -74,188 +74,177 @@ st.markdown("""
     
     </style>
     """, unsafe_allow_html=True)
+
 # ==========================================
-#       PART 2: DATA ENGINE
+#       PART 2: DATA ENGINE
 # ==========================================
 DATA_FILE = "bank_of_paige.json"
 
 def load_data():
-	default_data = {
-		"tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, 
-		"house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0
-	}
-	if not os.path.exists(DATA_FILE): return default_data
-	try:
-		with open(DATA_FILE, "r") as f:
-			data = json.load(f)
-			for key, val in default_data.items():
-				if key not in data: data[key] = val
-			return data
-	except: return default_data
+    default_data = {
+        "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, 
+        "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0
+    }
+    if not os.path.exists(DATA_FILE): return default_data
+    try:
+        with open(DATA_FILE, "r") as f:
+            data = json.load(f)
+            for key, val in default_data.items():
+                if key not in data: data[key] = val
+            return data
+    except: return default_data
 
 def save_data(data):
-	with open(DATA_FILE, "w") as f: json.dump(data, f)
+    with open(DATA_FILE, "w") as f: json.dump(data, f)
 
 def check_payday_window(admin_code):
-	if admin_code == "777":
-		return True, ""
-	today = datetime.datetime.now()
-	if today.weekday() == 2:  # Wednesday
-		return True, ""
-	else:
-		days_ahead = (2 - today.weekday() + 7) % 7
-		if days_ahead == 0:
-			days_ahead = 7
-		remaining = (today + datetime.timedelta(days=days_ahead)).replace(hour=0, minute=0, second=0) - today
-		return False, f"🔒 **LOCKED.** Opens in {remaining.days} Days, {remaining.seconds // 3600} Hours."
+    if admin_code == "777": return True, "" 
+    today = datetime.datetime.now()
+    if today.weekday() == 2: return True, "" # Wednesday
+    else:
+        days_ahead = (2 - today.weekday() + 7) % 7
+        if days_ahead == 0: days_ahead = 7
+        remaining = (today + datetime.timedelta(days=days_ahead)).replace(hour=0, minute=0, second=0) - today
+        return False, f"🔒 **LOCKED.** Opens in {remaining.days} Days, {remaining.seconds // 3600} Hours."
 
 if "data" not in st.session_state: st.session_state.data = load_data()
-if "history" not in st.session_state:
-	st.session_state.history = [{
-	"type": "chat",
-	"role": "assistant",
-	"content": "Systems Online. 💋\n\nI'm ready. Did we get a full Paycheck, Dayforce Daily, or some **Side Cash**?"
-     }]
+if "history" not in st.session_state: 
+    st.session_state.history = [{
+        "type": "chat", 
+        "role": "assistant", 
+        "content": "Systems Online. 💋\n\nI'm ready. Did we get a full Paycheck, Dayforce Daily, or some **Side Cash**?"
+    }]
 if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_CHECK"
 
-## ==========================================
-#       PART 3: HELPER FUNCTIONS (FIXED & EXTENDED)
+# ==========================================
+#       PART 3: HELPER FUNCTIONS
 # ==========================================
 def add_chat(role, content):
-	st.session_state.history.append({"type": "chat", "role": role, "content": content})
+    st.session_state.history.append({"type": "chat", "role": role, "content": content})
 
 def add_narrator(content):
-	st.session_state.history.append({"type": "narrator", "content": content})
+    st.session_state.history.append({"type": "narrator", "content": content})
 
 def add_media(filepath, media_type="image"):
-	st.session_state.history.append({"type": "media", "path": filepath, "kind": media_type})
+    st.session_state.history.append({"type": "media", "path": filepath, "kind": media_type})
 
 def add_dual_media(path1, path2):
-	st.session_state.history.append({"type": "dual_media", "path1": path1, "path2": path2})
+    st.session_state.history.append({"type": "dual_media", "path1": path1, "path2": path2})
 
-# 1. FIXED TYPING: Natural pause, no crash
 def simulate_typing(seconds=1.5):
-	with st.chat_message("assistant", avatar="paige.png"):
-		placeholder = st.empty()
-		placeholder.caption("💬 *Paige is typing...*")
-		time.sleep(seconds)
-		placeholder.empty()
+    with st.chat_message("assistant", avatar="paige.png"):
+        placeholder = st.empty()
+        placeholder.caption("💬 *Paige is typing...*")
+        time.sleep(seconds)
+        placeholder.empty()
 
-# 2. LOADING SPINNER
 def simulate_loading(seconds=1.5):
-	with st.chat_message("assistant", avatar="paige.png"):
-		with st.spinner("Processing..."):
-			time.sleep(seconds)
+    with st.chat_message("assistant", avatar="paige.png"):
+        with st.spinner("Processing..."):
+            time.sleep(seconds)
 
-# 3. SPIN ANIMATION
 def spin_animation(tier, prizes):
-	placeholder = st.empty()
-	for _ in range(8):
-		placeholder.markdown(f"<h3 style='text-align: center; color: #555;'>🎰 {random.choice(prizes)}...</h3>", unsafe_allow_html=True)
-		time.sleep(0.1)
-	for _ in range(5):
-		placeholder.markdown(f"<h3 style='text-align: center; color: #888;'>🎰 {random.choice(prizes)}...</h3>", unsafe_allow_html=True)
-		time.sleep(0.3)
-	winner = random.choice(prizes)
-	placeholder.markdown(f"<h3 style='text-align: center; color: #FF4B4B;'>🎉 {winner} 🎉</h3>", unsafe_allow_html=True)
-	time.sleep(2.0)
-	placeholder.empty()
-	return winner
-
-# --- EXTENDED HELPERS (FIXED TO SAVE HISTORY) ---
+    placeholder = st.empty()
+    for _ in range(8):
+        placeholder.markdown(f"<h3 style='text-align: center; color: #555;'>🎰 {random.choice(prizes)}...</h3>", unsafe_allow_html=True)
+        time.sleep(0.1)
+    for _ in range(5):
+        placeholder.markdown(f"<h3 style='text-align: center; color: #888;'>🎰 {random.choice(prizes)}...</h3>", unsafe_allow_html=True)
+        time.sleep(0.3)
+    winner = random.choice(prizes)
+    placeholder.markdown(f"<h3 style='text-align: center; color: #FF4B4B;'>🎉 {winner} 🎉</h3>", unsafe_allow_html=True)
+    time.sleep(2.0)
+    placeholder.empty()
+    return winner
 
 def enter_state(state_name, role, content):
-	"""Ensures a message is sent only once when entering a state."""
-	if st.session_state.get("last_state") != state_name:
-		add_chat(role, content)
-		st.session_state.last_state = state_name
+    if st.session_state.get("last_state") != state_name:
+        add_chat(role, content)
+        st.session_state.last_state = state_name
 
 def type_out(text, delay=0.04):
-	"""Types text word-by-word AND saves it to history."""
-	with st.chat_message("assistant", avatar="paige.png"):
-		placeholder = st.empty()
-		rendered = ""
-		for word in text.split(" "):
-			rendered += word + " "
-			placeholder.markdown(rendered)
-			time.sleep(delay)
-	# CRITICAL FIX: Save to history so it persists after button click
-	add_chat("assistant", text)
+    with st.chat_message("assistant", avatar="paige.png"):
+        placeholder = st.empty()
+        rendered = ""
+        for word in text.split(" "):
+            rendered += word + " "
+            placeholder.markdown(rendered)
+            time.sleep(delay)
+    # Save to history so it doesn't vanish
+    add_chat("assistant", text)
 
 def show_media(path, delay=2.5):
-	"""Shows media with loading AND saves it to history."""
-	with st.chat_message("assistant", avatar="paige.png"):
-		with st.spinner("Loading..."):
-			time.sleep(delay)
-		if os.path.exists(path):
-			st.image(path, width=300)
-	# CRITICAL FIX: Save to history
-	if os.path.exists(path):
-		add_media(path)
-	else:
-		# If file missing, show placeholder in debug
-		st.warning(f"[Missing Image: {path}]")
+    with st.chat_message("assistant", avatar="paige.png"):
+        with st.spinner("Loading..."):
+            time.sleep(delay)
+        if os.path.exists(path):
+            st.image(path, width=300)
+            add_media(path)
+        else:
+            st.warning(f"Media unavailable: {path}")
 
-# PART 5: SIDEBAR (THE TANK)
-st.header("🏦 The Bank")
-st.metric("🎟️ TICKETS", st.session_state.data["tickets"])
-st.divider()
+def get_smart_response(): 
+    return random.choice([
+        "Good boy. You kept the money safe.",
+        "That's hot. One more step closer to a giant bottle of Lube.",
+        "Daddy's making moves! Keep stacking cash.",
+        "My baby is saving to fuck my mouth in his own home."
+    ])
 
-st.metric("🏠 HOUSE FUND", f"${st.session_state.data.get('house_fund', 0.0):,.2f}")
-st.metric("🛡️ HOLDING TANK", f"${st.session_state.data['tank_balance']:,.2f}")
-st.metric("🌑 BLACKOUT FUND", f"${st.session_state.data.get('bridge_fund', 0.0):,.2f}")
-st.divider()
+def get_ticket_save_response():
+    return random.choice([
+        "I was really hoping to get my mouth fucked...",
+        "I was dying for you to fuck my ass...",
+        "Was really hoping to meet you at the door on my knees..."
+    ])
 
-st.metric("💵 SAFE TO SPEND", f"${st.session_state.data.get('wallet_balance', 0.0):,.2f}")
-
-st.divider()
-
-admin_code = st.text_input("Admin Override", type="password", placeholder="Secret Code")
-if st.button("Reset Bank (Debug)"):
-	st.session_state.data = {"tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0}
-save_data(st.session_state.data)
-st.session_state.history = []
-st.session_state.turn_state = "WALLET_CHECK"
-st.rerun()
-def get_smart_response():
-	responses = [
-		"Based on your input, I'd suggest allocating funds to essential expenses first, then consider saving or investing the rest.",
-		"It looks like you have some flexibility in your budget. Maybe treat yourself a little while still being mindful of your savings goals.",
-		"Given your current financial situation, focusing on building an emergency fund could be beneficial.",
-		"You might want to prioritize paying off any high-interest debts before making new purchases.",
-		"Consider setting aside a portion of your income for future investments or opportunities that may arise."
-	]
-	return random.choice(responses)
 # ==========================================
-#       PART 6: MAIN CHAT INTERFACE
+#       PART 5: SIDEBAR (THE TANK)
+# ==========================================
+with st.sidebar:
+    st.header("🏦 The Bank")
+    st.metric("🎟️ TICKETS", st.session_state.data["tickets"])
+    st.divider()
+    st.metric("🏠 HOUSE FUND", f"${st.session_state.data.get('house_fund', 0.0):,.2f}")
+    st.metric("🛡️ HOLDING TANK", f"${st.session_state.data['tank_balance']:,.2f}")
+    st.metric("🌑 BLACKOUT FUND", f"${st.session_state.data.get('bridge_fund', 0.0):,.2f}")
+    st.divider()
+    st.metric("💵 SAFE TO SPEND", f"${st.session_state.data.get('wallet_balance', 0.0):,.2f}")
+    st.divider()
+    admin_code = st.text_input("Admin Override", type="password", placeholder="Secret Code")
+    if st.button("Reset Bank (Debug)"):
+        st.session_state.data = {"tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0}
+        save_data(st.session_state.data)
+        st.session_state.history = []
+        st.session_state.turn_state = "WALLET_CHECK"
+        st.rerun()
+
+# ==========================================
+#       PART 6: MAIN CHAT INTERFACE
 # ==========================================
 st.title("🎰 The Exit Plan")
+
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 for item in st.session_state.history:
-	if item["type"] == "chat":
-		avatar = "paige.png" if item["role"] == "assistant" else "😎"
-		if item["role"] == "assistant" and not os.path.exists("paige.png"):
-			avatar = "💋"
-		with st.chat_message(item["role"], avatar=avatar):
-			st.write(item["content"])
-	elif item["type"] == "narrator":
-		st.markdown(f"<div class='narrator'>{item['content']}</div>", unsafe_allow_html=True)
-	elif item["type"] == "media":
-		with st.chat_message("assistant", avatar="paige.png"):
-			if os.path.exists(item["path"]):
-				if item.get("kind") == "video":
-					st.video(item["path"])
-				else:
-					st.image(item["path"], width=300)
-	elif item["type"] == "dual_media":
-		with st.chat_message("assistant", avatar="paige.png"):
-			c1, c2 = st.columns(2)
-			if os.path.exists(item.get("path1", "")):
-				c1.image(item["path1"])
-			if os.path.exists(item.get("path2", "")):
-				c2.image(item["path2"])
+    if item["type"] == "chat":
+        avatar = "paige.png" if item["role"] == "assistant" else "😎"
+        if item["role"] == "assistant" and not os.path.exists("paige.png"): avatar = "💋"
+        with st.chat_message(item["role"], avatar=avatar):
+            st.write(item["content"])
+    elif item["type"] == "narrator":
+        st.markdown(f"<div class='narrator'>{item['content']}</div>", unsafe_allow_html=True)
+    elif item["type"] == "media":
+        with st.chat_message("assistant", avatar="paige.png"):
+            if os.path.exists(item["path"]):
+                if item["kind"] == "video": st.video(item["path"])
+                else: st.image(item["path"], width=300)
+    elif item["type"] == "dual_media":
+        with st.chat_message("assistant", avatar="paige.png"):
+            c1, c2 = st.columns(2)
+            if os.path.exists(item["path1"]): c1.image(item["path1"])
+            if os.path.exists(item["path2"]): c2.image(item["path2"])
 st.markdown('</div>', unsafe_allow_html=True)
-# USER INPUT
+
 user_msg = st.chat_input("Reply to Paige...")
 if user_msg:
     add_chat("user", user_msg)
@@ -269,8 +258,6 @@ st.markdown("---")
 
 # --- 1. START SCREEN ---
 if st.session_state.turn_state == "WALLET_CHECK":
-    
-    # DIRECT CASINO ENTRY
     if st.session_state.data["tickets"] > 0:
         st.info(f"🎟️ You have {st.session_state.data['tickets']} tickets banked.")
         if st.button("🎰 ENTER CASINO FLOOR (Skip Income)"):
@@ -279,101 +266,75 @@ if st.session_state.turn_state == "WALLET_CHECK":
         st.markdown("---")
     
     c1, c2, c3, c4 = st.columns(4)
-    
     is_open, lock_msg = check_payday_window(admin_code)
     if is_open:
         if c1.button("💰 Full Paycheck"): st.session_state.turn_state="INPUT_PAYCHECK"; st.rerun()
-    else:
-        c1.warning(lock_msg)
-        
+    else: c1.warning(lock_msg)
     if c2.button("📱 Daily Dayforce"): st.session_state.turn_state="INPUT_DAILY"; st.rerun()
     if c3.button("💸 Side Hustle"): st.session_state.turn_state="INPUT_SIDE_HUSTLE"; st.rerun()
     if c4.button("🏦 Manage Funds"): st.session_state.turn_state="MANAGE_FUNDS"; st.rerun()
 
-# --- 2. SIDE HUSTLE ---
 elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
     st.subheader("💸 Side Hustle Input")
     side_amount = st.number_input("Side Income Amount ($):", min_value=0.0, step=5.0)
-    
     if st.button("Process Extra Cash"):
         add_chat("user", f"Side Hustle: ${side_amount}")
         split = side_amount / 2
         st.session_state.data["tank_balance"] += split
         st.session_state.data["wallet_balance"] += split
-        
         if side_amount >= 150: tickets=125
         elif side_amount >= 110: tickets=60
         elif side_amount >= 70: tickets=35
         elif side_amount >= 40: tickets=15
         else: tickets=0
-        
         st.session_state.data["tickets"] += tickets
         save_data(st.session_state.data)
-        
         msg = f"**Side Hustle:** ${side_amount:.2f}\n🛡️ Tank: ${split:.2f}\n💰 Wallet: ${split:.2f}\n🎟️ **TICKETS:** {tickets}"
         add_chat("assistant", msg)
         st.session_state.turn_state = "CHOOSE_TIER"
         st.rerun()
 
-# --- 3. PAYCHECK ---
 elif st.session_state.turn_state == "INPUT_PAYCHECK":
     st.subheader("💰 Full Paycheck")
     check_amount = st.number_input("Enter Total:", min_value=0.0, step=10.0)
-    
     if st.button("Process Paycheck"):
         add_chat("user", f"Paycheck is ${check_amount}")
-        rent = 200.0; insurance = 80.0; loans = 100.0; blackout = 50.0
-        total_deductions = rent + insurance + loans + blackout
-        safe_spend = check_amount - total_deductions
-        
-        st.session_state.data["bridge_fund"] += blackout
+        safe_spend = check_amount - (200.0 + 80.0 + 100.0 + 50.0)
+        st.session_state.data["bridge_fund"] += 50.0
         st.session_state.data["wallet_balance"] = safe_spend 
-        
         if check_amount >= 601: tickets=100
         elif check_amount >= 501: tickets=50
         elif check_amount >= 450: tickets=25
         else: tickets=0
-            
         st.session_state.data["tickets"] += tickets
         save_data(st.session_state.data)
-        
-        if safe_spend < 0:
-            add_chat("assistant", f"⚠️ **SHORTAGE:** -${abs(safe_spend):.2f}.")
+        if safe_spend < 0: add_chat("assistant", f"⚠️ **SHORTAGE:** -${abs(safe_spend):.2f}.")
         else:
-            msg = f"✅ **PROCESSED**\n💵 Gross: ${check_amount:.2f}\n💰 **SAFE TO SPEND:** ${safe_spend:.2f}\n🎟️ **TICKETS:** {tickets}"
-            add_chat("assistant", msg)
+            add_chat("assistant", f"✅ **PROCESSED**\n💰 **SAFE TO SPEND:** ${safe_spend:.2f}\n🎟️ **TICKETS:** {tickets}")
             if tickets > 0: st.session_state.turn_state="CHOOSE_TIER"
             else: st.session_state.turn_state="CHECK_FAIL"
         st.rerun()
 
-# --- 4. DAILY ---
 elif st.session_state.turn_state == "INPUT_DAILY":
     st.subheader("📱 Daily Dayforce")
     daily_amount = st.number_input("Available ($):", min_value=0.0, step=5.0)
-    
     if st.button("Process Daily"):
         add_chat("user", f"Dayforce: ${daily_amount}")
-        gas = 10.0; house = 30.0
-        if daily_amount < (gas + house):
-            add_chat("assistant", f"⚠️ **Warning:** Not enough for Gas & House.")
+        if daily_amount < 40.0: add_chat("assistant", f"⚠️ **Warning:** Not enough for Gas & House.")
         else:
-            safe_spend = daily_amount - gas - house
-            st.session_state.data["tank_balance"] += house
+            safe_spend = daily_amount - 10.0 - 30.0
+            st.session_state.data["tank_balance"] += 30.0
             st.session_state.data["wallet_balance"] += safe_spend
             save_data(st.session_state.data)
-            add_chat("assistant", get_smart_response())
-            msg = f"**Strategy:**\nShielded $30 (House) + $10 (Gas).\n🍔 **SAFE TO SPEND:** ${safe_spend:.2f}"
-            add_chat("assistant", msg)
+            add_chat("assistant", f"**Strategy:**\nShielded $30 (House) + $10 (Gas).\n🍔 **SAFE TO SPEND:** ${safe_spend:.2f}")
             st.session_state.turn_state = "CHOOSE_TIER"
             st.rerun()
 
-# --- 5. MANAGE ---
 elif st.session_state.turn_state == "MANAGE_FUNDS":
     st.subheader("🏦 The Tank")
     st.info(f"Tank: ${st.session_state.data['tank_balance']:.2f}")
     move_amount = st.number_input("Amount ($):", min_value=0.0, step=10.0)
     c1, c2, c3 = st.columns(3)
-    
     if c1.button("💸 Move to Wallet"):
         if move_amount > st.session_state.data['tank_balance']: st.error("Not enough.")
         else:
@@ -381,7 +342,6 @@ elif st.session_state.turn_state == "MANAGE_FUNDS":
             st.session_state.data['wallet_balance'] += move_amount
             save_data(st.session_state.data)
             add_chat("assistant", f"💸 Moved ${move_amount} to Wallet."); st.rerun()
-            
     if c2.button("🏠 Lock to House"):
         if move_amount > st.session_state.data['tank_balance']: st.error("Not enough.")
         else:
@@ -389,27 +349,21 @@ elif st.session_state.turn_state == "MANAGE_FUNDS":
             st.session_state.data['house_fund'] += move_amount
             save_data(st.session_state.data)
             add_chat("assistant", f"🏠 Locked ${move_amount}."); st.rerun()
-            
     if c3.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
-# --- 6. CASINO FLOOR ---
 elif st.session_state.turn_state == "CHOOSE_TIER":
     tix = st.session_state.data["tickets"]
     st.subheader(f"🎰 Casino Floor (Balance: {tix} Tickets)")
     c1, c2, c3 = st.columns(3)
-    
     if tix >= 25:
         if c1.button("🥉 Spin Bronze (25)"): st.session_state.turn_state="SPIN_BRONZE"; st.rerun()
     else: c1.warning("🥉 Bronze: Need 25")
-
     if tix >= 50:
         if c2.button("🥈 Spin Silver (50)"): st.session_state.turn_state="SPIN_SILVER"; st.rerun()
     else: c2.warning("🥈 Silver: Need 50")
-
     if tix >= 100:
         if c3.button("👑 Spin Gold (100)"): st.session_state.turn_state="SPIN_GOLD"; st.rerun()
     else: c3.warning("👑 Gold: Need 100")
-        
     st.divider()
     if st.button("Save Tickets & Exit"):
         save_data(st.session_state.data)
@@ -420,7 +374,7 @@ elif st.session_state.turn_state == "CHECK_FAIL":
     add_chat("assistant", "Check too low. Try harder.")
     if st.button("Return"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
-# --- SPINS ---# # --- SPINS ---
+# --- SPINS ---
 elif st.session_state.turn_state == "SPIN_BRONZE":
     if st.session_state.data["tickets"] >= 25:
         st.session_state.data["tickets"] -= 25; save_data(st.session_state.data)
@@ -434,7 +388,7 @@ elif st.session_state.turn_state == "SPIN_BRONZE":
 elif st.session_state.turn_state == "SPIN_SILVER":
     if st.session_state.data["tickets"] >= 50:
         st.session_state.data["tickets"] -= 50; save_data(st.session_state.data)
-        prizes = [ "Toy Pic", "Lick Pussy", "Nude Pic", "Tongue Tease", "Road Head", "Plug Tease"]
+        prizes = ["Massage", "Toy Pic", "Lick Pussy", "Nude Pic", "Tongue Tease", "Road Head", "Plug Tease"]
         win = spin_animation("Silver", prizes)
         add_chat("assistant", f"🥈 WINNER: **{win}**")
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
@@ -452,7 +406,7 @@ elif st.session_state.turn_state == "SPIN_GOLD":
     else: st.error("Not enough tickets"); st.session_state.turn_state="CHOOSE_TIER"; st.rerun()
 
 # ==========================================
-#       PRIZE SCRIPTS
+#       PRIZE SCRIPTS (EXTENDED)
 # ==========================================
 # ------- NUDE PIC PRIZE --------
 elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
@@ -480,17 +434,17 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
 
         c1, c2, c3 = st.columns(3)
 
-        if c1.button("Tits – completely braless, pushed together… like they’re waiting for your dick between them", key="nude_focus_tits"):
+        if c1.button("Tits - completely braless, pushed together… like they're waiting for your dick between them", key="nude_focus_tits"):
             data["focus"] = "tits"
             data["stage"] = 1
             st.rerun()
 
-        if c2.button("Pussy – slide down my pants and show you how wet I am", key="nude_focus_pussy"):
+        if c2.button("Pussy - slide down my pants and show you how wet I am", key="nude_focus_pussy"):
             data["focus"] = "pussy"
             data["stage"] = 1
             st.rerun()
 
-        if c3.button("Ass – bent over, exposing your favorite little hole", key="nude_focus_ass"):
+        if c3.button("Ass - bent over, exposing your favorite little hole", key="nude_focus_ass"):
             data["focus"] = "ass"
             data["stage"] = 1
             st.rerun()
@@ -500,7 +454,7 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
         focus_title = data["focus"].capitalize()
         add_chat("assistant", f"{focus_title}? Are you sure, daddy?")
 
-        if st.button("Yes – show me.", key="nude_confirm_focus"):
+        if st.button("Yes - show me.", key="nude_confirm_focus"):
             simulate_loading(3)
 
             # Show first focused image
@@ -515,13 +469,13 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
 
             c1, c2 = st.columns(2)
 
-            if c1.button("Slow filthy tease – edge you till you're leaking", key="nude_tease"):
+            if c1.button("Slow filthy tease - edge you till you're leaking", key="nude_tease"):
                 data["mood"] = "teasing"
                 data["stage"] = 2
                 data["substage"] = 0
                 st.rerun()
 
-            if c2.button("Desperate dripping mess – can't hold back anymore", key="nude_desperate"):
+            if c2.button("Desperate dripping mess - can't hold back anymore", key="nude_desperate"):
                 data["mood"] = "desperate"
                 data["stage"] = 2
                 data["substage"] = 0
@@ -604,20 +558,20 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER":
         "Haha just fucking with you… you know exactly what it means, dirty boy. "
         "You say 'bend over' and your slutty girlfriend slowly presents her ass and dripping cunt right in your face."
     )
-    add_narrator("Make sure I’m in something thin and see-through… or already completely fucking naked for you.")
+    add_narrator("Make sure I'm in something thin and see-through… or already completely fucking naked for you.")
     type_out(
         "But listen carefully, baby — look all you want… stare at my holes, watch me drip… "
         "but **no touching**. No hands on me, no hands from me on you. Just me being your personal filthy show. Got it?"
     )
     type_out(
-        "Here’s your prize, winner… watch me bend over nice and slow, arching this ass just for you… like this…"
+        "Here's your prize, winner… watch me bend over nice and slow, arching this ass just for you… like this…"
     )
     if st.button("Watch her bend over"):
         st.session_state.turn_state = "PRIZE_BEND_OVER_REVEAL"
         st.rerun()
 elif st.session_state.turn_state == "PRIZE_BEND_OVER_REVEAL":
     show_media("nude_4.jpg")
-    add_narrator("Fuck… I’m already so soaked just knowing you’re staring at my holes like this…")
+    add_narrator("Fuck… I'm already so soaked just knowing you're staring at my holes like this…")
     if st.button("Keep watching"):
         st.session_state.turn_state = "PRIZE_BEND_OVER_1"
         st.rerun()
@@ -632,7 +586,7 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER_1":
         add_chat("user", "Show me.")
         type_out("Mmm… you asked for it, daddy… watch close…")
         show_media("bend_over2.jpeg", delay=3)
-        type_out("Look at that mess… my pussy’s literally dripping down my thighs because of you.")
+        type_out("Look at that mess… my pussy's literally dripping down my thighs because of you.")
         type_out(
             "God I’m throbbing so bad… I want your thick cock splitting me open right now… "
             "but nope. Not yet. You gotta save all that cum for Silver, baby. Edge for me like a good boy."
