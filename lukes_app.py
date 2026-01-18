@@ -1531,7 +1531,7 @@ elif st.session_state.turn_state == "PRIZE_TOY_PIC":
 
     # -------- STAGE 3 - Bonus / Final picture --------
     elif data["stage"] == 3:
-        add_media("toy_in_mouth_asss.jpg")
+        add_media("toy_in_mouth_ass.jpg")
         add_chat("assistant", "Bonus\nFor being a good boy")
         
         if st.button("Toy prize complete – now fuck me for real?", key="toy_finish"):
@@ -1770,6 +1770,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
