@@ -115,9 +115,8 @@ if "history" not in st.session_state:
         "content": "Systems Online. 💋\n\nI'm ready. Did we get a full Paycheck, Dayforce Daily, or some **Side Cash**?"
     }]
 if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_CHECK"
-
-# =========================================
-#       PART 3: HELPER FUNCTIONS (SMART)
+# ==========================================
+#       PART 3: HELPER FUNCTIONS (SMART MEDIA)
 # ==========================================
 def add_chat(role, content):
     st.session_state.history.append({"type": "chat", "role": role, "content": content})
@@ -125,7 +124,12 @@ def add_chat(role, content):
 def add_narrator(content):
     st.session_state.history.append({"type": "narrator", "content": content})
 
-def add_media(filepath, media_type="image"):
+# FIXED: Auto-detects if it is a video or image
+def add_media(filepath):
+    if filepath.lower().endswith(('.mp4', '.mov', '.webm')):
+        media_type = "video"
+    else:
+        media_type = "image"
     st.session_state.history.append({"type": "media", "path": filepath, "kind": media_type})
 
 def add_dual_media(path1, path2):
@@ -157,22 +161,16 @@ def spin_animation(tier, prizes):
     placeholder.empty()
     return winner
 
-# --- SMART HELPERS (PREVENT DOUBLE PRINTING) ---
-
 def enter_state(state_name, role, content):
     if st.session_state.get("last_state") != state_name:
         add_chat(role, content)
         st.session_state.last_state = state_name
 
 def type_out(text, delay=0.04):
-    # 1. Anti-Duplicate Shield: 
-    # If this exact text is ALREADY ast thing in history, 
-    # the main loop at the top of the app is already showing it.
-    # So we SKIP typing it again.
+    # Anti-Duplicate Shield
     if st.session_state.history and st.session_state.history[-1].get("content") == text:
         return
 
-    # 2. If it's new, animate it:
     with st.chat_message("assistant", avatar="paige.png"):
         placeholder = st.empty()
         rendered = ""
@@ -181,11 +179,11 @@ def type_out(text, delay=0.04):
             placeholder.markdown(rendered)
             time.sleep(delay)
     
-    # 3. Save to history
     add_chat("assistant", text)
 
+# FIXED: Checks file extension before displaying
 def show_media(path, delay=2.5):
-    # Anti-Duplicate Shield for Images
+    # Anti-Duplicate Shield
     if st.session_state.history:
         last_item = st.session_state.history[-1]
         if last_item.get("type") == "media" and last_item.get("path") == path:
@@ -194,8 +192,12 @@ def show_media(path, delay=2.5):
     with st.chat_message("assistant", avatar="paige.png"):
         with st.spinner("Loading..."):
             time.sleep(delay)
+        
         if os.path.exists(path):
-            st.image(path, width=300)
+            if path.lower().endswith(('.mp4', '.mov', '.webm')):
+                st.video(path)
+            else:
+                st.image(path, width=300)
         else:
             st.warning(f"Media unavailable: {path}")
             
@@ -1688,6 +1690,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
