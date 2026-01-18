@@ -504,13 +504,13 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER":
     enter_state(
         "PRIZE_BEND_OVER",
         "assistant",
-        "Haha just fucking with you… you know exactly what it means, dirty boy. "
-        "You say 'bend over' and your slutty girlfriend slowly presents her ass and dripping cunt right in your face."
+        "Haha just fucking with you… you know exactly what it means, you dirty birdy."
+        "You say 'bend over' and your slutty girlfriend slowly presents her ass and dripping pussy, no matter what I might be doing."
     )
     add_narrator("Make sure I'm in something thin and see-through… or already completely fucking naked for you.")
     type_out(
         "But listen carefully, baby — look all you want… stare at my holes, watch me drip… "
-        "but **no touching**. No hands on me, no hands from me on you. Just me being your personal filthy show. Got it?"
+        "but **no touching**. No hands on me, no hands from me on you. Just me being your personal peep show. Got it?"
     )
     type_out(
         "Here's your prize, winner… watch me bend over nice and slow, arching this ass just for you… like this…"
@@ -1672,6 +1672,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
