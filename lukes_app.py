@@ -509,7 +509,19 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER":
     )
     simulate_loading(3)
     add_media("explain_bendover.jpg")
+# --- BEND OVER ---
+elif st.session_state.turn_state == "PRIZE_BEND_OVER":
+    # FIX 1: Combined the text into one string so it fits the function arguments
+    enter_state(
+        "PRIZE_BEND_OVER",
+        "assistant",
+        "You know what that means... you have to bend over right when I say so anywhere, anytime. Hahaha, just fucking with you… you know exactly what it means, you dirty birdy.\n\n"
+        "When you say 'bend over' and your slutty girlfriend slowly presents her ass and dripping pussy, no matter what I might be doing."
+    )
+    simulate_loading(3)
+    add_media("explain_bendover.jpg")
     add_narrator("Make sure I'm in something thin and see-through… or already completely fucking naked for you.")
+    
     type_out(
         "But listen carefully, baby — look all you want… stare at my holes, watch me drip… "
         "but **no touching**. No hands on me, no hands from me on you. Just me being your personal peep show. Got it?"
@@ -517,21 +529,29 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER":
     type_out(
         "Here's your prize, winner… watch me bend over nice and slow, arching this ass just for you… like this…"
     )
+    
     if st.button("In the grocery store?"):
         st.session_state.turn_state = "PRIZE_BEND_OVER_REVEAL"
         st.rerun()
+
 elif st.session_state.turn_state == "PRIZE_BEND_OVER_REVEAL":
     show_media("grocery_bendover.jpeg")
     add_narrator("Fuck… I'm already so soaked just knowing you're staring at my holes like this…")
+    
     if st.button("At home?"):
         simulate_loading(3)
         add_media("Bendover1.mp4")
+        # FIX 2: Added state transition so the app moves forward
+        st.session_state.turn_state = "PRIZE_BEND_OVER_1"
+        st.rerun()
+
 elif st.session_state.turn_state == "PRIZE_BEND_OVER_1":
     enter_state(
         "PRIZE_BEND_OVER_1",
         "assistant",
         "Want to see just how fucking wet your prize got for you?"
     )
+    
     c1, c2, c3 = st.columns(3)
     if c1.button("Show me."):
         add_chat("user", "Show me.")
@@ -544,9 +564,10 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER_1":
         )
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
-       
-# PRIZE: FLASH ME
-if st.session_state.turn_state == "PRIZE_FLASH_ME":
+
+# --- PRIZE: FLASH ME ---
+# FIX 3: Changed 'if' to 'elif' to keep the logic chain intact
+elif st.session_state.turn_state == "PRIZE_FLASH_ME":
     enter_state(
         "PRIZE_FLASH_ME",
         "assistant",
@@ -556,6 +577,7 @@ if st.session_state.turn_state == "PRIZE_FLASH_ME":
         add_chat("user", "I’m pretty sure I know what this means…")
         st.session_state.turn_state = "PRIZE_FLASH_TWIST"
         st.rerun()
+
 elif st.session_state.turn_state == "PRIZE_FLASH_TWIST":
     enter_state(
         "PRIZE_FLASH_TWIST",
@@ -576,6 +598,7 @@ elif st.session_state.turn_state == "PRIZE_FLASH_TWIST":
         )
         st.session_state.turn_state = "PRIZE_FLASH_CHOICE"
         st.rerun()
+
 elif st.session_state.turn_state == "PRIZE_FLASH_CHOICE":
     enter_state(
         "PRIZE_FLASH_CHOICE",
@@ -608,6 +631,7 @@ elif st.session_state.turn_state == "PRIZE_FLASH_CHOICE":
         )
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
+
 elif st.session_state.turn_state == "PRIZE_DONE":
     enter_state(
         "PRIZE_DONE",
@@ -1674,6 +1698,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
