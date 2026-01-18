@@ -498,24 +498,14 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
         if st.button("That's enough for now… claim this prize now?"):
             del st.session_state.nude_pic
             st.session_state.turn_state = "PRIZE_DONE"
-            st.rerun()
-# BEND OVER
+            st.rerun() 
+#--- BEND OVER ---
 elif st.session_state.turn_state == "PRIZE_BEND_OVER":
+    # ✅ FIXED: Combined text into one single string
     enter_state(
         "PRIZE_BEND_OVER",
         "assistant",
-        "You know what that means, you have to bend over right when i sasy so anywhere,  anytime. hahaha, just fucking with you… you know exactly what it means, you dirty birdy.",
-        "When you say 'bend over' and your slutty girlfriend slowly presents her ass and dripping pussy, no matter what I might be doing."
-    )
-    simulate_loading(3)
-    add_media("explain_bendover.jpg")
-# --- BEND OVER ---
-elif st.session_state.turn_state == "PRIZE_BEND_OVER":
-    # FIX 1: Combined the text into one string so it fits the function arguments
-    enter_state(
-        "PRIZE_BEND_OVER",
-        "assistant",
-        "You know what that means... you have to bend over right when I say so anywhere, anytime. Hahaha, just fucking with you… you know exactly what it means, you dirty birdy.\n\n"
+        "You know what that means, you have to bend over right when i say so anywhere, anytime. Hahaha, just fucking with you… you know exactly what it means, you dirty birdy.\n\n"
         "When you say 'bend over' and your slutty girlfriend slowly presents her ass and dripping pussy, no matter what I might be doing."
     )
     simulate_loading(3)
@@ -1698,6 +1688,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
