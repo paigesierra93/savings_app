@@ -1423,115 +1423,127 @@ elif st.session_state.turn_state == "PRIZE_PLUG_TEASE":
             add_chat("assistant", "Such a tease… this little plug is just the start. I'll wear it quietly, feeling full and needy until you decide to play.")
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
-# TOY PIC
+
+# TOY PIC - Branching version based on user's provided flow
 elif st.session_state.turn_state == "PRIZE_TOY_PIC":
     if "toy_pic" not in st.session_state:
         st.session_state.toy_pic = {
             "stage": 0,
-            "substage": 0,
-            "pose": None,
             "focus": None,
+            "subchoice": None,   # for ass branch (Plug vs Toy)
+            "plug_keep": None,
             "mood": "teasing"
         }
     data = st.session_state.toy_pic
-    # -------- STAGE 0 --------
+
+    # -------- STAGE 0 - Intro + First choice: Which hole? --------
     if data["stage"] == 0:
+        st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Toy Pic**")
+        
         add_chat("assistant", "Oh fuck baby… you won the **Toy Pic** tease 😈 Your filthy little girlfriend is gonna play with a nice toy just for you.")
-        add_chat("assistant", "I'll tease you step by step with seven nasty pictures… starting clothed, then sliding this thick dildo in deeper and deeper until I'm a dripping mess. Ready to watch me fuck myself for my winner, daddy?")
-        poses = [
-            "Standing full body, toy in hand sliding down my sides, giving you 'come watch me play' eyes",
-            "Bent over the bed, toy teasing between my cheeks, looking back like 'fill me up'",
-            "Lying on my back, legs spread, toy hovering over my soaked panties",
-            "On my knees, toy between my tits, mouth open like I'm ready to suck it",
-            "Ass to camera, deep arch, toy pressing against my hole"
-        ]
-        data["pose"] = st.radio(
-            "How do you want your prize to start posing with the toy?",
-            poses,
-            key="toy_pose"
+        add_media("toy_butt_in5.jpeg")
+        
+        add_chat("assistant", "Ready to watch me fuck myself daddy?")
+        add_media("toy_pic.jpeg")
+        
+        focuses = ["Ass", "Pusssy", "Mouth"]
+        data["focus"] = st.radio(
+            "which hole do you want me to tease with this toy first?",
+            focuses,
+            key="toy_hole_choice"
         )
-        if st.button("Perfect… now choose where I use the toy first 💦", key="toy_stage0"):
+        
+        if st.button("Show me 😈", key="toy_start"):
             data["stage"] = 1
             st.rerun()
-    # -------- STAGE 1 --------
+
+    # -------- STAGE 1 - Branching logic based on chosen hole --------
     elif data["stage"] == 1:
-        add_chat("assistant", "Mmm you greedy boy… which hole do you want me to tease with this toy first?")
-        focuses = [
-            "My dripping pussy – sliding the toy in slow while I moan for you",
-            "My tight ass – stretching it open inch by inch with the dildo",
-            "My hungry mouth – deepthroating the toy like it's your cock",
-            "Close-up on the action – every wet, slippery detail",
-            "Surprise me… make your slut play wherever will make you cum fastest"
-        ]
-        data["focus"] = st.radio(
-            "Pick where your prize gets toy-fucked first:",
-            focuses,
-            key="toy_focus"
-        )
-        c1, c2 = st.columns(2)
-        if c1.button("Slow naughty tease – edge us both with the toy", key="toy_tease"):
-            data["mood"] = "teasing"
-            data["stage"] = 2
-            data["substage"] = 0
-            st.rerun()
-        if c2.button("Desperate horny mess – shoving the toy deep fast", key="toy_desperate"):
-            data["mood"] = "desperate"
-            data["stage"] = 2
-            data["substage"] = 0
-            st.rerun()
-    # -------- STAGE 2 (SUBSTAGES) --------
-    elif data["stage"] == 2:
-        if data["substage"] == 0:
-            simulate_loading(3)
-            add_media("toy_1.jpg")
-            add_chat("assistant", "First pic baby… fully clothed but holding the toy, biting my lip like I'm already imagining it inside me 🥵")
-            simulate_loading(2)
-            add_media("toy_2.jpg")
-            add_chat("assistant", "Now teasing my pussy with the tip… just a little rub over my panties, getting so wet for you…")
-            if st.button("More already? Show me the toy going in", key="toy_next1"):
-                data["substage"] = 1
+        if data["focus"] == "Ass":
+            add_chat("assistant", "This ass?")
+            add_media("in_this_ass.jpg")
+            
+            add_chat("assistant", "You wanna see my tiny asshole stretched and filled with what?")
+            
+            subchoices = ["Plug", "Toy"]
+            data["subchoice"] = st.radio(
+                "Choose your weapon:",
+                subchoices,
+                key="ass_fill_choice"
+            )
+            
+            if st.button("Stretch me", key="ass_fill_confirm"):
+                data["stage"] = 2
                 st.rerun()
-        elif data["substage"] == 1:
-            simulate_loading(2)
-            add_media("toy_3.jpg")
-            add_chat("assistant", "There daddy… toy sliding deep into my pussy, lips stretched around it, dripping everywhere. God it feels so good thinking of your cock instead 💦")
-            if st.button("Turn around – tease that ass with the toy now", key="toy_next2"):
-                data["substage"] = 2
+
+        elif data["focus"] == "Pusssy":
+            add_chat("assistant", "In my pussy?")
+            add_chat("assistant", "Now teasing my pussy with the tip… just a little getting so wet for you…")
+            add_media("toy_ass3.jpeg")
+            
+            add_chat("assistant", "There daddy… toy sliding deep into my pussy, lips stretched around it, dripping everywhere. God it feels so good thinking of your cock")
+            add_media("plug_pussy1.jpg")
+            
+            if st.button("Bonus for being a good boy", key="pussy_bonus"):
+                data["stage"] = 3
                 st.rerun()
-        elif data["substage"] == 2:
-            simulate_loading(2)
-            add_media("toy_4.jpg")
-            add_chat("assistant", "Toy pressing against my clothed ass… you love seeing me play back there, don't you?")
-            if st.button("Push it in – I want to see your ass full", key="toy_next3"):
-                data["substage"] = 3
+
+        elif data["focus"] == "Mouth":
+            add_chat("assistant", "Stretching out my mouth")
+            add_media("toy_in_mouth.jpg")
+            
+            if st.button("Bonus for being a good boy", key="mouth_bonus"):
+                data["stage"] = 3
                 st.rerun()
-        elif data["substage"] == 3:
-            simulate_loading(2)
-            add_media("toy_5.jpg")
-            add_chat("assistant", "Toy buried in my ass… so tight and full, clenching around it like I would your dick 🍑")
-            if st.button("Now the tits – play with the toy there too", key="toy_next4"):
-                data["substage"] = 4
+
+    # -------- STAGE 2 - Ass sub-branch (Plug or Toy) --------
+    elif data["stage"] == 2 and data["focus"] == "Ass":
+        if data["subchoice"] == "Plug":
+            add_media("tease_in_ass_plug.jpg")
+            add_media("plug_in1.jpeg")
+            
+            add_chat("assistant", "Plug in ass, should I keep it there for you to take out?")
+            
+            keep_options = [
+                "Keep it.   imma wreck that hole when I get home",
+                "Take it out for now"
+            ]
+            data["plug_keep"] = st.radio(
+                "Your choice daddy:",
+                keep_options,
+                key="plug_keep_choice"
+            )
+            
+            if st.button("Confirm", key="plug_final"):
+                data["stage"] = 3
                 st.rerun()
-        elif data["substage"] == 4:
-            simulate_loading(2)
-            add_media("toy_6.jpg")
-            add_chat("assistant", "Toy between my covered tits… pushing them together, teasing my nipples with the tip")
-            if st.button("Final tease – bare tits and toy all out", key="toy_next5"):
-                data["substage"] = 5
+
+        elif data["subchoice"] == "Toy":
+            add_media("tease_in_ass.jpeg")
+            add_media("vibe_in_ass.jpg")
+            
+            add_chat("assistant", "There you go daDdy… toy sliding deep into my ass stretched around it, dripping everywhere. God it feels so good thinking of your cock instead")
+            add_media("all_3_4.jpeg")
+            
+            if st.button("Bonus for being a good boy", key="toy_ass_bonus"):
+                data["stage"] = 3
                 st.rerun()
-        elif data["substage"] == 5:
-            simulate_loading(3)
-            add_media("toy_7.jpg")
-            add_chat("assistant", "All bare now… tits out, toy sliding between them or back in my pussy/ass – whatever breaks you. "
-                                 "I'm such a toy-fucking mess for you daddy. Come use the real thing 😈")
-            if st.button("Toy prize complete – now fuck me for real?", key="toy_finish"):
-                st.session_state.pop("toy_pic", None)
-                st.session_state.turn_state = "PRIZE_DONE"
-                st.rerun()
-        if st.button("Enough teasing… claim this toy prize now or later?", key="toy_exit"):
+
+    # -------- STAGE 3 - Bonus / Final picture --------
+    elif data["stage"] == 3:
+        add_media("toy_in_mouth_asss.jpg")
+        add_chat("assistant", "Bonus\nFor being a good boy")
+        
+        if st.button("Toy prize complete – now fuck me for real?", key="toy_finish"):
             st.session_state.pop("toy_pic", None)
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
+
+    # Exit button (available throughout)
+    if st.button("🎰 The Exit - Claim prize now or later", key="toy_exit_global"):
+        st.session_state.pop("toy_pic", None)
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
            
 # --- ANAL FUCK PRIZE ---
 elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
@@ -1758,6 +1770,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
