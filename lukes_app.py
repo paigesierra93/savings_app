@@ -504,7 +504,7 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER":
     enter_state(
         "PRIZE_BEND_OVER",
         "assistant",
-        "You know what that means, you have to bend over right when i sasy so anywhere,  anytime. hahaha, just fucking with you… you know exactly what it means, you dirty birdy.
+        ("You know what that means, you have to bend over right when i sasy so anywhere,  anytime. hahaha, just fucking with you… you know exactly what it means, you dirty birdy.
         "When you say 'bend over' and your slutty girlfriend slowly presents her ass and dripping pussy, no matter what I might be doing.")
     simulate_loading(3)
     add_media("explain_bendover.jpg")
@@ -1675,6 +1675,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
