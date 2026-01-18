@@ -849,94 +849,122 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
     if "all_3_holes" not in st.session_state:
         st.session_state.all_3_holes = {
             "stage": 0,
-            "main_hole": "pussy",
-            "ass_fill": "plug"
+            "filled": {"pussy": False, "ass": False, "mouth": False},
+            "first_hole": None
         }
     data = st.session_state.all_3_holes
-    # ── Stage 0: Choose Primary & Ass Fill ──
+
+    # ── Stage 0: Pick FIRST hole to fill with cock ──
     if data["stage"] == 0:
-        add_chat("assistant", "Fuck yes daddy… you won the ultimate prize: **All 3 Holes Total Overload** 😈 Your dirty little slut is yours to completely destroy tonight.")
-        add_chat("assistant", "You get to fill every hole at once — your cock, your mouth, your fingers, toys, whatever it takes to make me scream and squirt. Pick how you want to start owning me…")
-        main_options = [
-            "Cock in my pussy first – stretch me wide while you work the rest",
-            "Cock in my ass first – make me take it deep and raw",
-            "Cock in my mouth first – face-fuck me while you prep my other holes"
-        ]
-        data["main_hole"] = st.radio("Which hole gets your cock first, winner?", main_options)
-        cols = st.columns(2)
-        if cols[0].button("Thick butt plug in my ass – keep it full and stretched"):
-            data["ass_fill"] = "plug"
-            data["stage"] = 1
-            st.rerun()
-       
-        if cols[1].button("Your fingers in my ass – finger-fuck me open while you pound"):
-            data["ass_fill"] = "fingers"
-            data["stage"] = 1
-            st.rerun()
-    # ── Stage 1: Filling Sequence ──
-    elif data["stage"] == 1:
-        simulate_loading(3)
-        if "pussy" in data["main_hole"].lower():
-            add_media("mkh5dpc060z62y.jpeg")  # Replaced placeholder
-            add_chat("assistant", "Oh god… your thick cock slamming balls-deep into my dripping pussy, stretching me so fucking wide.")
-            add_chat("assistant", "I’m already shaking, clit throbbing, begging for more while you decide how to wreck my other holes.")
-        elif "ass" in data["main_hole"].lower():
-            add_media("inmyass.jpeg")  # Replaced placeholder
-            add_chat("assistant", "Fuck fuck fuck… your cock forcing its way into my tight ass, stretching me raw and deep.")
-            add_chat("assistant", "I’m moaning like a whore, pushing back on you, pussy dripping down my thighs waiting for you to fill it too.")
-        else:
-            add_media("messy_bj1.jpg")
-            add_chat("assistant", "Mmm yes… shoving your cock down my throat, making me gag and drool while you finger my pussy and tease my ass.")
-            add_chat("assistant", "Now the second hole… make me take it all at once, daddy.")
-        if data["ass_fill"] == "plug":
-            simulate_loading(2)
-            add_media("mkje14nndntt24.jpeg")  # Replaced placeholder
-            add_chat("assistant", "That fat plug sliding into my ass, filling me completely, stretching me open while your cock owns my pussy/mouth.")
-            add_chat("assistant", "I’m so full already… whimpering, body trembling, ready for the final invasion.")
-        else:
-            add_chat("assistant", "Your fingers deep in my ass, pumping and scissoring me open while you pound my pussy/mouth… I’m clenching around you, so fucking desperate.")
-            add_narrator("Her whole body is shaking… holes stuffed, drool and wetness everywhere, eyes rolling back.")
-        if st.button("Now the mouth – complete the overload"):
-            data["stage"] = 2
-            st.rerun()
-    # ── Stage 2: Total Overload ──
-    elif data["stage"] == 2:
-        simulate_loading(3)
-        add_media("all_3_4.jpeg")  # Replaced placeholder
-        add_chat("assistant", "Holy fuck… all three holes stuffed at once. Your cock slamming one, plug/fingers wrecking my ass, my mouth gagged on your fingers or another toy.")
-        add_chat("assistant", "I’m a trembling, drooling mess — pussy clenching, ass gripping, throat full, body overloaded and shaking.")
-        add_chat("assistant", "Use me harder daddy… make me your total fucktoy.")
-        add_narrator("Squelching sounds, muffled moans, her hips bucking wildly against every thrust.")
+        add_chat("assistant", "Fuck yes daddy… you won the **ultimate filthy prize**: All 3 Holes Total Overload 😈")
+        add_chat("assistant", "Your nasty little cumdump is completely yours to ruin. Every hole gets wrecked tonight.")
+        add_chat("assistant", "Pick which hole your thick cock destroys **first**…")
+
         cols = st.columns(3)
-        if cols[0].button("Fuck me hard and fast – destroy all holes"):
-            add_chat("assistant", "Yes! Pounding me relentlessly — cock slamming, plug/fingers thrusting deep, mouth fucked raw.")
-            add_chat("assistant", "I’m screaming around whatever’s in my mouth, squirting everywhere, body convulsing.")
-       
-        if cols[1].button("Slow and deep – make me feel every inch"):
-            add_chat("assistant", "Mmm… slow, torturous strokes — feeling every thick inch stretching me, owning me completely.")
-            add_chat("assistant", "I’m whimpering, grinding back, begging for more even though I’m already so full.")
-       
-        if cols[2].button("Edge me – bring me close but don’t let me cum yet"):
-            add_chat("assistant", "Fuck… teasing me right to the edge — fast then slow, deep then shallow, keeping me denied and desperate.")
-            add_chat("assistant", "I’m crying with need, holes pulsing, body shaking… please let me cum soon daddy.")
-        st.write("---")
-        if st.button("Finish me – make me explode"):
+        if cols[0].button("Pussy – stretch my dripping cunt first"):
+            data["first_hole"] = "pussy"
+            data["filled"]["pussy"] = True
+            data["stage"] = 1
+            st.rerun()
+
+        if cols[1].button("Ass – rip my tight little asshole open first"):
+            data["first_hole"] = "ass"
+            data["filled"]["ass"] = True
+            data["stage"] = 1
+            st.rerun()
+
+        if cols[2].button("Mouth – face-fuck my throat raw first"):
+            data["first_hole"] = "mouth"
+            data["filled"]["mouth"] = True
+            data["stage"] = 1
+            st.rerun()
+
+    # ── Stage 1: Show first hole + dirty confirmation → then pick next ──
+    elif data["stage"] == 1:
+        simulate_loading(2)
+
+        if data["first_hole"] == "pussy":
+            add_media("mkh5dpc060z62y.jpeg")
+            add_chat("assistant", "Like this daddy? Your fat cock slamming balls-deep into my greedy pussy, stretching me wide… fuck ya?")
+            add_chat("assistant", "I'm already dripping down your balls, begging for the rest…")
+
+        elif data["first_hole"] == "ass":
+            add_media("inmyass.jpeg")
+            add_chat("assistant", "This little hole baby? Your cock forcing its way into my tight ass, tearing me open raw… fuck ya?")
+            add_chat("assistant", "I'm moaning like a desperate whore, pushing back for more…")
+
+        else:  # mouth
+            add_media("dick_tease16.jpeg")
+            add_chat("assistant", "Like this? Shoving your cock down my slutty throat, making me gag and drool everywhere… fuck ya?")
+            add_chat("assistant", "Tears running, spit dripping… ready for you to wreck the other holes now…")
+
+        remaining = [h for h in ["pussy", "ass", "mouth"] if not data["filled"][h]]
+
+        if remaining:
+            add_chat("assistant", "Now give me the next one, daddy… which hole gets ruined next?")
+            cols = st.columns(len(remaining))
+            for i, hole in enumerate(remaining):
+                label = f"{'Cunt' if hole=='pussy' else 'Ass' if hole=='ass' else 'Mouth/Throat'}"
+                if cols[i].button(f"Fill my {label} next"):
+                    data["filled"][hole] = True
+                    data["stage"] = 2 if len([v for v in data["filled"].values() if v]) == 2 else 1
+                    st.rerun()
+        else:
             data["stage"] = 3
             st.rerun()
-    # ── Stage 3: Climax & Collapse ──
+
+    # ── Stage 2: Second hole filled (transition) ──
+    elif data["stage"] == 2:
+        simulate_loading(2)
+        add_chat("assistant", "Fuuuck… two holes stuffed already. I'm shaking, leaking, completely owned…")
+        add_chat("assistant", "One more daddy… fill that last filthy hole and make me your total 3-hole wreck.")
+        # Quick teaser of the last hole
+        last_hole = next(h for h,v in data["filled"].items() if not v)
+        if last_hole == "pussy":
+            add_media("mkh5dpc060z62y.jpeg")
+        elif last_hole == "ass":
+            add_media("inmyass.jpeg")
+        else:
+            add_media("dick_tease16.jpeg")
+        if st.button("Fuck ya – complete all 3 holes now"):
+            data["filled"][last_hole] = True
+            data["stage"] = 3
+            st.rerun()
+
+    # ── Stage 3: All holes filled + close-up inspection ──
     elif data["stage"] == 3:
         simulate_loading(3)
-        add_media("mkjdh9exrj9kdr.jpeg.jpeg")  # Replaced placeholder
-        add_chat("assistant", "Oh god yes… I’m cumming so fucking hard — whole body seizing, pussy gushing around your cock, ass clenching the plug/fingers, mouth drooling.")
-        add_chat("assistant", "You’ve wrecked me completely… I’m your overloaded, ruined slut.")
-        simulate_typing(3)
-        add_chat("assistant", "Collapsed on the bed, holes still twitching, covered in sweat and my own mess, blissed-out and panting.")
-        add_chat("assistant", "Thank you for using all of me, daddy… I’m yours whenever you want to overload me again.")
-        add_narrator("She curls up trembling, satisfied smile, body marked and spent.")
-        add_chat("assistant", "Prize complete… come cuddle your broken little toy now 😏")
-        del st.session_state.all_3_holes
-        st.session_state.turn_state = "PRIZE_DONE"
-        st.rerun()
+        add_media("all_3_4.jpeg")  # or your best triple-filled image
+        add_chat("assistant", "Holy shit… all three holes completely fucking destroyed. I'm a drooling, trembling, overstuffed mess.")
+        add_chat("assistant", "Look at what you did to your little cumslut daddy… inspect your work.")
+
+        cols = st.columns(3)
+
+        with cols[0]:
+            if st.button("Let me see your pussy filled"):
+                add_media("mkjdh9exrj9kdr.jpeg")
+                add_chat("assistant", "Look at this wrecked cunt… stretched, swollen, dripping your cum or my squirt everywhere.")
+
+        with cols[1]:
+            if st.button("Let me see your mouth filled"):
+                add_media("dick_tease8.jpeg")
+                add_chat("assistant", "Throat raw, lips swollen, spit and precum running down my chin… total face-fuck ruin.")
+
+        with cols[2]:
+            if st.button("Let me see your ass dripping"):
+                add_media("3holesasscum.jpeg")
+                add_chat("assistant", "Ass gaped and leaking, cum oozing out while I clench around nothing… you fucking broke it.")
+
+        st.write("---")
+        if st.button("Finish & Collapse – I'm done daddy"):
+            simulate_loading(3)
+            add_chat("assistant", "Cumming so fucking hard… body convulsing, holes pulsing, squirting and shaking apart.")
+            add_chat("assistant", "You've ruined me completely… your perfect overloaded fucktoy.")
+            add_narrator("She collapses in a sweaty, cum-soaked heap, holes still twitching, blissed-out smile.")
+            add_chat("assistant", "Prize complete. Come cuddle your broken little whore now… or use me again whenever you want 😈")
+            del st.session_state.all_3_holes
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
 # ROMANTIC FANTASY ---
 elif st.session_state.turn_state == "PRIZE_ROMANTIC_FANTASY":
     if "romantic_fantasy" not in st.session_state:
@@ -1691,6 +1719,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
