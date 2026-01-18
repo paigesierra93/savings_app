@@ -877,31 +877,32 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
     elif data["stage"] == 1:
         simulate_loading(3)
         if "pussy" in data["main_hole"].lower():
-            add_media("example_primary1.jpg")  # Replaced placeholder
+            add_media("mkj7i4m98etqhb.jpeg")  # Replaced placeholder
             add_chat("assistant", "Oh god… your thick cock slamming balls-deep into my dripping pussy, stretching me so fucking wide.")
             add_chat("assistant", "I’m already shaking, clit throbbing, begging for more while you decide how to wreck my other holes.")
         elif "ass" in data["main_hole"].lower():
-            add_media("example_primary2.jpg")  # Replaced placeholder
+            add_media("ass_fucked6.jpeg")  # Replaced placeholder
             add_chat("assistant", "Fuck fuck fuck… your cock forcing its way into my tight ass, stretching me raw and deep.")
             add_chat("assistant", "I’m moaning like a whore, pushing back on you, pussy dripping down my thighs waiting for you to fill it too.")
         else:
+            add_media("allfours_sucking4.jpg")
             add_chat("assistant", "Mmm yes… shoving your cock down my throat, making me gag and drool while you finger my pussy and tease my ass.")
-        add_chat("assistant", "Now the second hole… make me take it all at once, daddy.")
+            add_chat("assistant", "Now the second hole… make me take it all at once, daddy.")
         if data["ass_fill"] == "plug":
             simulate_loading(2)
-            add_media("example_ass_plug.jpg")  # Replaced placeholder
+            add_media("plug_insert1.jpg")  # Replaced placeholder
             add_chat("assistant", "That fat plug sliding into my ass, filling me completely, stretching me open while your cock owns my pussy/mouth.")
             add_chat("assistant", "I’m so full already… whimpering, body trembling, ready for the final invasion.")
         else:
             add_chat("assistant", "Your fingers deep in my ass, pumping and scissoring me open while you pound my pussy/mouth… I’m clenching around you, so fucking desperate.")
-        add_narrator("Her whole body is shaking… holes stuffed, drool and wetness everywhere, eyes rolling back.")
+            add_narrator("Her whole body is shaking… holes stuffed, drool and wetness everywhere, eyes rolling back.")
         if st.button("Now the mouth – complete the overload"):
             data["stage"] = 2
             st.rerun()
     # ── Stage 2: Total Overload ──
     elif data["stage"] == 2:
         simulate_loading(3)
-        add_media("example_all_filled.jpg")  # Replaced placeholder
+        add_media("all_3_4.jpeg")  # Replaced placeholder
         add_chat("assistant", "Holy fuck… all three holes stuffed at once. Your cock slamming one, plug/fingers wrecking my ass, my mouth gagged on your fingers or another toy.")
         add_chat("assistant", "I’m a trembling, drooling mess — pussy clenching, ass gripping, throat full, body overloaded and shaking.")
         add_chat("assistant", "Use me harder daddy… make me your total fucktoy.")
@@ -925,7 +926,7 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
     # ── Stage 3: Climax & Collapse ──
     elif data["stage"] == 3:
         simulate_loading(3)
-        add_media("example_climax.jpg")  # Replaced placeholder
+        add_media("pussy_doggy1.jpeg")  # Replaced placeholder
         add_chat("assistant", "Oh god yes… I’m cumming so fucking hard — whole body seizing, pussy gushing around your cock, ass clenching the plug/fingers, mouth drooling.")
         add_chat("assistant", "You’ve wrecked me completely… I’m your overloaded, ruined slut.")
         simulate_typing(3)
@@ -1690,6 +1691,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
