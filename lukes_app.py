@@ -524,10 +524,8 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER_REVEAL":
     show_media("grocery_bendover.jpeg")
     add_narrator("Fuck… I'm already so soaked just knowing you're staring at my holes like this…")
     if st.button("At home?"):
-    simulate_loading(3)
-    add_media("Bendover1.mp4")
-    st.session_state.turn_state = "PRIZE_BEND_OVER_1"
-        st.rerun()
+        simulate_loading(3)
+        add_media("Bendover1.mp4")
 elif st.session_state.turn_state == "PRIZE_BEND_OVER_1":
     enter_state(
         "PRIZE_BEND_OVER_1",
@@ -1676,6 +1674,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
