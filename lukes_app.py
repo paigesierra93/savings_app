@@ -1110,7 +1110,7 @@ elif st.session_state.turn_state == "PRIZE_UP_THROAT_FINISH":
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
        
-# --- TONGUE TEASE (Complex Edging Game | PLACEHOLDER) ---
+#--- TONGUE TEASE (Complex Edging Game) ---
 elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
     if "tongue_tease" not in st.session_state:
         st.session_state.tongue_tease = {
@@ -1120,24 +1120,35 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
             "impatient": False
         }
     data = st.session_state.tongue_tease
+
+    # ── Stage 0: Intro ──
     if data["stage"] == 0:
-        add_chat("assistant", "Mmm daddy… you won the **Tongue Tease** prize tonight 😈")
-        add_chat("assistant", "Your greedy little girlfriend is gonna kneel between your legs and worship just the tip of that thick cock with my tongue and lips… while you stroke the rest yourself.")
+        add_chat("assistant", "Mmm daddy… you won the **Tongue Tease** prize 😈")
+        add_chat("assistant", "This is where your girlfriend is gonna kneel between your legs and worship just the tip of that thick cock with my tongue and lips… nothing else, while you stroke the rest yourself.")
+        
+        show_media("kneeling_tease_lips.mp4")
+        
         add_chat("assistant", "Rules are simple: I only tease the head — slow licks, soft sucks, swirling around the tip. You stroke the shaft, edge yourself, but you don't cum until I say. Beg nicely… or rush me and see what happens.")
+        
         c1, c2 = st.columns([1, 3])
-        if c1.button("Yes mistress… I'll obey and edge for you"):
+        if c1.button("Yes baby, I'll obey and edge for you"):
             data["stage"] = 1
             st.rerun()
         if c2.button("Fuck the rules… I want more now"):
             data["impatient"] = True
             data["stage"] = 1
             st.rerun()
+
+    # ── Stage 1: The Start ──
     elif data["stage"] == 1:
-        add_chat("assistant", "Look at this gorgeous cock… already leaking for me. I lean in close, hot breath on the tip.")
+        add_chat("assistant", "Look at this gorgeous cock… already leaking for me. I lean in close, hot breath on the tip.") 
+        show_media("tongue_set3_pic4.jpg")
+        
         add_chat("assistant", "My tongue flicks out, slow circle around the head, tasting your precum… then a soft kiss right on the slit.")
-        simulate_loading(2)
-        add_media("dick_tease4.jpeg")
+        show_media("tongue_set3_pic3.jpg")
+        
         add_chat("assistant", "Mmm… so sensitive. Keep stroking slow while I tease…")
+        
         if st.button("Please baby… more tongue, I'm begging"):
             data["begged"] = True
             data["edging_level"] += 2
@@ -1148,13 +1159,18 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
             data["edging_level"] += 1
             data["stage"] = 2
             st.rerun()
+
+    # ── Stage 2: The Tease ──
     elif data["stage"] == 2:
         simulate_loading(2)
-        add_media("example_tongue2.jpg")  # Replaced placeholder
-        add_chat("assistant", "I wrap my lips around the tip only… gentle suck, gentle tongue swirling under the ridge, flicking the frenulum.")
+        show_media("tongue_set3_pic2.jpg")
+        
+        add_chat("assistant", "I wrap my lips around the tip only… gentle suck, gentle tongue swirling")
         add_narrator("Her eyes stay locked on yours, watching every twitch of your cock as you stroke.")
+        
         reason = "because you begged so sweetly like a good boy" if data["begged"] else "because you're being impatient and greedy"
         add_chat("assistant", f"I'm being extra mean with the tease {reason}… just the tip, baby.")
+        
         c1, c2, c3 = st.columns(3)
         if c1.button("Fuck… please swirl faster, I need it"):
             data["edging_level"] += 2
@@ -1169,14 +1185,19 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
             data["edging_level"] += 3
             data["stage"] = 3
             st.rerun()
+
+    # ── Stage 3: The Edge ──
     elif data["stage"] == 3:
         add_chat("assistant", "God you're throbbing so hard… tip swollen, leaking nonstop.")
         simulate_loading(2)
-        add_media("tongue_set1_pic1.jpg")
+        show_media("dick_tease8.jpg")
+        
         add_chat("assistant", "I flick faster, suck the head softly like a lollipop, tasting every drop you give me.")
         add_narrator("Your hand is pumping the shaft… balls tight, so close but not allowed yet.")
+        
         if data["impatient"]:
             add_chat("assistant", "Since you keep rushing… I pull back just enough to deny you the warmth for a few seconds. Bad boy.")
+        
         c1, c2, c3 = st.columns(3)
         if c1.button("Please please… let me cum, I'm begging"):
             data["begged"] = True
@@ -1190,17 +1211,22 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
         if c3.button("Fuck this… I'm cumming now"):
             data["stage"] = "ruin"
             st.rerun()
+
+    # ── Stage 4: The Climax (or Denial) ──
     elif data["stage"] == 4:
         simulate_loading(2)
-        add_media("dick_tease6.jpg")
+        show_media("dick_tease7.jpg")
+        
         if data["edging_level"] >= 5 or data["begged"]:
             add_chat("assistant", "You've been such a good boy… edging so hard for my tongue.")
             add_chat("assistant", "Stroke faster now… I'm sucking the tip hard, tongue swirling like crazy.")
+            
             if st.button("Cum for me… give me that load on my tongue"):
                 simulate_loading(3)
-                add_media("dick_tease3.jpeg")
+                show_media("dick_tease8.jpeg")
                 add_chat("assistant", "Yes daddy! You explode — hot ropes shooting across my tongue, lips, chin… I lap it all up greedily.")
                 add_narrator("She moans softly, savoring every drop, eyes sparkling with satisfaction.")
+                
                 if st.button("Best prize ever… thank you baby"):
                     del st.session_state.tongue_tease
                     st.session_state.turn_state = "PRIZE_DONE"
@@ -1208,22 +1234,31 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
         else:
             add_chat("assistant", "Not yet… you're not desperate enough.")
             add_chat("assistant", "I pull my mouth away completely… no more tongue until you beg properly.")
+            
+            show_media("dick_tease7.jpg")
             add_chat("assistant", "Edge denied. Better luck next time, baby.")
             add_narrator("She smirks, licking her lips, leaving you throbbing and unfinished.")
+            
             if st.button("Fuck… I accept the denial"):
                 del st.session_state.tongue_tease
                 st.session_state.turn_state = "PRIZE_DONE"
                 st.rerun()
+
+    # ── Ruined Orgasm Branch ──
     elif data["stage"] == "ruin":
         add_chat("assistant", "Oh no you don't… you tried to rush and cum without permission.")
         add_chat("assistant", "I pull off right as you start pulsing — ruining it completely.")
+        
         simulate_loading(2)
-        add_media("ruined.jpg")
+        show_media("ruined.jpg")
+        
         add_chat("assistant", "Look at that weak little dribble… all that buildup wasted. Next time obey the tease.")
+        
         if st.button("Sorry baby… I'll be good next time"):
             del st.session_state.tongue_tease
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
+
 # ROAD HEAD (PLACEHOLDER) ---
 elif st.session_state.turn_state == "PRIZE_ROAD_HEAD":
     if "road_head" not in st.session_state:
@@ -1719,6 +1754,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
