@@ -1126,7 +1126,7 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
         add_chat("assistant", "Mmm daddy… you won the **Tongue Tease** prize 😈")
         add_chat("assistant", "This is where your girlfriend is gonna kneel between your legs and worship just the tip of that thick cock with my tongue and lips… nothing else, while you stroke the rest yourself.")
         
-        show_media("kneeling_tease_lips.mp4")
+        show_media("grok_video_2026-01-18-13-54-56.mp4")
         
         add_chat("assistant", "Rules are simple: I only tease the head — slow licks, soft sucks, swirling around the tip. You stroke the shaft, edge yourself, but you don't cum until I say. Beg nicely… or rush me and see what happens.")
         
@@ -1758,6 +1758,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
