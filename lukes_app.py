@@ -504,9 +504,10 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER":
     enter_state(
         "PRIZE_BEND_OVER",
         "assistant",
-        "Haha just fucking with you… you know exactly what it means, you dirty birdy."
-        "You say 'bend over' and your slutty girlfriend slowly presents her ass and dripping pussy, no matter what I might be doing."
-    )
+        "You know what that means, you have to bend over right when i sasy so anywhere,  anytime. hahaha, just fucking with you… you know exactly what it means, you dirty birdy.
+        "When you say 'bend over' and your slutty girlfriend slowly presents her ass and dripping pussy, no matter what I might be doing.")
+    simulate_loading(3)
+    add_media("explain_bendover.jpg")
     add_narrator("Make sure I'm in something thin and see-through… or already completely fucking naked for you.")
     type_out(
         "But listen carefully, baby — look all you want… stare at my holes, watch me drip… "
@@ -515,14 +516,16 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER":
     type_out(
         "Here's your prize, winner… watch me bend over nice and slow, arching this ass just for you… like this…"
     )
-    if st.button("Watch her bend over"):
+    if st.button("In the grocery store?"):
         st.session_state.turn_state = "PRIZE_BEND_OVER_REVEAL"
         st.rerun()
 elif st.session_state.turn_state == "PRIZE_BEND_OVER_REVEAL":
-    show_media("nude_4.jpg")
+    show_media("grocery_bendover.jpeg")
     add_narrator("Fuck… I'm already so soaked just knowing you're staring at my holes like this…")
-    if st.button("Keep watching"):
-        st.session_state.turn_state = "PRIZE_BEND_OVER_1"
+    if st.button("At home?"):
+    simulate_loading(3)
+    add_media("Bendover1.mp4")
+    st.session_state.turn_state = "PRIZE_BEND_OVER_1"
         st.rerun()
 elif st.session_state.turn_state == "PRIZE_BEND_OVER_1":
     enter_state(
@@ -534,7 +537,7 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER_1":
     if c1.button("Show me."):
         add_chat("user", "Show me.")
         type_out("Mmm… you asked for it, daddy… watch close…")
-        show_media("bend_over2.jpeg", delay=3)
+        show_media("grok_video_2026-01-17-20-02-13.mp4", delay=3)
         type_out("Look at that mess… my pussy's literally dripping down my thighs because of you.")
         type_out(
             "God I’m throbbing so bad… I want your thick cock splitting me open right now… "
@@ -1672,6 +1675,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
