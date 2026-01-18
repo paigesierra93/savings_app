@@ -877,20 +877,20 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
     elif data["stage"] == 1:
         simulate_loading(3)
         if "pussy" in data["main_hole"].lower():
-            add_media("mkj7i4m98etqhb.jpeg")  # Replaced placeholder
+            add_media("mkh5dpc060z62y.jpeg")  # Replaced placeholder
             add_chat("assistant", "Oh god… your thick cock slamming balls-deep into my dripping pussy, stretching me so fucking wide.")
             add_chat("assistant", "I’m already shaking, clit throbbing, begging for more while you decide how to wreck my other holes.")
         elif "ass" in data["main_hole"].lower():
-            add_media("ass_fucked6.jpeg")  # Replaced placeholder
+            add_media("inmyass.jpeg")  # Replaced placeholder
             add_chat("assistant", "Fuck fuck fuck… your cock forcing its way into my tight ass, stretching me raw and deep.")
             add_chat("assistant", "I’m moaning like a whore, pushing back on you, pussy dripping down my thighs waiting for you to fill it too.")
         else:
-            add_media("allfours_sucking4.jpg")
+            add_media("messy_bj1.jpg")
             add_chat("assistant", "Mmm yes… shoving your cock down my throat, making me gag and drool while you finger my pussy and tease my ass.")
             add_chat("assistant", "Now the second hole… make me take it all at once, daddy.")
         if data["ass_fill"] == "plug":
             simulate_loading(2)
-            add_media("plug_insert1.jpg")  # Replaced placeholder
+            add_media("mkje14nndntt24.jpeg")  # Replaced placeholder
             add_chat("assistant", "That fat plug sliding into my ass, filling me completely, stretching me open while your cock owns my pussy/mouth.")
             add_chat("assistant", "I’m so full already… whimpering, body trembling, ready for the final invasion.")
         else:
@@ -926,7 +926,7 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
     # ── Stage 3: Climax & Collapse ──
     elif data["stage"] == 3:
         simulate_loading(3)
-        add_media("pussy_doggy1.jpeg")  # Replaced placeholder
+        add_media("mkjdh9exrj9kdr.jpeg.jpeg")  # Replaced placeholder
         add_chat("assistant", "Oh god yes… I’m cumming so fucking hard — whole body seizing, pussy gushing around your cock, ass clenching the plug/fingers, mouth drooling.")
         add_chat("assistant", "You’ve wrecked me completely… I’m your overloaded, ruined slut.")
         simulate_typing(3)
@@ -1691,6 +1691,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
