@@ -1414,8 +1414,9 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
             del st.session_state.tongue_tease
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
-
-# ROAD HEAD (PLACEHOLDER) ---
+            
+# ROAD HEAD PRIZE - Ultra-teasing, natural convo flow with typing indicators
+# (Stage 3 / Pull-over safe finish removed as requested)
 elif st.session_state.turn_state == "PRIZE_ROAD_HEAD":
     if "road_head" not in st.session_state:
         st.session_state.road_head = {
@@ -1424,81 +1425,129 @@ elif st.session_state.turn_state == "PRIZE_ROAD_HEAD":
             "control": "you"
         }
     data = st.session_state.road_head
+
+    def show_typing(text="typing...", duration=1.8):
+        placeholder = st.empty()
+        placeholder.markdown(f"**{text}** 💬")
+        time.sleep(duration)
+        placeholder.empty()
+
+    # -------- STAGE 0 - Slow, filthy intro + risk choice --------
     if data["stage"] == 0:
-        add_chat("assistant", "Fuck yes baby… you won **Road Head** 😈 Your dirty little girlfriend is gonna suck your cock the whole drive home — exactly 3 full songs on the playlist.")
-        add_chat("assistant", "I'll start when the first song hits, tease and deepthroat you through all three, and finish you off by the last chorus. Buckle up, daddy… how risky do you want this drive to feel?")
+        st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Road Head**")
+
+        show_typing("fuck typing… 😈", 1.7)
+        add_chat("assistant", "Fuck yes baby… you just won **Road Head** 😈")
+
+        show_typing("Paige is typing… so bad", 2.2)
+        add_chat("assistant", "Your dirty little girlfriend is gonna suck your cock the whole drive home… exactly 3 full songs on the playlist.")
+
+        show_typing("mm typing… already hard?", 2.4)
+        add_chat("assistant", "I’ll start when the first beat drops… tease you slow, then deepthroat you through every chorus… finish you right as the last song fades.")
+
+        show_typing("risky as fuck…", 2.1)
+        add_chat("assistant", "Buckle up, daddy… how risky do you want this drive to feel?")
+
+        show_typing("choose baby…", 2.3)
         cols = st.columns(3)
-        if cols[0].button("Low risk – quiet back roads, no traffic"):
+        if cols[0].button("Low risk – quiet back roads, no traffic, just us", key="low_risk"):
             data["risk_level"] = "low"
             data["stage"] = 1
             st.rerun()
-        if cols[1].button("Medium risk – some cars around, windows tinted"):
+        if cols[1].button("Medium risk – some cars around, windows tinted dark", key="med_risk"):
             data["risk_level"] = "medium"
             data["stage"] = 1
             st.rerun()
-        if cols[2].button("High risk – highway, passing trucks, windows down a bit"):
+        if cols[2].button("High risk – highway, passing trucks, windows cracked a bit", key="high_risk"):
             data["risk_level"] = "high"
             data["stage"] = 1
             st.rerun()
+
+    # -------- STAGE 1 - Start the drive + control choice --------
     elif data["stage"] == 1:
         risk_desc = {
-            "low": "quiet back roads, empty streets, just us and the night… super safe but still thrilling",
-            "medium": "some traffic, cars passing occasionally, windows tinted dark… heart-pounding but doable",
-            "high": "busy highway, trucks beside us, windows cracked… anyone could glance over and see me slurping your cock"
+            "low": "quiet back roads… empty streets… just the hum of the engine and my mouth on you… super safe but still so fucking hot",
+            "medium": "some traffic… cars passing now and then… windows tinted dark… heart pounding every time someone gets close",
+            "high": "busy highway… trucks rolling beside us… windows cracked just enough… anyone could glance over and catch me slurping your cock"
         }[data["risk_level"]]
-        add_chat("assistant", f"Engine's running, playlist queued… 3 songs, no stopping until the last note. {risk_desc}")
-        add_chat("assistant", "I lean over the console, unzip you slow, pull your hard cock out… already throbbing for my mouth.")
-        simulate_loading(2)
-        add_media("example_road_start.jpg")  # Replaced placeholder
-        add_chat("assistant", "You drive… I suck. Who controls the pace — you grab my hair, or do I take over?")
+
+        show_typing("engine on…", 2.0)
+        add_chat("assistant", f"Engine’s running… playlist queued… 3 songs, no stopping. {risk_desc}")
+
+        show_typing("leaning over…", 2.3)
+        add_chat("assistant", "I lean over the console… unzip you sooo slow… pull your hard cock out… already throbbing and leaking for my mouth 🥵")
+
+        show_typing("first taste…", 2.5)
+        add_media("car2.jpeg")
+        add_chat("assistant", "You drive… I suck. Who controls the pace, daddy?")
+
+        show_typing("tell me…", 2.2)
         c1, c2 = st.columns(2)
-        if c1.button("You control – grab my head and fuck my mouth while you steer"):
+        if c1.button("You control – grab my hair and fuck my mouth while you steer", key="you_control"):
             data["control"] = "you"
             data["stage"] = 2
             st.rerun()
-        if c2.button("I control – I tease and deepthroat at my own filthy rhythm"):
+        if c2.button("I control – I tease and deepthroat at my own filthy rhythm", key="me_control"):
             data["control"] = "me"
             data["stage"] = 2
             st.rerun()
+
+    # -------- STAGE 2 - The act + risk moments + finish choice --------
     elif data["stage"] == 2:
         if data["control"] == "you":
-            add_chat("assistant", "Your hand in my hair, guiding me down… forcing your cock deeper into my throat while you keep eyes on the road.")
-            add_chat("assistant", "I gag a little, drool running down your shaft, but I take it all, humming around you as the first song builds.")
+            show_typing("your hand…", 2.1)
+            add_chat("assistant", "Your hand tangled in my hair… guiding me down hard… forcing your cock deep into my throat while you keep one eye on the road.")
+            show_typing("gagging typing…", 2.4)
+            add_chat("assistant", "I gag a little… drool running down your shaft… but I take every inch, humming around you as the first song builds.")
         else:
-            add_chat("assistant", "I take control… slow licks up the shaft, then swallowing you whole, bobbing fast then slow to the beat of the music.")
-            add_chat("assistant", "My tongue swirls the head between verses, sucking hard on the chorus… making you throb while you try to focus on driving.")
-        simulate_loading(2)
-        add_media("example_road_mid.jpg")  # Replaced placeholder
+            show_typing("my rhythm…", 2.2)
+            add_chat("assistant", "I take full control… slow wet licks up the shaft… then swallowing you whole, bobbing to the beat of the music.")
+            show_typing("tongue play…", 2.5)
+            add_chat("assistant", "My tongue swirls the head between verses… sucking hard on every chorus… making you throb while you try not to swerve.")
+
+        show_typing("mid drive…", 2.3)
+        add_media("car3.png")
+        add_chat("assistant", "Song 2 starting… fuck you’re so close already aren’t you?")
+
         if data["risk_level"] == "high":
-            add_chat("assistant", "Truck next to us… driver could look down any second and see me choking on your dick. I don't stop — I suck harder.")
+            show_typing("truck alert…", 2.6)
+            add_chat("assistant", "Truck right beside us… driver could look down any second and see my lips stretched around your cock. I don’t stop — I suck harder.")
         elif data["risk_level"] == "medium":
-            add_chat("assistant", "Car pulling up beside us at the light… I slow down just enough to tease, lips sealed around the tip, eyes up at you.")
-        simulate_loading(3)
-        add_chat("assistant", "Song 2 starting… you're close, aren't you? Pull over safe, risk the finish, or edge all the way home?")
-        c1, c2, c3 = st.columns(3)
-        if c1.button("Pull over now – finish safe in a parking lot"):
-            data["stage"] = 3
-            st.rerun()
-        if c2.button("Risky finish – cum in my mouth while driving"):
+            show_typing("car next to us…", 2.4)
+            add_chat("assistant", "Car pulling up at the light… I slow just enough to tease… lips sealed tight around the tip… eyes up at you like a good girl.")
+
+        show_typing("almost there…", 2.8)
+        add_media("car4.jpg")
+        add_chat("assistant", "Last song… you’re throbbing so hard in my mouth. What do we do, daddy?")
+
+        c1, c2 = st.columns(2)  # Only two options now (removed pull-over)
+        if c1.button("Risky finish – cum in my mouth while driving", key="risky_finish"):
             data["stage"] = "risky_finish"
             st.rerun()
-        if c3.button("Edge home – no cumming until we're in the driveway"):
+        if c2.button("Edge home – no cumming until we’re in the driveway", key="edge_home"):
             data["stage"] = "edge_home"
             st.rerun()
-    elif data["stage"] == 3:
-        add_chat("assistant", "You swerve into a dark lot, park… I dive back down, sucking hard and fast.")
-        add_media("example_road_finish.jpg")  # Replaced placeholder
-        add_chat("assistant", "You explode down my throat while the last song plays… swallowing every drop like a good prize.")
-        st.session_state.turn_state = "PRIZE_DONE"
-        st.rerun()
+
+    # -------- ENDINGS (No safe pull-over anymore) --------
     elif data["stage"] == "risky_finish":
-        add_chat("assistant", "No pulling over… I deepthroat you through the final chorus, throat milking your cock as you cum hard.")
-        add_narrator("You grip the wheel tight, moaning, shooting ropes straight down my throat while cars zoom by… risky as fuck and so hot.")
+        show_typing("no stopping…", 2.2)
+        add_chat("assistant", "No pulling over… I deepthroat you through the final chorus, throat milking every pulse as you cum hard.")
+        show_typing("so risky…", 2.6)
+        add_chat("assistant", "You grip the wheel tight, moaning loud… shooting thick ropes straight down my throat while cars zoom by… risky as fuck and so fucking hot.")
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
+
     elif data["stage"] == "edge_home":
-        add_chat("assistant", "No cumming yet… I tease the tip the rest of the way home, keeping you rock-hard and leaking.")
-        add_chat("assistant", "We pull into the driveway, cock still throbbing… now you get the full finish inside. Saved it all for the bedroom, daddy.")
+        show_typing("teasing more…", 2.3)
+        add_chat("assistant", "No cumming yet… I tease just the tip the rest of the way home… keeping you rock-hard and leaking.")
+        show_typing("home now…", 2.4)
+        add_chat("assistant", "We pull into the driveway… your cock still throbbing in my mouth… now you get the full finish inside. Saved every drop for the bedroom, daddy 🍆")
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
+
+    # Global exit
+    if st.button("🎰 The Exit - Save the road head for the next drive?", key="road_exit_global"):
+        st.session_state.pop("road_head", None)
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
         
@@ -1964,6 +2013,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
