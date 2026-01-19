@@ -405,7 +405,7 @@ elif st.session_state.turn_state == "SPIN_SILVER":
 elif st.session_state.turn_state == "SPIN_GOLD":
     if st.session_state.data["tickets"] >= 100:
         st.session_state.data["tickets"] -= 100; save_data(st.session_state.data)
-        prizes = ["Upside Down"]
+        prizes = ["Upside Down Throat Fuck"]
         win = spin_animation("Gold", prizes)
         add_chat("assistant", f"👑 JACKPOT: **{win}**")
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
@@ -2455,6 +2455,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
