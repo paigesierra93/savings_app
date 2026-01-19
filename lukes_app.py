@@ -501,6 +501,158 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
             del st.session_state.nude_pic
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun() 
+# LICK MY PUSSY PRIZE - Explicitly typed-out typing indicators + ultra-teasing
+elif st.session_state.turn_state == "PRIZE_LICK_PUSSY":
+    if "lick_pussy" not in st.session_state:
+        st.session_state.lick_pussy = {
+            "stage": 0,
+            "position": None,
+            "tease_level": 0
+        }
+    data = st.session_state.lick_pussy
+
+    def show_typing(text="typing...", duration=1.8):
+        """Show explicit typing text with delay"""
+        placeholder = st.empty()
+        placeholder.markdown(f"**{text}** 💬")
+        time.sleep(duration)
+        placeholder.empty()
+
+    # -------- STAGE 0 - Slow intro with spelled-out typing --------
+    if data["stage"] == 0:
+        st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Lick My Pussy**")
+
+        show_typing("typing...", 1.6)
+        add_chat("assistant", "hey daddy… 💕")
+
+        show_typing("Paige is typing...", 2.0)
+        add_chat("assistant", "guess what you just won…")
+
+        show_typing("mm typing… 🫦", 1.9)
+        add_chat("assistant", "your tongue…")
+
+        show_typing("typing… so wet already", 2.3)
+        add_chat("assistant", "on this needy little pussy… all night if you want 😈")
+        add_media("lick_it.jpeg")
+
+        show_typing("Paige is typing…", 2.5)
+        add_chat("assistant", "look how puffy and wet she already is… just from thinking about your mouth")
+
+        show_typing("typing... edging myself", 2.2)
+        add_chat("assistant", "I’ve been edging myself waiting for you… but I stopped right before")
+
+        show_typing("fuck typing…", 2.4)
+        add_chat("assistant", "now I’m throbbing so bad… aching for your tongue to finish me 💦")
+
+        show_typing("tell me daddy…", 2.1)
+        add_chat("assistant", "so… how do you wanna taste it first, baby? tell me exactly how…")
+
+        positions = [
+            "From behind… face buried deep between my cheeks while I push back on your tongue 🍑",
+            "Me on my back… thighs squeezing your head, fingers tangled in your hair pulling you deeper 🛏️",
+            "I lower myself onto your face… grinding slow, using your mouth like my personal toy 😏",
+            "Standing over you… one leg up, dripping straight down onto your waiting tongue 👅"
+        ]
+        data["position"] = st.radio(
+            "How should I give you this pussy, daddy?",
+            positions,
+            key="lick_position_choice"
+        )
+
+        if st.button("I’m dripping just waiting for your choice… 👅", key="lick_start"):
+            data["stage"] = 1
+            data["tease_level"] = 0
+            st.rerun()
+
+    # -------- STAGE 1 - Position reveal + heavy teasing with explicit typing --------
+    elif data["stage"] == 1:
+        show_typing(f"oh fuck… {data['position'].split('…')[0].strip()}?", 2.0)
+        add_chat("assistant", f"oh fuck… **{data['position'].split('…')[0].strip()}**? 🥵")
+
+        show_typing("typing… gonna lose it", 1.7)
+        add_chat("assistant", "you picked the one that’s gonna make me lose it…")
+
+        if "behind" in data["position"].lower():
+            show_typing("ass up typing…", 2.2)
+            add_media("from_behind.jpeg")
+            show_typing("Paige is typing…", 2.4)
+            add_chat("assistant", "ass up high… cheeks spread… pussy glistening right in your face")
+            show_typing("breath on me…", 2.3)
+            add_chat("assistant", "I can feel your hot breath teasing my clit already…")
+            show_typing("slow baby…", 2.6)
+            add_chat("assistant", "start sooo slow baby… trace the outside of my lips… barely touching… make me squirm")
+            show_typing("mmm typing…", 2.5)
+            add_chat("assistant", "mmmmm… yes… now the tip of your tongue… flick my hole lightly…")
+
+        elif "back" in data["position"].lower() or "lay" in data["position"].lower():
+            show_typing("legs wide…", 2.1)
+            add_media("front_eat.jpeg")
+            show_typing("typing… pull me in", 2.5)
+            add_chat("assistant", "legs spread wide… knees by my ears… pussy swollen and begging")
+            show_typing("hair pulling…", 2.3)
+            add_chat("assistant", "I grab your hair… pull your face right in until your nose is pressed against me")
+            show_typing("long licks…", 2.4)
+            add_chat("assistant", "long flat licks… bottom to top… dragging over my clit every time…")
+            show_typing("hips bucking…", 2.2)
+            add_chat("assistant", "fuck… my hips are bucking already… don’t you dare stop…")
+
+        elif "face" in data["position"].lower() or "sit" in data["position"].lower():
+            show_typing("lowering…", 2.3)
+            add_media("face_sit.jpeg")
+            show_typing("grinding typing…", 2.6)
+            add_chat("assistant", "lowering myself down slow… feeling your nose brush my clit")
+            show_typing("smearing…", 2.4)
+            add_chat("assistant", "I rock my hips… smearing my slick all over your lips… your chin…")
+            show_typing("my seat…", 2.5)
+            add_chat("assistant", "you love being smothered in this wet pussy don’t you? my good little seat 😈")
+            show_typing("ride it…", 2.3)
+            add_chat("assistant", "tongue out flat… let me ride it deep… use you like my favorite toy")
+
+        elif "stand" in data["position"].lower():
+            show_typing("standing over…", 2.2)
+            add_media("standing_pussy.jpeg")
+            show_typing("drip…", 2.5)
+            add_chat("assistant", "standing over you… one foot up… lips parted so you see every pink inch")
+            show_typing("drop falling…", 2.4)
+            add_chat("assistant", "watch a thick drop slide down my thigh… falls right onto your tongue")
+            show_typing("chase it…", 2.6)
+            add_chat("assistant", "catch it baby… then lick upward slow… chase it back to my dripping hole")
+
+        # Extra teasing layers with explicit typing
+        show_typing("trembling…", 3.0)
+        add_chat("assistant", "god I’m trembling…")
+
+        show_typing("tiny flicks…", 2.4)
+        add_chat("assistant", "circle my clit with just the tip… tiny little flicks… so light it drives me crazy")
+
+        show_typing("edge me…", 2.7)
+        add_chat("assistant", "now suck it gently… then flick fast… then slow again… edge me until I’m begging")
+
+        show_typing("right there…", 3.2)
+        if st.button("I’m right fucking there… make me squirt all over you daddy 💦", key="lick_climax"):
+            show_typing("cumming…", 1.9)
+            add_media("Cumming1.jpeg")
+            show_typing("yesyesyes…", 2.3)
+            add_chat("assistant", "ohhh fuck—yesyesyes—I’m cumming—I’m squirting everywhereeee 💦💦💦")
+            show_typing("soaking you…", 2.5)
+            add_chat("assistant", "my thighs shaking… pussy pulsing hard on your tongue… you’re drinking every gush")
+            show_typing("messy face…", 2.4)
+            add_chat("assistant", "look at your face… soaked… dripping… you made such a filthy mess of me 😩")
+
+            show_typing("need cock…", 2.6)
+            add_chat("assistant", "prize complete baby… but now I need your cock so bad…")
+
+            if st.button("Come fuck your messy girl now? 🍆", key="lick_finish"):
+                st.session_state.pop("lick_pussy", None)
+                st.session_state.turn_state = "PRIZE_DONE"
+                st.rerun()
+
+    # Global exit
+    if st.button("🎰 The Exit - Save the rest for later?", key="lick_exit_global"):
+        st.session_state.pop("lick_pussy", None)
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
+        
 #--- BEND OVER ---
 elif st.session_state.turn_state == "PRIZE_BEND_OVER":
     # ✅ FIXED: Combined text into one single string
@@ -1770,6 +1922,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
