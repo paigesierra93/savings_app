@@ -1382,7 +1382,7 @@ elif st.session_state.turn_state == "PRIZE_ROMANTIC_FANTASY":
         del st.session_state.romantic_fantasy  # Reset instead of undefined function
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
-# UPSIDE DOWN THROAT (PLACEHOLDER VERSION) ---
+
 # UPSIDE DOWN THROAT FUCK PRIZE - Ultra-teasing, interactive with typing indicators & loading
 elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT":
     if "upside_throat" not in st.session_state:
@@ -2342,6 +2342,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
