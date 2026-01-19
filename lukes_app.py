@@ -405,7 +405,7 @@ elif st.session_state.turn_state == "SPIN_SILVER":
 elif st.session_state.turn_state == "SPIN_GOLD":
     if st.session_state.data["tickets"] >= 100:
         st.session_state.data["tickets"] -= 100; save_data(st.session_state.data)
-        prizes = ["Anal Fuck", "All 3 Holes", "Slave Day", "Upside Down Throat Fuck", "Doggy Style Ready"]
+        prizes = ["Anal Fuck", "All 3 Holes", "Slave Day", "Upside Down", "Doggy Style Ready"]
         win = spin_animation("Gold", prizes)
         add_chat("assistant", f"👑 JACKPOT: **{win}**")
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
@@ -1384,14 +1384,17 @@ elif st.session_state.turn_state == "PRIZE_ROMANTIC_FANTASY":
         st.rerun()
 
 # UPSIDE DOWN THROAT FUCK PRIZE - Ultra-teasing, interactive with typing indicators & loading
-elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT":
-    if "upside_throat" not in st.session_state:
-        st.session_state.upside_throat = {
+elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN":
+    if "Upside" not in st.session_state:
+        st.session_state.upside_down= {
+            "stage": 0,
+
+        st.session_state.upside_down = {
             "stage": 0,
             "intensity": "slow",  # slow, medium, rough
             "substage": 0
         }
-    data = st.session_state.upside_throat
+    data = st.session_state.upside_down
 
     def show_typing(text="typing...", duration=1.8):
         placeholder = st.empty()
@@ -1503,7 +1506,7 @@ elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT":
 
     # Global exit
     if st.button("🎰 The Exit - Save the rest of this throat for later?", key="throat_exit_global"):
-        st.session_state.pop("upside_throat", None)
+        st.session_state.pop("upside_down", None)
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
        
@@ -2342,6 +2345,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
