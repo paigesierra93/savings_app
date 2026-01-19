@@ -1501,78 +1501,124 @@ elif st.session_state.turn_state == "PRIZE_ROAD_HEAD":
         add_chat("assistant", "We pull into the driveway, cock still throbbing… now you get the full finish inside. Saved it all for the bedroom, daddy.")
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
-# PLUG TEASE (PLACEHOLDER) ---
+        
+# PLUG TEASE PRIZE - Ultra-teasing, natural convo flow with typing indicators
 elif st.session_state.turn_state == "PRIZE_PLUG_TEASE":
     if "plug_tease" not in st.session_state:
         st.session_state.plug_tease = {
             "stage": 0,
-            "size_chosen": "small",
+            "stretch_level": None,  # "barely", "halfway", "full"
             "tease_level": 0,
-            "begged_for_more": False
+            "show_reward": False
         }
     data = st.session_state.plug_tease
+
+    def show_typing(text="typing...", duration=1.8):
+        placeholder = st.empty()
+        placeholder.markdown(f"**{text}** 💬")
+        time.sleep(duration)
+        placeholder.empty()
+
+    # -------- STAGE 0 - Slow, filthy intro + stretch choice --------
     if data["stage"] == 0:
-        add_chat("assistant", "Mmm daddy… you won the **Plug Tease** prize tonight 😈")
-        add_chat("assistant", "Your naughty little girlfriend is gonna lube up a nice butt plug and wear it for you — feeling it stretch and fill my ass the whole time. Pick your size… how full do you want me to be?")
+        st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Plug Tease**")
+
+        show_typing("mm typing… 🫦", 1.7)
+        add_chat("assistant", "Mmm daddy… you won the **Plug Tease** tonight 😈")
+
+        show_typing("Paige is typing… so naughty", 2.2)
+        add_chat("assistant", "Your filthy little girlfriend is gonna lube up a nice thick butt plug…")
+        add_media("plug_tease_preview.jpeg")
+
+        show_typing("stretching already…", 2.4)
+        add_chat("assistant", "and wear it for you… all day while you're at work… feeling it stretch and fill my tight ass the whole time…")
+
+        show_typing("fuck typing…", 2.1)
+        add_chat("assistant", "I'll be walking around, sitting, bending over… every little move reminding me of you…")
+
+        show_typing("how stretched do you want me, baby?", 2.5)
+        add_chat("assistant", "How stretched do you want your girl when you finally get home? 🥵")
+
         c1, c2, c3 = st.columns(3)
-        if c1.button("Small – teasing starter, easy to handle"):
-            data["size_chosen"] = "small"
+        if c1.button("Barely stretched\nPut it in 1 hour before I get off", key="barely"):
+            data["stretch_level"] = "barely"
             data["stage"] = 1
             st.rerun()
-        if c2.button("Medium – thick and filling, makes me squirm"):
-            data["size_chosen"] = "medium"
+        if c2.button("Halfway stretched\nPut it in at lunch time", key="halfway"):
+            data["stretch_level"] = "halfway"
             data["stage"] = 1
             st.rerun()
-        if c3.button("Large – fat and intense, stretches me wide"):
-            data["size_chosen"] = "large"
+        if c3.button("Fully stretched\nPut it in NOW and keep it until you get home", key="full"):
+            data["stretch_level"] = "full"
             data["stage"] = 1
             st.rerun()
+
+    # -------- STAGE 1 - Show insertion + teasing updates --------
     elif data["stage"] == 1:
-        add_media("example_plug_base.jpg")  # Replaced placeholder
-        add_chat("assistant", f"I bend over for you, cheeks spread… slow exhale as I press the {data['size_chosen']} plug against my tight little hole.")
-        simulate_loading(3)
-        add_media("example_plug_insert.jpg")  # Replaced placeholder
-        add_narrator("She whimpers softly… ass clenching then relaxing around it.")
-        add_chat("assistant", "There… it's seated deep. Fuck, I feel so full already — every little shift makes my pussy drip.")
-        c1, c2 = st.columns(2)
-        if c1.button("Tell me how it feels inside you"):
-            data["tease_level"] += 1
+        show_typing("oh fuck yes…", 1.9)
+        add_chat("assistant", f"**{data['stretch_level'].capitalize()}** it is… you're so mean to me daddy 😩")
+
+        show_typing("lube typing…", 2.3)
+        add_chat("assistant", "I'm lubing it up right now… cold and slick… circling my little hole…")
+
+        show_typing("pushing…", 2.6)
+        add_media("plug_tease3.jpeg")
+        add_chat("assistant", "Here it goes… slow… stretching me open… fuck it feels so good…")
+
+        if data["stretch_level"] == "barely":
+            show_typing("just the tip…", 2.4)
+            add_chat("assistant", "Only putting it in an hour before I leave work… just enough to tease… keep me needy all day…")
+        elif data["stretch_level"] == "halfway":
+            show_typing("halfway in…", 2.5)
+            add_chat("assistant", "Putting it in at lunch… gonna feel every inch for the rest of the afternoon… squirming in my chair…")
+        elif data["stretch_level"] == "full":
+            show_typing("all the way…", 2.7)
+            add_chat("assistant", "Putting it in NOW… deep… full… gonna wear it the whole time until you get home… clenching around it thinking of you…")
+
+        show_typing("preview typing…", 2.2)
+        add_media("plug_tease4.jpeg")
+        add_chat("assistant", "Look at how it looks right now… stretching me just right…")
+
+        show_typing("reward tease…", 2.8)
+        add_chat("assistant", "Do you want a little preview of your final reward when you finally get home and pull it out…? 👀")
+
+        if st.button("Show me the reward view 😈", key="show_reward"):
+            data["show_reward"] = True
             data["stage"] = 2
             st.rerun()
-        if c2.button("Walk around with it – show me how it moves"):
-            data["tease_level"] += 2
+
+        if st.button("Save the reward for when you get home…", key="save_reward"):
             data["stage"] = 2
             st.rerun()
+
+    # -------- STAGE 2 - Climax / Reward reveal + finish --------
     elif data["stage"] == 2:
-        add_chat("assistant", "God… every step makes the plug shift inside me, pressing right against that spot.")
-        simulate_loading(2)
-        add_media("example_plug_walk.jpg")  # Replaced placeholder
-        add_chat("assistant", "I'm clenching around it, pussy throbbing, nipples hard… so turned on just from being plugged for you.")
-        add_chat("assistant", "It's driving me crazy… I need more. What do you want your plugged-up slut to do next?")
-        c1, c2, c3 = st.columns(3)
-        if c1.button("Beg you to replace it with something bigger"):
-            data["begged_for_more"] = True
-            data["tease_level"] += 4
-            data["stage"] = 3
-            st.rerun()
-        if c2.button("Keep it in all day – tease me constantly"):
-            data["tease_level"] += 2
-            data["stage"] = 3
-            st.rerun()
-        if c3.button("Play with it now – fuck me with it"):
-            data["tease_level"] += 3
-            data["stage"] = 3
-            st.rerun()
-    elif data["stage"] == 3:
-        add_media("example_plug_final.jpg")  # Replaced placeholder
-        if data["tease_level"] >= 6 or data["begged_for_more"]:
-            add_chat("assistant", "Fuck daddy… I can't take it anymore. I'm begging — take this plug out and replace it with your thick cock right now.")
-            add_chat("assistant", "My ass is stretched and ready, pussy soaked… wreck me like the plugged-up prize I am.")
-        elif data["tease_level"] >= 3:
-            add_chat("assistant", "Mmm… this plug has me so worked up. I'll keep it in for hours, squirming and dripping, thinking about you the whole time.")
-            add_chat("assistant", "Whenever you're ready, pull it out and slide in… your reward is waiting.")
+        if data["show_reward"]:
+            show_typing("here it comes…", 2.0)
+            add_media("plug_teasereward.jpeg")
+            show_typing("fuck typing…", 2.4)
+            add_chat("assistant", "This is what you'll see when you walk in… ass plugged, spread, dripping… waiting for you to take it out and replace it with something much bigger 🍆")
+
+            show_typing("so ready…", 2.3)
+            add_chat("assistant", "I've been stretched and filled for you all day… now I'm aching for the real thing…")
+
         else:
-            add_chat("assistant", "Such a tease… this little plug is just the start. I'll wear it quietly, feeling full and needy until you decide to play.")
+            show_typing("saving it…", 2.1)
+            add_chat("assistant", "Okay… I'll keep this reward hidden until you're here to see it in person…")
+            show_typing("teasing more…", 2.5)
+            add_chat("assistant", "Just imagine how gaped and ready it'll be after wearing it so long…")
+
+        show_typing("prize done…", 2.2)
+        add_chat("assistant", "Plug tease complete, daddy… but now I need you to come home and wreck this stretched little hole 💦")
+
+        if st.button("Prize complete – come claim your girl now?", key="plug_finish"):
+            st.session_state.pop("plug_tease", None)
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
+
+    # Global exit button
+    if st.button("🎰 The Exit - Save some stretching for later?", key="plug_exit_global"):
+        st.session_state.pop("plug_tease", None)
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
 
@@ -1922,6 +1968,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
