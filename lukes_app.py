@@ -411,6 +411,7 @@ elif st.session_state.turn_state == "SPIN_GOLD":
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
         st.rerun()
     else: st.error("Not enough tickets"); st.session_state.turn_state="CHOOSE_TIER"; st.rerun()
+
 # ==========================================
 #       PRIZE SCRIPTS
 # ======================================
@@ -845,6 +846,7 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
         st.session_state.pop("anal_fuck", None)
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
+
 #--- BEND OVER ---
 elif st.session_state.turn_state == "PRIZE_BEND_OVER":
     # ✅ FIXED: Combined text into one single string
@@ -1022,6 +1024,7 @@ elif st.session_state.turn_state == "PRIZE_JACKOFF_FUN":
             add_narrator("Good boy… you earned every drop.")
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
+
 # --- SHOWER SHOW ---
 elif st.session_state.turn_state == "PRIZE_SHOWER_SHOW":
     add_narrator("Steam is rising… your naughty little prize is about to get wet and slippery for you 😈")
@@ -1074,6 +1077,7 @@ elif st.session_state.turn_state == "PRIZE_SHOWER_ACTION":
             add_media("naked_shower.jpeg")
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
+    
 # MASSAGE PRIZE ---
 elif st.session_state.turn_state == "MASSAGE":
     if "tension" not in st.session_state:
@@ -1382,16 +1386,15 @@ elif st.session_state.turn_state == "PRIZE_ROMANTIC_FANTASY":
         del st.session_state.romantic_fantasy  # Reset instead of undefined function
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
-
-# UPSIDE DOWN THROAT FUCK PRIZE - Ultra-teasing, interactive with typing indicators & loading
-elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN":
-    if "Upside" not in st.session_state:
-        st.session_state.upside_down = {
+        
+# UPSIDE DOWN THROAT FUCK PRIZE - Simplified, each picture shown once, minimal branching
+elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT":
+    if "upside_throat" not in st.session_state:
+        st.session_state.upside_throat = {
             "stage": 0,
-            "intensity": "slow",  # slow, medium, rough
-            "substage": 0
+            "intensity": "slow"  # only one choice now, but still lets user pick
         }
-    data = st.session_state.upside_down
+    data = st.session_state.upside_throat
 
     def show_typing(text="typing...", duration=1.8):
         placeholder = st.empty()
@@ -1405,108 +1408,99 @@ elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN":
             time.sleep(delay)
         add_media(image_name)
 
-    # -------- STAGE 0 - Intro + Tease + Intensity Choice --------
+    # -------- STAGE 0 - Intro + Intensity Choice (single branch point) --------
     if data["stage"] == 0:
         st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Upside Down Throat Fuck**")
 
-        show_typing("mm typing… throat ready", 1.7)
+        show_typing("mm typing… throat waiting", 1.7)
         add_chat("assistant", "Daddy… you won **Upside Down Throat Fuck** 😩💦")
 
         show_typing("Paige is typing… head hanging", 2.3)
-        add_chat("assistant", "I'm laying on the edge of the bed… head hanging off… throat perfectly aligned for you to fuck my mouth like a toy… my full body exposed and helpless for you.")
+        add_chat("assistant", "I'm laying on the edge of the bed… head hanging off… throat lined up perfectly… full body exposed… tits up… legs spread… completely helpless for your cock.")
 
         show_typing("teasing alone…", 2.1)
         load_picture("upside_alone.jpg", 3.2)
-        add_chat("assistant", "Look at me… naked, legs spread, waiting… head dangling… mouth open… ready to be used.")
+        add_chat("assistant", "Look at me… naked… head dangling… mouth open wide… waiting for you to walk up and take my throat.")
 
-        show_typing("how rough?", 2.5)
-        add_chat("assistant", "How hard do you want to fuck this upside-down throat, daddy? Choose your intensity…")
+        show_typing("close tease…", 2.4)
+        load_picture("upside_tease.jpg", 3.0)
+        add_chat("assistant", "Tongue out… eyes locked on you… throat begging silently…")
+
+        show_typing("how do you want it?", 2.5)
+        add_chat("assistant", "How hard do you want to fuck this upside-down throat, daddy?")
 
         c1, c2, c3 = st.columns(3)
-        if c1.button("Slow & Deep\nTease my throat first", key="slow_throat"):
+        if c1.button("Slow & Deep", key="slow_throat"):
             data["intensity"] = "slow"
             data["stage"] = 1
             st.rerun()
-        if c2.button("Medium Pace\nSteady fucking", key="medium_throat"):
+        if c2.button("Medium Pace", key="medium_throat"):
             data["intensity"] = "medium"
             data["stage"] = 1
             st.rerun()
-        if c3.button("Rough & Merciless\nMake me gag & drool", key="rough_throat"):
+        if c3.button("Rough & Merciless", key="rough_throat"):
             data["intensity"] = "rough"
             data["stage"] = 1
             st.rerun()
 
-    # -------- STAGE 1 - Setup & Entry --------
+    # -------- STAGE 1 - Linear progression with all pictures shown once --------
     elif data["stage"] == 1:
-        show_typing("laying down now…", 1.9)
-        add_chat("assistant", "I'm on my back… head hanging off the bed… throat straight… mouth wide open… full body on display for you.")
+        show_typing("head back… mouth open…", 1.9)
+        add_chat("assistant", "Head hanging perfectly… throat straight… mouth wide… ready for you…")
 
-        load_picture("upside_tease.jpg", 3.0)
-        add_chat("assistant", "Teasing you… tongue out… eyes up… begging silently for your cock.")
-
-        show_typing("first entry…", 2.4)
+        # Entry based on intensity
+        show_typing("first push…", 2.4)
         if data["intensity"] == "slow":
             load_picture("deep_throat_entry_slow31.jpg", 3.3)
+            add_chat("assistant", "Slow… you ease in gently… inch by inch… letting my throat stretch around you…")
             load_picture("deep_throat_entry_slow1.jpg", 3.2)
-            add_chat("assistant", "Slow… you slide in gently… inch by inch… letting my throat stretch around you… feeling every flutter.")
-        elif data["intensity"] == "medium":
+            add_chat("assistant", "Deeper now… feeling every flutter… my throat relaxing for you…")
+        else:
+            load_picture("deep_throat_entry_slow1.jpg", 3.2)
+            add_chat("assistant", "You push in… filling my throat…")
+
+        # Close-up intensity
+        show_typing("close view…", 2.6)
+        if data["intensity"] == "rough":
             load_picture("upside_downcloseup.jpg", 3.1)
-            add_chat("assistant", "Steady… pushing in deeper… filling my throat… holding for a second before pulling back.")
-        elif data["intensity"] == "rough":
-            load_picture("upside_closeup.jpg", 3.4)
-            add_chat("assistant", "Rough… you slam in hard… making me gag instantly… drool pouring down my upside-down face.")
+            add_chat("assistant", "Rough close-up… gagging instantly… drool pouring down my face… throat bulging…")
+        else:
+            load_picture("upside_closeup.jpg", 3.1)
+            add_chat("assistant", "Close-up… my throat stretched tight… drool starting to run…")
 
-        show_typing("full view…", 2.6)
+        # Full body side view
+        show_typing("side view…", 2.3)
         load_picture("upside_fromside1.jpg", 3.0)
-        add_chat("assistant", "Side view… my body arched… tits up… legs spread… completely exposed while you use my throat.")
+        add_chat("assistant", "Side view… body arched… tits up… legs spread wide… completely exposed while you use my throat…")
 
-        show_typing("from behind…", 2.3)
+        # Rear/ass-up angle
+        show_typing("from behind…", 2.5)
         load_picture("upside_frombehind1.jpg", 3.2)
-        add_chat("assistant", "From behind angle… ass in the air… pussy dripping… head hanging… perfect view of you fucking my face.")
+        add_chat("assistant", "Behind angle… ass in the air… pussy dripping… head hanging… perfect view of you fucking my mouth…")
 
-        show_typing("keep going daddy…", 2.7)
-        add_chat("assistant", "Fuck my throat harder… make me choke… use me like your personal upside-down toy…")
-
-        c1, c2 = st.columns(2)
-        if c1.button("Go harder – make me gag more", key="harder_throat"):
-            data["intensity"] = "rough"
-            add_chat("assistant", "Yes… slamming deeper… drool everywhere… mascara running… throat bulging with every thrust 😭")
-            data["substage"] += 1
-            st.rerun()
-        if c2.button("Finish down my throat – cum now", key="finish_throat"):
-            data["stage"] = 2
-            st.rerun()
-
-    # -------- STAGE 2 - Climax & Finish --------
-    elif data["stage"] == 2:
-        show_typing("so deep…", 2.2)
-        load_picture("upside_downcloseup.jpg", 3.1)
-        add_chat("assistant", "Throat stretched wide… your cock buried to the balls… pulsing against my tongue…")
+        # Climax & finish
+        show_typing("so deep…", 2.7)
+        add_chat("assistant", "You go deeper… harder… throat milking you…")
 
         show_typing("cumming…", 2.8)
-        add_chat("assistant", "You thrust one last time… exploding… thick hot ropes shooting straight down my upside-down throat…")
+        add_chat("assistant", "You thrust one last time… exploding… thick hot ropes shooting straight down my upside-down throat… I swallow every drop…")
 
-        show_typing("swallowing…", 2.5)
-        add_chat("assistant", "I swallow every drop… gagging but taking it all… cum leaking from the corners of my mouth… dripping down my face…")
+        show_typing("messy finish…", 2.5)
+        add_chat("assistant", "Pulling out slow… strings of spit and cum connecting your cock to my lips… face messy… throat raw…")
 
-        show_typing("aftermath…", 2.6)
-        load_picture("upside_closeup.jpg", 3.0)
-        add_chat("assistant", "Pulling out slow… strings of spit and cum connecting your cock to my lips… my face messy… throat raw…")
+        show_typing("all yours daddy…", 2.4)
+        add_chat("assistant", "Upside Down Throat Fuck complete… my throat is sore, filled, and dripping… ready for you anytime you want 💦")
 
-        show_typing("all yours…", 2.4)
-        add_chat("assistant", "Upside Down Throat Fuck complete, daddy… my throat is yours… sore, filled, and ready for more whenever you want 💦")
-
-        if st.button("Throat prize complete – come use my mouth again soon?", key="throat_finish"):
+        if st.button("Throat prize complete – come wreck my mouth again?", key="throat_finish"):
             st.session_state.pop("upside_throat", None)
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
 
     # Global exit
     if st.button("🎰 The Exit - Save the rest of this throat for later?", key="throat_exit_global"):
-        st.session_state.pop("upside_down", None)
+        st.session_state.pop("upside_throat", None)
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
-       
 #--- TONGUE TEASE (Complex Edging Game) ---
 elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
     if "tongue_tease" not in st.session_state:
@@ -2461,6 +2455,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
