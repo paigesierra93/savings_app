@@ -1522,13 +1522,12 @@ elif st.session_state.turn_state == "PRIZE_PLUG_TEASE":
     # -------- STAGE 0 - Slow, filthy intro + stretch choice --------
     if data["stage"] == 0:
         st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Plug Tease**")
-
+        add_media("plug_tease_preview.jpeg")
         show_typing("mm typing… 🫦", 1.7)
         add_chat("assistant", "Mmm daddy… you won the **Plug Tease** tonight 😈")
 
         show_typing("Paige is typing… so naughty", 2.2)
         add_chat("assistant", "Your filthy little girlfriend is gonna lube up a nice thick butt plug…")
-        add_media("plug_tease_preview.jpeg")
 
         show_typing("stretching already…", 2.4)
         add_chat("assistant", "and wear it for you… all day while you're at work… feeling it stretch and fill my tight ass the whole time…")
@@ -1538,7 +1537,8 @@ elif st.session_state.turn_state == "PRIZE_PLUG_TEASE":
 
         show_typing("how stretched do you want me, baby?", 2.5)
         add_chat("assistant", "How stretched do you want your girl when you finally get home? 🥵")
-
+        add_media("plug_tease_3.jpeg")
+        
         c1, c2, c3 = st.columns(3)
         if c1.button("Barely stretched\nPut it in 1 hour before I get off", key="barely"):
             data["stretch_level"] = "barely"
@@ -1555,6 +1555,7 @@ elif st.session_state.turn_state == "PRIZE_PLUG_TEASE":
 
     # -------- STAGE 1 - Show insertion + teasing updates --------
     elif data["stage"] == 1:
+        add_media("plug_tease_4.jpeg")
         show_typing("oh fuck yes…", 1.9)
         add_chat("assistant", f"**{data['stretch_level'].capitalize()}** it is… you're so mean to me daddy 😩")
 
@@ -1562,7 +1563,6 @@ elif st.session_state.turn_state == "PRIZE_PLUG_TEASE":
         add_chat("assistant", "I'm lubing it up right now… cold and slick… circling my little hole…")
 
         show_typing("pushing…", 2.6)
-        add_media("plug_tease3.jpeg")
         add_chat("assistant", "Here it goes… slow… stretching me open… fuck it feels so good…")
 
         if data["stretch_level"] == "barely":
@@ -1574,11 +1574,7 @@ elif st.session_state.turn_state == "PRIZE_PLUG_TEASE":
         elif data["stretch_level"] == "full":
             show_typing("all the way…", 2.7)
             add_chat("assistant", "Putting it in NOW… deep… full… gonna wear it the whole time until you get home… clenching around it thinking of you…")
-
-        show_typing("preview typing…", 2.2)
-        add_media("plug_tease4.jpeg")
-        add_chat("assistant", "Look at how it looks right now… stretching me just right…")
-
+            
         show_typing("reward tease…", 2.8)
         add_chat("assistant", "Do you want a little preview of your final reward when you finally get home and pull it out…? 👀")
 
@@ -1968,6 +1964,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
