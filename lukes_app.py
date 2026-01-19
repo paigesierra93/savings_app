@@ -2149,7 +2149,125 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
             del st.session_state.anal_prize
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
-            
+# DOGGYSTYLE READY PRIZE - Ultra-teasing, interactive with typing indicators & loading
+elif st.session_state.turn_state == "PRIZE_DOGGYSTYLE_READY":
+    if "doggystyle_ready" not in st.session_state:
+        st.session_state.doggystyle_ready = {
+            "stage": 0,
+            "tease_level": "panties_on",  # panties_on, panties_off, fucked
+            "substage": 0
+        }
+    data = st.session_state.doggystyle_ready
+
+    def show_typing(text="typing...", duration=1.8):
+        placeholder = st.empty()
+        placeholder.markdown(f"**{text}** 💬")
+        time.sleep(duration)
+        placeholder.empty()
+
+    def load_picture(image_name, delay=2.5):
+        """Simulate realistic loading with spinner"""
+        with st.spinner("Loading your filthy doggy pic... 🍑"):
+            time.sleep(delay)
+        add_media(image_name)
+
+    # -------- STAGE 0 - Intro + Tease + Starting Tease Level --------
+    if data["stage"] == 0:
+        st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Doggystyle Ready**")
+
+        show_typing("mm typing… ass up", 1.7)
+        add_chat("assistant", "Daddy… you won **Doggystyle Ready** 😩🍑")
+
+        show_typing("Paige is typing… presenting", 2.3)
+        add_chat("assistant", "I'm on all fours… ass high… back arched… waiting for you to come take me from behind… full body exposed and dripping for your cock.")
+
+        show_typing("teasing first…", 2.1)
+        load_picture("dogg_style_tease.jpg", 3.2)
+        add_chat("assistant", "Look at this view… ass up high… cheeks spread just enough… pussy already glistening… ready to be claimed.")
+
+        show_typing("how do you want to start?", 2.5)
+        add_chat("assistant", "How should I tease you before you fuck me doggy, daddy? Choose how exposed you want me…")
+
+        c1, c2, c3 = st.columns(3)
+        if c1.button("Grab & Tease\nHands on my hips, panties still on", key="grab_tease"):
+            data["tease_level"] = "grab"
+            data["stage"] = 1
+            st.rerun()
+        if c2.button("Panties On\nSlow tease with fabric pulled aside", key="panties_on"):
+            data["tease_level"] = "panties_on"
+            data["stage"] = 1
+            st.rerun()
+        if c3.button("Panties Off\nFull access, ready to pound", key="panties_off"):
+            data["tease_level"] = "panties_off"
+            data["stage"] = 1
+            st.rerun()
+
+    # -------- STAGE 1 - Tease Buildup + Progression --------
+    elif data["stage"] == 1:
+        show_typing("on my knees…", 1.9)
+        add_chat("assistant", "I'm on all fours… ass presented perfectly… waiting for your hands… your cock… your everything.")
+
+        if data["tease_level"] == "grab":
+            load_picture("dogg_style_grab.jpg", 3.3)
+            add_chat("assistant", "You grab my hips hard… fingers digging in… pulling me back… panties still covering… teasing the outline of my pussy through the fabric.")
+            show_typing("rubbing…", 2.4)
+            add_chat("assistant", "I push back against your grip… moaning… panties getting soaked… begging you to pull them aside…")
+
+        elif data["tease_level"] == "panties_on":
+            load_picture("dogg_style_tease_panties.jpg", 3.1)
+            add_chat("assistant", "Panties still on… you trace the edge… pulling them tight… fabric wedged between my lips… making me whimper.")
+            load_picture("dogg_style_tease_panties3.jpg", 3.0)
+            add_chat("assistant", "Another angle… ass arched higher… panties stretched… pussy outline so clear… dripping through the thin material.")
+
+        elif data["tease_level"] == "panties_off":
+            load_picture("dogg_style_tease_panties_fucked.jpg", 3.4)
+            add_chat("assistant", "Panties yanked aside… or completely off… my pussy and ass fully exposed… hole twitching… ready for you to slam in.")
+
+        show_typing("ready for more…", 2.6)
+        add_chat("assistant", "Fuck me doggy daddy… slide in slow or pound hard… make me scream into the pillow…")
+
+        c1, c2 = st.columns(2)
+        if c1.button("Tease longer – keep the panties on & edge me", key="longer_tease"):
+            data["tease_level"] = "panties_on"
+            add_chat("assistant", "Yes… keep teasing… rubbing my clit through the fabric… making me soak them more… edging me stupid 😭")
+            data["substage"] += 1
+            st.rerun()
+        if c2.button("Fuck me now – panties off & pound", key="fuck_now"):
+            data["stage"] = 2
+            st.rerun()
+
+    # -------- STAGE 2 - Full Fucking & Climax --------
+    elif data["stage"] == 2:
+        show_typing("inside me…", 2.2)
+        load_picture("dogg_style_tease_panties_fucked.jpg", 3.3)
+        add_chat("assistant", "You finally slam in… panties ripped aside… cock stretching my pussy deep… ass bouncing with every thrust.")
+
+        show_typing("pounding hard…", 2.8)
+        add_chat("assistant", "Gripping my hips… pulling me back onto you… full force… my moans muffled in the sheets… ass rippling…")
+
+        show_typing("close up…", 2.5)
+        add_chat("assistant", "You go deeper… harder… making my whole body shake… pussy clenching tight around you…")
+
+        show_typing("cumming soon…", 2.6)
+        add_chat("assistant", "I'm right there daddy… fuck me through it… fill me up…")
+
+        load_picture("dogg_style_grab.jpg", 3.1)
+        add_chat("assistant", "Final grip… you hold me tight… exploding deep inside… hot cum flooding my pussy… dripping down my thighs…")
+
+        show_typing("aftermath…", 2.4)
+        add_chat("assistant", "Doggystyle Ready prize complete… ass still up… pussy dripping your cum… body trembling… waiting for round two whenever you want 🍑💦")
+
+        if st.button("Doggystyle prize complete – come take me again soon?", key="dogg_finish"):
+            st.session_state.pop("doggystyle_ready", None)
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
+
+    # Global exit
+    if st.button("🎰 The Exit - Save this doggy ass for later?", key="dogg_exit_global"):
+        st.session_state.pop("doggystyle_ready", None)
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
+                    
 # SLAVE DAY PRIZE - HIGHLY INTERACTIVE with substages, choices, and progression
 elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
     if "slave_day" not in st.session_state:
@@ -2342,6 +2460,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
