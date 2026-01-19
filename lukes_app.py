@@ -1904,75 +1904,159 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
             del st.session_state.anal_prize
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
-# --- SEX SLAVE FOR A DAY (24-Hour Total Submission) ---
+            
+# SLAVE DAY PRIZE - HIGHLY INTERACTIVE with substages, choices, and progression
 elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
-    if "sex_slave_day" not in st.session_state:
-        st.session_state.sex_slave_day = {
+    if "slave_day" not in st.session_state:
+        st.session_state.slave_day = {
             "stage": 0,
-            "collar_on": False,
-            "tasks_completed": 0,
-            "intensity": "medium", # soft / medium / extreme
-            "current_service": None
+            "service_choice": None,
+            "substage": 0,
+            "punishment_points": 0,  # increases if "misbehave"
+            "used_holes": []  # tracks which holes used for doll path
         }
-    data = st.session_state.sex_slave_day
-    # ── Stage 0: Initiation & Collaring ──
+    data = st.session_state.slave_day
+
+    def show_typing(text="typing...", duration=1.8):
+        placeholder = st.empty()
+        placeholder.markdown(f"**{text}** 💬")
+        time.sleep(duration)
+        placeholder.empty()
+
+    # -------- STAGE 0 - Intro + First Service Choice --------
     if data["stage"] == 0:
-        add_chat("assistant", "You’ve won the ultimate prize, Master… **24 hours as your complete sex slave**.")
-        add_chat("assistant", "From this moment until tomorrow, my body, my holes, my pleasure — all belong to you. I exist only to serve and satisfy.")
-        add_narrator("I kneel naked at your feet, eyes lowered, heart racing with anticipation and surrender.")
-        add_media("slave3.jpeg")
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("Collar me. Make it official.", key="collar_yes"):
-                data["collar_on"] = True
-                add_chat("assistant", "The cool leather wraps around my throat… click of the lock. I shiver as it settles.")
-                add_chat("assistant", "Your slave is claimed. Use me however you desire.")
-                data["stage"] = 1
+        st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Slave Day**")
+
+        show_typing("mm typing… your property", 1.7)
+        add_chat("assistant", "Master… you’ve won **Slave Day** 🖤😩")
+
+        show_typing("Paige is typing… no limits", 2.4)
+        add_chat("assistant", "Your pathetic little slave is completely yours for the entire day… body, mouth, holes… all for your pleasure. No safewords. No refusals.")
+
+        show_typing("kneeling already…", 2.2)
+        add_chat("assistant", "I’m stripped and ready… waiting for your first command. How will you begin breaking your slave today?")
+
+        c1, c2, c3 = st.columns(3)
+        if c1.button("Greet at the door – throat first, on knees when you walk in", key="door_interactive"):
+            data["service_choice"] = "door"
+            data["stage"] = 1
+            st.rerun()
+        if c2.button("Gaming slave – under the desk, silent mouth service while you play", key="gaming_interactive"):
+            data["service_choice"] = "gaming"
+            data["stage"] = 1
+            st.rerun()
+        if c3.button("Full sex doll – any hole, any position, all day long", key="doll_interactive"):
+            data["service_choice"] = "doll"
+            data["stage"] = 1
+            st.rerun()
+
+    # -------- STAGE 1+ - Interactive Progression by Choice --------
+    elif data["stage"] >= 1:
+        show_typing("yes Master…", 1.9)
+
+        if data["service_choice"] == "door":
+            if data["substage"] == 0:
+                add_chat("assistant", "Door opens… I’m on my knees right there, skirt up, no panties, mouth wide, tongue out, hands behind back.")
+                add_media("slave14.jpeg")
+                add_chat("assistant", "You step in… I crawl forward, unzip you with my teeth… take your cock straight to the back of my throat.")
+                add_media("slave66.jpeg")
+                add_chat("assistant", "Mascara already running… gagging quietly… drool dripping on the floor… welcome home, Master.")
+                data["substage"] = 1
                 st.rerun()
-        with col2:
-            if st.button("Skip collar — straight to use", key="collar_no"):
-                data["stage"] = 1
+
+            elif data["substage"] == 1:
+                add_chat("assistant", "You grab my hair… fuck my face harder… I choke, eyes watering… throat bulging.")
+                add_media("full_throat_bury_cum.jpg")
+                add_chat("assistant", "You hold me down… unload thick ropes straight down my throat… I swallow every drop, not spilling a single one.")
+                add_chat("assistant", "What next, Master? Keep me on my knees or drag me deeper into the house?")
+                c1, c2 = st.columns(2)
+                if c1.button("Keep on knees – more throat training", key="more_throat"):
+                    data["substage"] = 2
+                    st.rerun()
+                if c2.button("Move to living room – bend over couch", key="move_couch"):
+                    data["stage"] = 2
+                    st.rerun()
+
+        elif data["service_choice"] == "gaming":
+            if data["substage"] == 0:
+                add_chat("assistant", "You sit… I crawl under the desk… skirt flipped, ass up, no panties… lips wrap around your cock instantly.")
+                add_media("gaming1.jpg")
+                add_chat("assistant", "Your POV… slow deep bobs… tongue flat against the underside… keeping perfectly quiet.")
+                data["substage"] = 1
                 st.rerun()
-    # ── Stage 1: Choose First Service ──
-    elif data["stage"] == 1:
-        add_chat("assistant", "My body is yours, Master. What is your first command?")
-        services = [
-            "Under-desk cock worship while you relax/game",
-            "Full body massage turning into greedy oral service",
-            "Tie me up & use any hole roughly",
-            "Bend me over & fuck my ass until I beg",
-            "Make me ride you while you control the pace"
-        ]
-        data["current_service"] = st.radio("Command your slave:", services, key="slave_first_task")
-        cols = st.columns(2)
-        with cols[0]:
-            if st.button("Keep it sensual & devoted", key="slave_soft"):
-                data["intensity"] = "soft"
-                data["stage"] = 2
+
+            elif data["substage"] == 1:
+                add_media("gaming3.jpg")
+                add_chat("assistant", "Mid-game… I speed up on your kills, slow on deaths… throat milking you between rounds.")
+                add_media("slave66.jpeg")
+                add_chat("assistant", "Hours later… mascara streaked… jaw aching… but I never stop… swallowing load after load.")
+                add_chat("assistant", "You’re in a ranked match… do I edge you or make you cum now?")
+                c1, c2 = st.columns(2)
+                if c1.button("Edge me – keep me throbbing for hours", key="edge_gaming"):
+                    data["punishment_points"] += 1  # teasing Master
+                    add_chat("assistant", "Yes Master… I slow to torturous licks… edging you painfully… whimpering softly under the desk.")
+                    data["substage"] = 2
+                    st.rerun()
+                if c2.button("Make me cum now – fill my throat mid-game", key="cum_gaming"):
+                    add_chat("assistant", "I deepthroat hard… you explode down my throat while you clutch the controller… I swallow it all.")
+                    data["stage"] = 2
+                    st.rerun()
+
+        elif data["service_choice"] == "doll":
+            if data["substage"] == 0:
+                add_chat("assistant", "I'm your living sex doll… naked, plugged, ready for any use.")
+                add_media("slave11.jpeg")
+                add_chat("assistant", "Legs spread wide… thick plug stretching my ass… waiting for you to decide which hole first.")
+                data["substage"] = 1
                 st.rerun()
-        with cols[1]:
-            if st.button("Make it rough, degrading, filthy", key="slave_extreme"):
-                data["intensity"] = "extreme"
-                data["stage"] = 2
-                st.rerun()
-    # ── Stage 2: Performing the Service ──
-    elif data["stage"] == 2:
-        simulate_loading(3)
-        service_key = data["current_service"].split()[0].lower()
-        if "under-desk" in service_key or "massage" in service_key or "oral" in service_key.lower():
-            oral_pics = ["tongue_set2_pic2.jpg", "tongue_set2_pic3.jpg", "tongue_set2_pic4.jpg"]
-            add_media(oral_pics[data["tasks_completed"] % len(oral_pics)])
-        else:
-            add_media("slave5.jpeg")
-        service_desc = {
-            "under-desk": "I crawl beneath your desk… warm mouth enveloping you slowly while you ignore me, focusing on your game.",
-            "full": "My oiled hands glide glide over your back, shoulders… then lower, lips following, worshipping every inch.",
-            "tie": "Wrists and ankles bound tightly, I'm left vulnerable and at your mercy.",
-            "bend": "I'm bent over the desk, my ass raised high for your pleasure.",
-            "ride": "I'm positioned on top of you, my hands gripping your hips as I ride your cock."
-        }
-        add_chat("assistant", service_desc.get(service_key, service_desc["full"]))
-        add_chat("assistant", "I will serve you with complete devotion.")
+
+            elif data["substage"] == 1:
+                add_chat("assistant", "You pull the plug… slam into my ass… then switch to pussy… then back… using me like furniture.")
+                add_media("slave13.jpeg")
+                add_media("slave77.jpeg")
+                add_chat("assistant", "Close-up doggy anal… then standing pussy fuck… tied and helpless.")
+                add_media("slave99.jpeg")
+                add_chat("assistant", "Squatting on your cock… gravity forcing every inch… moaning like a broken doll.")
+                add_media("slave88.jpeg")
+                add_chat("assistant", "Which hole next, Master? Or should I be punished for moaning too loud?")
+                c1, c2, c3 = st.columns(3)
+                if c1.button("Ass again – deeper", key="ass_again"):
+                    data["used_holes"].append("ass")
+                    add_chat("assistant", "Yes… stretch my ass more… ruin it for you.")
+                    data["substage"] = 2
+                    st.rerun()
+                if c2.button("Pussy – fill me up", key="pussy_fill"):
+                    data["used_holes"].append("pussy")
+                    add_chat("assistant", "Pound my pussy raw… breed your doll.")
+                    data["substage"] = 2
+                    st.rerun()
+                if c3.button("Punish me – slap, choke, spit", key="punish"):
+                    data["punishment_points"] += 2
+                    add_chat("assistant", "Thank you for correcting your slave… I deserve it… hurt me more.")
+                    data["substage"] = 2
+                    st.rerun()
+
+            elif data["substage"] == 2:
+                add_media("slave44.jpeg")
+                add_chat("assistant", "End of day… naked, tied spread-eagle… looking delirious… eyes rolled back… completely fucked-out and dripping.")
+                add_media("slave55.jpeg")
+                add_media("slave90.jpeg")
+                add_chat("assistant", "Your slave is marked, sore, ruined… thank you for owning me all day, Master.")
+
+        # Final interactive close
+        show_typing("end of service…", 2.6)
+        add_chat("assistant", "Slave Day complete… your toy is exhausted but still yours whenever you want 🖤")
+        if data["punishment_points"] > 2:
+            add_chat("assistant", "…and I've earned punishment tomorrow for being such a needy slut.")
+
+        if st.button("End Slave Day – your slave awaits tomorrow’s orders", key="slave_finish_interactive"):
+            st.session_state.pop("slave_day", None)
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
+
+    # Global exit
+    if st.button("🎰 The Exit - Pause my slavery for now?", key="slave_exit_interactive"):
+        st.session_state.pop("slave_day", None)
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
 # ... (Your last prize script ends above this) ...
@@ -2013,6 +2097,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
