@@ -1386,9 +1386,6 @@ elif st.session_state.turn_state == "PRIZE_ROMANTIC_FANTASY":
 # UPSIDE DOWN THROAT FUCK PRIZE - Ultra-teasing, interactive with typing indicators & loading
 elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN":
     if "Upside" not in st.session_state:
-        st.session_state.upside_down= {
-            "stage": 0,
-
         st.session_state.upside_down = {
             "stage": 0,
             "intensity": "slow",  # slow, medium, rough
@@ -2345,6 +2342,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
