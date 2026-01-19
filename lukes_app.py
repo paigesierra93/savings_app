@@ -2149,15 +2149,16 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
             del st.session_state.anal_prize
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
+            
 # DOGGYSTYLE READY PRIZE - Ultra-teasing, interactive with typing indicators & loading
-elif st.session_state.turn_state == "PRIZE_DOGGYSTYLE_READY":
-    if "doggystyle_ready" not in st.session_state:
-        st.session_state.doggystyle_ready = {
+elif st.session_state.turn_state == "PRIZE_DOGGY_STYLE_READY":
+    if "doggy_style_ready" not in st.session_state:
+        st.session_state.doggy_style_ready = {
             "stage": 0,
             "tease_level": "panties_on",  # panties_on, panties_off, fucked
             "substage": 0
         }
-    data = st.session_state.doggystyle_ready
+    data = st.session_state.doggy_style_ready
 
     def show_typing(text="typing...", duration=1.8):
         placeholder = st.empty()
@@ -2173,10 +2174,10 @@ elif st.session_state.turn_state == "PRIZE_DOGGYSTYLE_READY":
 
     # -------- STAGE 0 - Intro + Tease + Starting Tease Level --------
     if data["stage"] == 0:
-        st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Doggystyle Ready**")
+        st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Doggy style Ready**")
 
         show_typing("mm typing… ass up", 1.7)
-        add_chat("assistant", "Daddy… you won **Doggystyle Ready** 😩🍑")
+        add_chat("assistant", "Daddy… you won **Doggy style Ready** 😩🍑")
 
         show_typing("Paige is typing… presenting", 2.3)
         add_chat("assistant", "I'm on all fours… ass high… back arched… waiting for you to come take me from behind… full body exposed and dripping for your cock.")
@@ -2257,14 +2258,14 @@ elif st.session_state.turn_state == "PRIZE_DOGGYSTYLE_READY":
         show_typing("aftermath…", 2.4)
         add_chat("assistant", "Doggystyle Ready prize complete… ass still up… pussy dripping your cum… body trembling… waiting for round two whenever you want 🍑💦")
 
-        if st.button("Doggystyle prize complete – come take me again soon?", key="dogg_finish"):
-            st.session_state.pop("doggystyle_ready", None)
+        if st.button("Doggy style prize complete – come take me again soon?", key="dogg_finish"):
+            st.session_state.pop("doggy_style_ready", None)
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
 
     # Global exit
     if st.button("🎰 The Exit - Save this doggy ass for later?", key="dogg_exit_global"):
-        st.session_state.pop("doggystyle_ready", None)
+        st.session_state.pop("doggy_style_ready", None)
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
                     
@@ -2460,6 +2461,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
