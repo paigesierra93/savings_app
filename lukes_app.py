@@ -1386,15 +1386,15 @@ elif st.session_state.turn_state == "PRIZE_ROMANTIC_FANTASY":
         del st.session_state.romantic_fantasy  # Reset instead of undefined function
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
-
-# UPSIDE DOWN THROAT FUCK PRIZE - Clean version: each picture shown once, minimal branching
-elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT":
-    if "upside_throat" not in st.session_state:
-        st.session_state.upside_throat = {
+        
+# UPSIDE DOWN THROAT FUCK PRIZE - Corrected state name, each picture once, minimal branching
+elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT_FUCK":
+    if "upside_throat_fuck" not in st.session_state:
+        st.session_state.upside_throat_fuck = {
             "stage": 0,
             "intensity": "slow"
         }
-    data = st.session_state.upside_throat
+    data = st.session_state.upside_throat_fuck
 
     def show_typing(text="typing...", duration=1.8):
         placeholder = st.empty()
@@ -1415,7 +1415,7 @@ elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT":
         add_chat("assistant", "Daddy… you won **Upside Down Throat Fuck** 😩💦")
 
         show_typing("Paige is typing… head hanging", 2.3)
-        add_chat("assistant", "I'm laying on the edge of the bed… head hanging off… throat perfectly aligned… full body exposed… tits up… legs spread… completely helpless for your cock.")
+        add_chat("assistant", "I'm laying on the edge of the bed… head hanging off… throat lined up perfectly… full body exposed… tits up… legs spread… completely helpless for your cock.")
 
         show_typing("teasing alone…", 2.1)
         load_picture("upside_alone.jpg", 3.2)
@@ -1442,7 +1442,7 @@ elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT":
             data["stage"] = 1
             st.rerun()
 
-    # -------- STAGE 1 - Linear progression, all pictures once --------
+    # -------- STAGE 1 - Linear flow, every picture shown exactly once --------
     elif data["stage"] == 1:
         show_typing("head back… mouth open…", 1.9)
         add_chat("assistant", "Head hanging perfectly… throat straight… mouth wide… ready for you…")
@@ -1486,15 +1486,16 @@ elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT":
         add_chat("assistant", "Upside Down Throat Fuck complete… my throat is sore, filled, and dripping… ready for you anytime you want 💦")
 
         if st.button("Throat prize complete – come wreck my mouth again?", key="throat_finish"):
-            st.session_state.pop("upside_throat", None)
+            st.session_state.pop("upside_throat_fuck", None)
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
 
-    # Global exit
+    # Global exit button
     if st.button("🎰 The Exit - Save the rest of this throat for later?", key="throat_exit_global"):
-        st.session_state.pop("upside_throat", None)
+        st.session_state.pop("upside_throat_fuck", None)
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
+        
 #--- TONGUE TEASE (Complex Edging Game) ---
 elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
     if "tongue_tease" not in st.session_state:
@@ -2449,6 +2450,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
