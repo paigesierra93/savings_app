@@ -652,7 +652,202 @@ elif st.session_state.turn_state == "PRIZE_LICK_PUSSY":
         st.session_state.pop("lick_pussy", None)
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
-        
+
+# ANAL FUCK PRIZE - Enhanced interactive with position choice at every stage + loading delays on pictures
+elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
+    if "anal_fuck" not in st.session_state:
+        st.session_state.anal_fuck = {
+            "stage": 0,
+            "current_position": None,
+            "lube_level": "normal",
+            "substage": 0,
+            "used_positions": []  # track for variety
+        }
+    data = st.session_state.anal_fuck
+
+    def show_typing(text="typing...", duration=1.8):
+        placeholder = st.empty()
+        placeholder.markdown(f"**{text}** 💬")
+        time.sleep(duration)
+        placeholder.empty()
+
+    def load_picture(image_name, delay=2.5):
+        """Simulate loading with delay before showing picture"""
+        with st.spinner("Loading naughty pic... 🍑"):
+            time.sleep(delay)
+        add_media(image_name)
+
+    # -------- STAGE 0 - Intro + Initial position choice --------
+    if data["stage"] == 0:
+        st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Anal Fuck**")
+
+        show_typing("mm typing… ass aching", 1.7)
+        add_chat("assistant", "Oh fuck daddy… you won **Anal Fuck** 😩🍑")
+
+        show_typing("Paige is typing… so ready", 2.3)
+        add_chat("assistant", "Your greedy little girlfriend has been fingering her ass all morning… stretching it just for your thick cock.")
+
+        show_typing("teasing view…", 2.0)
+        load_picture("ass_high_teasing.jpeg", 3.0)
+        add_chat("assistant", "Look how high my ass is arched… cheeks spread… hole already winking at you…")
+
+        show_typing("first position daddy?", 2.5)
+        add_chat("assistant", "How do you want to start fucking my ass today? Pick your opening position…")
+
+        c1, c2, c3, c4 = st.columns(4)
+        if c1.button("Reverse Cowgirl\nI ride you deep", key="start_reverse"):
+            data["current_position"] = "reverse"
+            data["stage"] = 1
+            st.rerun()
+        if c2.button("Doggy\nHard from behind", key="start_doggy"):
+            data["current_position"] = "doggy"
+            data["stage"] = 1
+            st.rerun()
+        if c3.button("Missionary Anal\nLegs up, eye contact", key="start_missionary"):
+            data["current_position"] = "missionary"
+            data["stage"] = 1
+            st.rerun()
+        if c4.button("Surprise me\nYou choose how to take it", key="start_surprise"):
+            data["current_position"] = "surprise"
+            data["stage"] = 1
+            st.rerun()
+
+    # -------- STAGE 1 - Lube + Initial penetration --------
+    elif data["stage"] == 1:
+        show_typing("yes daddy…", 1.9)
+
+        if data["current_position"] == "surprise":
+            surprise_pos = ["reverse", "doggy", "missionary"][len(data["used_positions"]) % 3]
+            data["current_position"] = surprise_pos
+            add_chat("assistant", f"Mmm… surprise! I’m starting you with **{surprise_pos.capitalize()}**… gonna make it filthy 😈")
+
+        pos_desc = {
+            "reverse": "I straddle you reverse… lowering my ass slow… cheeks spreading wide as I take every inch",
+            "doggy": "Face down ass up… you grab my hips and slam in… deep and rough from behind",
+            "missionary": "Legs hooked over your shoulders… staring into your eyes while you stretch my ass open"
+        }[data["current_position"]]
+
+        add_chat("assistant", pos_desc)
+
+        show_typing("lube choice…", 2.2)
+        add_chat("assistant", "How slick do you want this ass to be, daddy?")
+        c1, c2, c3 = st.columns(3)
+        if c1.button("Dripping wet lube – slide in easy", key="lots_lube"):
+            data["lube_level"] = "lots"
+            data["stage"] = 2
+            st.rerun()
+        if c2.button("Just a little – still tight & gripping", key="normal_lube"):
+            data["lube_level"] = "normal"
+            data["stage"] = 2
+            st.rerun()
+        if c3.button("Raw & rough – feel the burn", key="raw_lube"):
+            data["lube_level"] = "raw"
+            data["stage"] = 2
+            st.rerun()
+
+    # -------- STAGE 2 - Deep fucking + interactive choices --------
+    elif data["stage"] == 2:
+        show_typing("pushing in deep…", 2.1)
+
+        if data["current_position"] == "reverse":
+            load_picture("ass_fucked3.jpeg", 3.2)
+            add_chat("assistant", "Reverse cowgirl… ass bouncing hard… cheeks clapping against your hips… taking you balls-deep over and over.")
+        elif data["current_position"] == "doggy":
+            load_picture("ass_fucked5.jpeg", 3.0)
+            add_chat("assistant", "Doggy… close-up of your cock stretching my hole wide… slamming in so deep my toes curl.")
+            load_picture("side_view_doggy.jpeg", 2.8)
+            add_chat("assistant", "Side angle… perfect arch… every thrust making my ass ripple and jiggle.")
+        elif data["current_position"] == "missionary":
+            load_picture("missionary_ass.jpg", 3.1)
+            add_chat("assistant", "Missionary… legs pinned back… watching your face while you pound my ass slow then fast.")
+            load_picture("ass_fucked_missionary.jpeg", 2.9)
+            add_chat("assistant", "Close-up… my hole gripping you tight… clenching every time you bottom out.")
+
+        if data["lube_level"] == "raw":
+            add_chat("assistant", "No lube… raw stretch… it burns so good… making me whimper with every thrust 🍑")
+        elif data["lube_level"] == "lots":
+            add_chat("assistant", "So slick… your cock glides in and out… but my ass still milks you like crazy.")
+
+        load_picture("holding_ass_open.jpeg", 3.0)
+        add_chat("assistant", "Hands spreading my cheeks wide… showing how gaped and pink you’ve made me already…")
+
+        show_typing("keep going…", 2.6)
+        add_chat("assistant", "Fuck me harder daddy… I can take it…")
+
+        c1, c2, c3 = st.columns(3)
+        if c1.button("Switch position – I want something new", key="switch_position"):
+            data["used_positions"].append(data["current_position"])
+            data["stage"] = 3
+            st.rerun()
+        if c2.button("Deeper & faster – make me scream", key="harder"):
+            add_chat("assistant", "Yes… pounding so hard… my ass bouncing… tears in my eyes from how deep you are 😭🍆")
+            data["substage"] += 1
+            st.rerun()
+        if c3.button("Finish in my ass – fill me up now", key="finish_anal"):
+            data["stage"] = 4
+            st.rerun()
+
+    # -------- STAGE 3 - Position Switch --------
+    elif data["stage"] == 3:
+        show_typing("changing holes angle…", 2.2)
+        add_chat("assistant", "Mmm… let's switch it up… which way do you want to wreck my ass next?")
+
+        available = ["reverse", "doggy", "missionary"]
+        for prev in data["used_positions"]:
+            if prev in available:
+                available.remove(prev)
+
+        c1, c2, c3 = st.columns(3)
+        buttons = []
+        for i, pos in enumerate(available[:3]):
+            if i == 0: buttons.append(c1.button(f"{pos.capitalize()}", key=f"switch_{pos}"))
+            elif i == 1: buttons.append(c2.button(f"{pos.capitalize()}", key=f"switch_{pos}"))
+            elif i == 2: buttons.append(c3.button(f"{pos.capitalize()}", key=f"switch_{pos}"))
+
+        for i, btn in enumerate(buttons):
+            if btn:
+                data["current_position"] = available[i]
+                data["stage"] = 2
+                st.rerun()
+
+        if st.button("Stay in current – just go harder", key="stay_hard"):
+            data["stage"] = 2
+            st.rerun()
+
+    # -------- STAGE 4 - Climax & Creampie --------
+    elif data["stage"] == 4:
+        show_typing("so fucking close…", 2.3)
+        load_picture("anal mission_closeup.jpg", 3.0)
+        add_chat("assistant", "Ass clenching tight… milking you… begging for your cum deep inside…")
+
+        load_picture("anal_squirt.jpeg", 3.2)
+        add_chat("assistant", "Oh god—I'm squirting from my pussy while you destroy my ass… shaking uncontrollably…")
+
+        show_typing("filling me up…", 2.8)
+        load_picture("creampie_ass_fucking.jpg", 3.0)
+        add_chat("assistant", "You slam in one last time… exploding… pumping thick hot ropes of cum deep in my ass…")
+
+        load_picture("creampie_ass.jpg", 2.9)
+        add_chat("assistant", "Pulling out slow… watch your load leak from my stretched hole… dripping down my cheeks…")
+
+        load_picture("creampie_ass.jpeg", 3.1)
+        load_picture("cummed_ass.jpeg", 3.0)
+        load_picture("cream_pie_ass13.jpg", 3.2)
+        add_chat("assistant", "Multiple angles… my ruined ass full of your cum… gaping, creamy, completely owned by you 🍑💦")
+
+        show_typing("all filled…", 2.5)
+        add_chat("assistant", "Anal prize complete, daddy… my ass is dripping your cum… marked as yours… ready for round two whenever you want 😩")
+
+        if st.button("Anal Fuck complete – come use me again soon?", key="anal_finish"):
+            st.session_state.pop("anal_fuck", None)
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
+
+    # Global exit
+    if st.button("🎰 The Exit - Save the rest of this ass for later?", key="anal_exit_global"):
+        st.session_state.pop("anal_fuck", None)
+        st.session_state.turn_state = "PRIZE_DONE"
+        st.rerun()
 #--- BEND OVER ---
 elif st.session_state.turn_state == "PRIZE_BEND_OVER":
     # ✅ FIXED: Combined text into one single string
@@ -708,6 +903,7 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER_1":
         )
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
+
 
 # --- PRIZE: FLASH ME ---
 # FIX 3: Changed 'if' to 'elif' to keep the logic chain intact
@@ -2097,6 +2293,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
