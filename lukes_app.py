@@ -2487,7 +2487,7 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
 # CRITICAL: This line must be touching the LEFT edge. Do NOT indent it.
 elif st.session_state.turn_state == "PRIZE_DONE":
     # Optional: Add a nice closing message from Paige
-     type_out("assistant", "Session Complete. I've saved your progress, daddy. 💋")
+    add_chat("assistant", "Session Complete. I've saved your progress, daddy. 💋")
     st.success("✅ Prize Claimed & Saved.")
     
     # Create 3 Columns for navigation
