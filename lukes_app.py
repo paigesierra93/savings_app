@@ -1665,7 +1665,7 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
             if data["service_choice"] == "door":
                 if data["substage"] == 0:
                     type_out("Door opens… I’m on my knees right there, pants down, no panties, mouth wide, tongue out, hands behind back.")
-                    show_media("slave14.jpeg")
+                    show_media("slave55.jpeg")
                     simulate_thinking(2.2)
                     type_out("You step in… I crawl forward, unzip you with my teeth… take your cock straight to the back of my throat.")
                     show_media("slave66.jpeg")
@@ -1674,7 +1674,7 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
                     st.rerun()
                 elif data["substage"] == 1:
                     type_out("You grab my hair… fuck my face harder… I choke, eyes watering… throat bulging.")
-                    show_media("full_throat_bury_cum.jpg")
+                    show_media("harder_face.jpg")
                     type_out("You hold me down… unload thick ropes straight down my throat… I swallow every drop, not spilling a single one.")
                     type_out("What next? Keep me on my knees or drag me deeper into the house?")
                     c1, c2 = st.columns(2)
@@ -1690,7 +1690,7 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
                 elif data["substage"] == 1:
                     show_media("gaming3.jpg")
                     type_out("Mid-game… I speed up on your wins, slow on losses. throat milking you between rounds.")
-                    show_media("slave66.jpeg")
+                    show_media("gaming4.jpg")
                     type_out("Hours later… mascara streaked… jaw aching… but I never stop… swallowing load after load.")
                     type_out("You’re in a ranked match… do I edge you or make you cum now?")
                     c1, c2 = st.columns(2)
@@ -1744,4 +1744,5 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
