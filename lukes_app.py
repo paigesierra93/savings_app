@@ -380,20 +380,27 @@ if st.session_state.turn_state == "WALLET_CHECK":
 elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
     st.subheader("💸 Side Hustle Input")
     side_amount = st.number_input("Side Income Amount ($):", min_value=0.0, step=5.0)
+    
     if st.button("Process Extra Cash"):
-         type_out("user", f"Side Hustle: ${side_amount}")
+        # Indentation fixed here:
+        add_chat("user", f"Side Hustle: ${side_amount}")  # Use add_chat for user messages!
+        
         split = side_amount / 2
         st.session_state.data["tank_balance"] += split
         st.session_state.data["wallet_balance"] += split
-        if side_amount >= 150: tickets=125
-        elif side_amount >= 110: tickets=60
-        elif side_amount >= 70: tickets=35
-        elif side_amount >= 40: tickets=15
-        else: tickets=0
+        
+        if side_amount >= 150: tickets = 125
+        elif side_amount >= 110: tickets = 60
+        elif side_amount >= 70: tickets = 35
+        elif side_amount >= 40: tickets = 15
+        else: tickets = 0
+        
         st.session_state.data["tickets"] += tickets
         save_data(st.session_state.data)
+        
         msg = f"**Side Hustle:** ${side_amount:.2f}\n🛡️ Tank: ${split:.2f}\n💰 Wallet: ${split:.2f}\n🎟️ **TICKETS:** {tickets}"
-         type_out("assistant", msg)
+        type_out(msg) # Paige speaks this part
+        
         st.session_state.turn_state = "CHOOSE_TIER"
         st.rerun()
 
@@ -2547,6 +2554,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
