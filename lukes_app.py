@@ -369,21 +369,33 @@ if st.session_state.turn_state == "WALLET_CHECK":
         st.markdown("---")
     
     c1, c2, c3, c4 = st.columns(4)
-    is_open, lock_msg = check_payday_window(admin_code)
+    # Note: Ensure check_payday_window and admin_code are defined in your setup
+    is_open, lock_msg = check_payday_window(admin_code) 
+    
     if is_open:
-        if c1.button("💰 Full Paycheck"): st.session_state.turn_state="INPUT_PAYCHECK"; st.rerun()
-    else: c1.warning(lock_msg)
-    if c2.button("📱 Daily Dayforce"): st.session_state.turn_state="INPUT_DAILY"; st.rerun()
-    if c3.button("💸 Side Hustle"): st.session_state.turn_state="INPUT_SIDE_HUSTLE"; st.rerun()
-    if c4.button("🏦 Manage Funds"): st.session_state.turn_state="MANAGE_FUNDS"; st.rerun()
+        if c1.button("💰 Full Paycheck"): 
+            st.session_state.turn_state = "INPUT_PAYCHECK"
+            st.rerun()
+    else: 
+        c1.warning(lock_msg)
+        
+    if c2.button("📱 Daily Dayforce"): 
+        st.session_state.turn_state = "INPUT_DAILY"
+        st.rerun()
+    if c3.button("💸 Side Hustle"): 
+        st.session_state.turn_state = "INPUT_SIDE_HUSTLE"
+        st.rerun()
+    if c4.button("🏦 Manage Funds"): 
+        st.session_state.turn_state = "MANAGE_FUNDS"
+        st.rerun()
 
+# --- SIDE HUSTLE INPUT ---
 elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
     st.subheader("💸 Side Hustle Input")
     side_amount = st.number_input("Side Income Amount ($):", min_value=0.0, step=5.0)
     
     if st.button("Process Extra Cash"):
-        # Indentation fixed here:
-        add_chat("user", f"Side Hustle: ${side_amount}")  # Use add_chat for user messages!
+        add_chat("user", f"Side Hustle: ${side_amount}")
         
         split = side_amount / 2
         st.session_state.data["tank_balance"] += split
@@ -399,122 +411,181 @@ elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
         save_data(st.session_state.data)
         
         msg = f"**Side Hustle:** ${side_amount:.2f}\n🛡️ Tank: ${split:.2f}\n💰 Wallet: ${split:.2f}\n🎟️ **TICKETS:** {tickets}"
-        type_out(msg) # Paige speaks this part
+        type_out(msg)
         
         st.session_state.turn_state = "CHOOSE_TIER"
         st.rerun()
 
+# --- PAYCHECK INPUT ---
 elif st.session_state.turn_state == "INPUT_PAYCHECK":
     st.subheader("💰 Full Paycheck")
     check_amount = st.number_input("Enter Total:", min_value=0.0, step=10.0)
+    
     if st.button("Process Paycheck"):
-         type_out("user", f"Paycheck is ${check_amount}")
+        add_chat("user", f"Paycheck is ${check_amount}")
+        
+        # Calculate Safe Spend
         safe_spend = check_amount - (200.0 + 80.0 + 100.0 + 50.0)
+        
         st.session_state.data["bridge_fund"] += 50.0
-        st.session_state.data["wallet_balance"] = safe_spend 
-        if check_amount >= 601: tickets=100
-        elif check_amount >= 501: tickets=50
-        elif check_amount >= 450: tickets=25
-        else: tickets=0
+        st.session_state.data["wallet_balance"] = safe_spend
+        
+        if check_amount >= 601: tickets = 100
+        elif check_amount >= 501: tickets = 50
+        elif check_amount >= 450: tickets = 25
+        else: tickets = 0
+        
         st.session_state.data["tickets"] += tickets
         save_data(st.session_state.data)
-        if safe_spend < 0:  type_out("assistant", f"⚠️ **SHORTAGE:** -${abs(safe_spend):.2f}.")
+        
+        if safe_spend < 0:
+            type_out(f"⚠️ **SHORTAGE:** -${abs(safe_spend):.2f}.")
         else:
-             type_out("assistant", f"✅ **PROCESSED**\n💰 **SAFE TO SPEND:** ${safe_spend:.2f}\n🎟️ **TICKETS:** {tickets}")
-            if tickets > 0: st.session_state.turn_state="CHOOSE_TIER"
-            else: st.session_state.turn_state="CHECK_FAIL"
+            type_out(f"✅ **PROCESSED**\n💰 **SAFE TO SPEND:** ${safe_spend:.2f}\n🎟️ **TICKETS:** {tickets}")
+            
+        if tickets > 0: 
+            st.session_state.turn_state = "CHOOSE_TIER"
+        else: 
+            st.session_state.turn_state = "CHECK_FAIL"
         st.rerun()
 
+# --- DAILY INPUT ---
 elif st.session_state.turn_state == "INPUT_DAILY":
     st.subheader("📱 Daily Dayforce")
     daily_amount = st.number_input("Available ($):", min_value=0.0, step=5.0)
+    
     if st.button("Process Daily"):
-         type_out("user", f"Dayforce: ${daily_amount}")
-        if daily_amount < 40.0:  type_out("assistant", f"⚠️ **Warning:** Not enough for Gas & House.")
+        add_chat("user", f"Dayforce: ${daily_amount}")
+        
+        if daily_amount < 40.0:
+            type_out(f"⚠️ **Warning:** Not enough for Gas & House.")
         else:
             safe_spend = daily_amount - 10.0 - 30.0
             st.session_state.data["tank_balance"] += 30.0
             st.session_state.data["wallet_balance"] += safe_spend
             save_data(st.session_state.data)
-             type_out("assistant", f"**Strategy:**\nShielded $30 (House) + $10 (Gas).\n🍔 **SAFE TO SPEND:** ${safe_spend:.2f}")
+            
+            type_out(f"**Strategy:**\nShielded $30 (House) + $10 (Gas).\n🍔 **SAFE TO SPEND:** ${safe_spend:.2f}")
             st.session_state.turn_state = "CHOOSE_TIER"
             st.rerun()
 
+# --- MANAGE FUNDS ---
 elif st.session_state.turn_state == "MANAGE_FUNDS":
     st.subheader("🏦 The Tank")
     st.info(f"Tank: ${st.session_state.data['tank_balance']:.2f}")
+    
     move_amount = st.number_input("Amount ($):", min_value=0.0, step=10.0)
+    
     c1, c2, c3 = st.columns(3)
     if c1.button("💸 Move to Wallet"):
-        if move_amount > st.session_state.data['tank_balance']: st.error("Not enough.")
+        if move_amount > st.session_state.data['tank_balance']: 
+            st.error("Not enough.")
         else:
             st.session_state.data['tank_balance'] -= move_amount
             st.session_state.data['wallet_balance'] += move_amount
             save_data(st.session_state.data)
-             type_out("assistant", f"💸 Moved ${move_amount} to Wallet."); st.rerun()
+            type_out(f"💸 Moved ${move_amount} to Wallet.")
+            st.rerun()
+            
     if c2.button("🏠 Lock to House"):
-        if move_amount > st.session_state.data['tank_balance']: st.error("Not enough.")
+        if move_amount > st.session_state.data['tank_balance']: 
+            st.error("Not enough.")
         else:
             st.session_state.data['tank_balance'] -= move_amount
             st.session_state.data['house_fund'] += move_amount
             save_data(st.session_state.data)
-             type_out("assistant", f"🏠 Locked ${move_amount}."); st.rerun()
-    if c3.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+            type_out(f"🏠 Locked ${move_amount}.")
+            st.rerun()
+            
+    if c3.button("Back"): 
+        st.session_state.turn_state = "WALLET_CHECK"
+        st.rerun()
 
+# --- CASINO FLOOR ---
 elif st.session_state.turn_state == "CHOOSE_TIER":
     tix = st.session_state.data["tickets"]
     st.subheader(f"🎰 Casino Floor (Balance: {tix} Tickets)")
+    
     c1, c2, c3 = st.columns(3)
+    
     if tix >= 25:
-        if c1.button("🥉 Spin Bronze (25)"): st.session_state.turn_state="SPIN_BRONZE"; st.rerun()
-    else: c1.warning("🥉 Bronze: Need 25")
+        if c1.button("🥉 Spin Bronze (25)"): 
+            st.session_state.turn_state = "SPIN_BRONZE"
+            st.rerun()
+    else: 
+        c1.warning("🥉 Bronze: Need 25")
+        
     if tix >= 50:
-        if c2.button("🥈 Spin Silver (50)"): st.session_state.turn_state="SPIN_SILVER"; st.rerun()
-    else: c2.warning("🥈 Silver: Need 50")
+        if c2.button("🥈 Spin Silver (50)"): 
+            st.session_state.turn_state = "SPIN_SILVER"
+            st.rerun()
+    else: 
+        c2.warning("🥈 Silver: Need 50")
+        
     if tix >= 100:
-        if c3.button("👑 Spin Gold (100)"): st.session_state.turn_state="SPIN_GOLD"; st.rerun()
-    else: c3.warning("👑 Gold: Need 100")
+        if c3.button("👑 Spin Gold (100)"): 
+            st.session_state.turn_state = "SPIN_GOLD"
+            st.rerun()
+    else: 
+        c3.warning("👑 Gold: Need 100")
+        
     st.divider()
+    
     if st.button("Save Tickets & Exit"):
         save_data(st.session_state.data)
-         type_out("assistant", f"Walking away? {get_ticket_save_response()}")
-        st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+        type_out("Walking away? Smart. I'll hold your tickets.")
+        st.session_state.turn_state = "WALLET_CHECK"
+        st.rerun()
 
 elif st.session_state.turn_state == "CHECK_FAIL":
-     type_out("assistant", "Check too low. Try harder.")
-    if st.button("Return"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+    type_out("Check too low. Try harder.")
+    if st.button("Return"): 
+        st.session_state.turn_state = "WALLET_CHECK"
+        st.rerun()
 
 # --- SPINS ---
 elif st.session_state.turn_state == "SPIN_BRONZE":
     if st.session_state.data["tickets"] >= 25:
-        st.session_state.data["tickets"] -= 25; save_data(st.session_state.data)
+        st.session_state.data["tickets"] -= 25
+        save_data(st.session_state.data)
         prizes = ["Bend Over", "Flash Me", "Jackoff Pass", "Shower Show"]
         win = spin_animation("Bronze", prizes)
-         type_out("assistant", f"🥉 WINNER: **{win}**")
+        type_out(f"🥉 WINNER: **{win}**")
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
         st.rerun()
-    else: st.error("Not enough tickets"); st.session_state.turn_state="CHOOSE_TIER"; st.rerun()
+    else: 
+        st.error("Not enough tickets")
+        st.session_state.turn_state = "CHOOSE_TIER"
+        st.rerun()
 
 elif st.session_state.turn_state == "SPIN_SILVER":
     if st.session_state.data["tickets"] >= 50:
-        st.session_state.data["tickets"] -= 50; save_data(st.session_state.data)
+        st.session_state.data["tickets"] -= 50
+        save_data(st.session_state.data)
         prizes = ["Toy Pic", "Lick Pussy", "Nude Pic", "Tongue Tease", "Road Head", "Plug Tease"]
         win = spin_animation("Silver", prizes)
-         type_out("assistant", f"🥈 WINNER: **{win}**")
+        type_out(f"🥈 WINNER: **{win}**")
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
         st.rerun()
-    else: st.error("Not enough tickets"); st.session_state.turn_state="CHOOSE_TIER"; st.rerun()
+    else: 
+        st.error("Not enough tickets")
+        st.session_state.turn_state = "CHOOSE_TIER"
+        st.rerun()
 
 elif st.session_state.turn_state == "SPIN_GOLD":
     if st.session_state.data["tickets"] >= 100:
-        st.session_state.data["tickets"] -= 100; save_data(st.session_state.data)
+        st.session_state.data["tickets"] -= 100
+        save_data(st.session_state.data)
         prizes = ["Upside Down Throat Fuck", "Slave Day", "Anal Fuck", "Doggy Style Ready", "All 3 Holes"]
         win = spin_animation("Gold", prizes)
-         type_out("assistant", f"👑 JACKPOT: **{win}**")
+        type_out(f"👑 JACKPOT: **{win}**")
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
         st.rerun()
-    else: st.error("Not enough tickets"); st.session_state.turn_state="CHOOSE_TIER"; st.rerun()
-
+    else: 
+        st.error("Not enough tickets")
+        st.session_state.turn_state = "CHOOSE_TIER"
+        st.rerun()
+        
 # ==========================================
 #       PRIZE SCRIPTS
 # ======================================
@@ -2554,6 +2625,7 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
