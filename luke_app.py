@@ -76,7 +76,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # ==========================================
-#       PART 2: DATA ENGINE (UPDATED)
+#       PART 2: DATA ENGINE
 # ==========================================
 DATA_FILE = "bank_of_paige.json"
 
@@ -120,9 +120,6 @@ if "history" not in st.session_state:
 if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_CHECK"
 
 # ==========================================
-# ==========================================
-# ==========================================
-#      # ==========================================
 #       PART 3: HELPER FUNCTIONS (ALL-IN-ONE)
 # ==========================================
 import random 
@@ -158,13 +155,18 @@ def simulate_thinking(seconds=None):
         with st.spinner("Paige is typing..."):
             time.sleep(seconds)
 
-def type_out(text, min_delay=0.03, max_delay=0.08):
+def type_out(*args, min_delay=0.03, max_delay=0.08):
     """
-    The 'Typewriter' effect. 
-    1. Checks if message is already in history (anti-dupe).
-    2. If new, types it out word-by-word with a cursor ▌.
-    3. Saves to history.
+    The 'Typewriter' effect. Flexible to handle:
+    type_out("text") OR type_out("assistant", "text")
     """
+    if len(args) == 1:
+        text = args[0]
+    elif len(args) == 2:
+        text = args[1] # Ignore role, force assistant
+    else:
+        return
+
     # 1. Anti-Duplicate Shield
     if st.session_state.history:
         last_msg = st.session_state.history[-1]
@@ -234,6 +236,14 @@ def enter_state(state_name, role, content):
     if st.session_state.get("last_state") != state_name:
         add_chat(role, content)
         st.session_state.last_state = state_name
+
+def get_ticket_save_response():
+    return random.choice([
+        "Smart choice. I'll keep them warm for you.",
+        "Walking away while you're ahead? I like a disciplined man.",
+        "They're safe with me. Come back when you're ready to spend.",
+        "Tickets saved. Don't make me wait too long..."
+    ])
 
 # --- UNIVERSAL DECISION HANDLER ---
 def check_decision(key, prize_name):
@@ -533,7 +543,7 @@ elif st.session_state.turn_state == "CHOOSE_TIER":
     
     if st.button("Save Tickets & Exit"):
         save_data(st.session_state.data)
-        type_out("Walking away? Smart. I'll hold your tickets.")
+        type_out(f"Walking away? {get_ticket_save_response()}")
         st.session_state.turn_state = "WALLET_CHECK"
         st.rerun()
 
@@ -596,24 +606,23 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
         st.session_state.nude_pic = {"stage": "DECISION", "focus": None}
     
     # 2. DECISION CHECK
-    # If this returns True, we STOP here. Streamlit draws buttons and waits.
     if check_decision("nude_pic", "Custom Nude Pic"):
         pass
 
-    # 3. GAME LOGIC (Only runs if check_decision returns False)
+    # 3. GAME LOGIC
     else:
         data = st.session_state.nude_pic
         
         # ── STAGE 0: Intro ──
         if data["stage"] == 0:
-             type_out("assistant", "You've won, your very own photo of me... which ever part you want to see...😈")
+            type_out("You've won, your very own photo of me... which ever part you want to see...😈")
             
-            simulate_loading(3)
+            simulate_thinking(2.0)
             show_media("nude_1.jpg")
             
             # Typing effect
             type_out("I'm gonna tease you so fucking slow and nasty with every inch of my body…")
-            time.sleep(3.0) 
+            simulate_thinking(2.0)
             type_out("until you're throbbing and begging to fuck me dead.")
             
             type_out("Ready to collect your reward, daddy? Which piece of your slutty prize do you want to torture yourself with?")
@@ -637,24 +646,24 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
         elif data["stage"] == 1:
             
             if data["focus"] == "TITS":
-                 type_out("assistant", "Tits? Are you sure, daddy?")
-                simulate_loading(4)
+                type_out("Tits? Are you sure, daddy?")
+                simulate_thinking(2.0)
                 show_media("nude_6.jpg")
                 if st.button("enough teasing, show me your tits"):
                     data["stage"] = 2
                     st.rerun()
 
             elif data["focus"] == "TIGHT ASS":
-                 type_out("assistant", "Ass? Are you sure, daddy?")
-                simulate_loading(4)
+                type_out("Ass? Are you sure, daddy?")
+                simulate_thinking(2.0)
                 show_media("nude_4.jpg")
                 if st.button("Let me see it"):
                     data["stage"] = 2
                     st.rerun()
 
             elif data["focus"] == "WET PUSSY":
-                 type_out("assistant", "This little Pussy....Are you sure, daddy?")
-                simulate_loading(4)
+                type_out("This little Pussy....Are you sure, daddy?")
+                simulate_thinking(2.0)
                 show_media("nude_2.jpg") 
                 if st.button("Pull them down already"):
                     data["stage"] = 2
@@ -662,19 +671,19 @@ elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
 
         # ── STAGE 2: The Reveal ──
         elif data["stage"] == 2:
-            simulate_loading(5)
+            simulate_thinking(2.0)
 
             if data["focus"] == "TITS":
                 show_media("Nude_7.jpg")
-                 type_out("assistant", "They would look so much better around your hard cock, huh?")
+                type_out("They would look so much better around your hard cock, huh?")
             
             elif data["focus"] == "TIGHT ASS":
                 show_media("nude_5.jpg")
-                 type_out("assistant", "All bare, spread, tight little holes all wet and ready....maybe next spin, they'll get fucked. 🍑")
+                type_out("All bare, spread, tight little holes all wet and ready....maybe next spin, they'll get fucked. 🍑")
 
             elif data["focus"] == "WET PUSSY":
                 show_media("nude_3.jpg")
-                 type_out("assistant", "wet and dripping...now")
+                type_out("wet and dripping...now")
 
             # Exit
             if st.button("That's enough for now… claim this prize now?"):
@@ -700,41 +709,21 @@ elif st.session_state.turn_state == "PRIZE_LICK_PUSSY":
     else:
         data = st.session_state.lick_pussy
 
-        # Custom Helper for this prize
-        def show_typing(text="typing...", duration=1.8):
-            placeholder = st.empty()
-            placeholder.markdown(f"**{text}** 💬")
-            time.sleep(duration)
-            placeholder.empty()
-
         # -------- STAGE 0: Intro & Choice --------
         if data["stage"] == 0:
-            # Note: I removed 'pass' here because it blocks the code below it
-            
-            show_typing("typing...", 1.6)
-             type_out("assistant", "hey daddy… 💕")
-
-            show_typing("Paige is typing...", 2.0)
-             type_out("assistant", "guess what you just won…")
-
-            show_typing("mm typing… 🫦", 1.9)
-             type_out("assistant", "your tongue…")
-
-            show_typing("typing… so wet already", 2.3)
-             type_out("assistant", "on this needy little pussy… all night if you want 😈")
+            type_out("hey daddy… 💕")
+            simulate_thinking(1.5)
+            type_out("guess what you just won…")
+            type_out("your tongue…")
+            simulate_thinking(2.0)
+            type_out("on this needy little pussy… all night if you want 😈")
             show_media("lick_it.jpeg")
 
-            show_typing("Paige is typing…", 2.5)
-             type_out("assistant", "look how puffy and wet she already is… just from thinking about your mouth")
-
-            show_typing("typing... edging myself", 2.2)
-             type_out("assistant", "I’ve been edging myself waiting for you… but I stopped right before")
-
-            show_typing("fuck typing…", 2.4)
-             type_out("assistant", "now I’m throbbing so bad… aching for your tongue to finish me 💦")
-
-            show_typing("tell me daddy…", 2.1)
-             type_out("assistant", "so… how do you wanna taste it first, baby? tell me exactly how…")
+            simulate_thinking(2.2)
+            type_out("look how puffy and wet she already is… just from thinking about your mouth")
+            type_out("I’ve been edging myself waiting for you… but I stopped right before")
+            type_out("now I’m throbbing so bad… aching for your tongue to finish me 💦")
+            type_out("so… how do you wanna taste it first, baby? tell me exactly how…")
 
             positions = [
                 "From behind… face buried deep between my cheeks while I push back on your tongue 🍑",
@@ -759,83 +748,49 @@ elif st.session_state.turn_state == "PRIZE_LICK_PUSSY":
             # Get just the first few words of the position for the chat
             pos_text = data['position'].split('…')[0].strip()
             
-            show_typing(f"oh fuck… {pos_text}?", 2.0)
-             type_out("assistant", f"oh fuck… **{pos_text}**? 🥵")
-
-            show_typing("typing… gonna lose it", 1.7)
-             type_out("assistant", "you picked the one that’s gonna make me lose it…")
+            type_out(f"oh fuck… **{pos_text}**? 🥵")
+            type_out("you picked the one that’s gonna make me lose it…")
 
             # --- DYNAMIC CONTENT BASED ON POSITION ---
             if "behind" in data["position"].lower():
-                show_typing("ass up typing…", 2.2)
                 show_media("from_behind.jpeg")
-                show_typing("Paige is typing…", 2.4)
-                 type_out("assistant", "ass up high… cheeks spread… pussy glistening right in your face")
-                show_typing("breath on me…", 2.3)
-                 type_out("assistant", "I can feel your hot breath teasing my clit already…")
-                show_typing("slow baby…", 2.6)
-                 type_out("assistant", "start sooo slow baby… trace the outside of my lips… barely touching… make me squirm")
-                show_typing("mmm typing…", 2.5)
-                 type_out("assistant", "mmmmm… yes… now the tip of your tongue… flick my hole lightly…")
+                type_out("ass up high… cheeks spread… pussy glistening right in your face")
+                type_out("I can feel your hot breath teasing my clit already…")
+                type_out("start sooo slow baby… trace the outside of my lips… barely touching… make me squirm")
+                type_out("mmmmm… yes… now the tip of your tongue… flick my hole lightly…")
 
             elif "back" in data["position"].lower() or "lay" in data["position"].lower():
-                show_typing("legs wide…", 2.1)
                 show_media("front_eat.jpeg")
-                show_typing("typing… pull me in", 2.5)
-                 type_out("assistant", "legs spread wide… knees by my ears… pussy swollen and begging")
-                show_typing("hair pulling…", 2.3)
-                 type_out("assistant", "I grab your hair… pull your face right in until your nose is pressed against me")
-                show_typing("long licks…", 2.4)
-                 type_out("assistant", "long flat licks… bottom to top… dragging over my clit every time…")
-                show_typing("hips bucking…", 2.2)
-                 type_out("assistant", "fuck… my hips are bucking already… don’t you dare stop…")
+                type_out("legs spread wide… knees by my ears… pussy swollen and begging")
+                type_out("I grab your hair… pull your face right in until your nose is pressed against me")
+                type_out("long flat licks… bottom to top… dragging over my clit every time…")
+                type_out("fuck… my hips are bucking already… don’t you dare stop…")
 
             elif "face" in data["position"].lower() or "lower" in data["position"].lower():
-                show_typing("lowering…", 2.3)
                 show_media("face_sit.jpeg")
-                show_typing("grinding typing…", 2.6)
-                 type_out("assistant", "lowering myself down slow… feeling your nose brush my clit")
-                show_typing("smearing…", 2.4)
-                 type_out("assistant", "I rock my hips… smearing my slick all over your lips… your chin…")
-                show_typing("my seat…", 2.5)
-                 type_out("assistant", "you love being smothered in this wet pussy don’t you? my good little seat 😈")
-                show_typing("ride it…", 2.3)
-                 type_out("assistant", "tongue out flat… let me ride it deep… use you like my favorite toy")
+                type_out("lowering myself down slow… feeling your nose brush my clit")
+                type_out("I rock my hips… smearing my slick all over your lips… your chin…")
+                type_out("you love being smothered in this wet pussy don’t you? my good little seat 😈")
+                type_out("tongue out flat… let me ride it deep… use you like my favorite toy")
 
             elif "stand" in data["position"].lower():
-                show_typing("standing over…", 2.2)
                 show_media("standing_pussy.jpeg")
-                show_typing("drip…", 2.5)
-                 type_out("assistant", "standing over you… one foot up… lips parted so you see every pink inch")
-                show_typing("drop falling…", 2.4)
-                 type_out("assistant", "watch a thick drop slide down my thigh… falls right onto your tongue")
-                show_typing("chase it…", 2.6)
-                 type_out("assistant", "catch it baby… then lick upward slow… chase it back to my dripping hole")
+                type_out("standing over you… one foot up… lips parted so you see every pink inch")
+                type_out("watch a thick drop slide down my thigh… falls right onto your tongue")
+                type_out("catch it baby… then lick upward slow… chase it back to my dripping hole")
 
             # --- CLIMAX SEQUENCE ---
-            show_typing("trembling…", 3.0)
-             type_out("assistant", "god I’m trembling…")
-
-            show_typing("tiny flicks…", 2.4)
-             type_out("assistant", "circle my clit with just the tip… tiny little flicks… so light it drives me crazy")
-
-            show_typing("edge me…", 2.7)
-             type_out("assistant", "now suck it gently… then flick fast… then slow again… edge me until I’m begging")
-
-            show_typing("right there…", 3.2)
+            simulate_thinking(2.0)
+            type_out("god I’m trembling…")
+            type_out("circle my clit with just the tip… tiny little flicks… so light it drives me crazy")
+            type_out("now suck it gently… then flick fast… then slow again… edge me until I’m begging")
             
             if st.button("I’m right fucking there… make me squirt all over you daddy 💦", key="lick_climax"):
-                show_typing("cumming…", 1.9)
                 show_media("Cumming1.jpeg")
-                show_typing("yesyesyes…", 2.3)
-                 type_out("assistant", "ohhh fuck—yesyesyes—I’m cumming—I’m squirting everywhereeee 💦💦💦")
-                show_typing("soaking you…", 2.5)
-                 type_out("assistant", "my thighs shaking… pussy pulsing hard on your tongue… you’re drinking every gush")
-                show_typing("messy face…", 2.4)
-                 type_out("assistant", "look at your face… soaked… dripping… you made such a filthy mess of me 😩")
-
-                show_typing("need cock…", 2.6)
-                 type_out("assistant", "prize complete baby… but now I need your cock so bad…")
+                type_out("ohhh fuck—yesyesyes—I’m cumming—I’m squirting everywhereeee 💦💦💦")
+                type_out("my thighs shaking… pussy pulsing hard on your tongue… you’re drinking every gush")
+                type_out("look at your face… soaked… dripping… you made such a filthy mess of me 😩")
+                type_out("prize complete baby… but now I need your cock so bad…")
 
                 if st.button("Come fuck your messy girl now? 🍆", key="lick_finish"):
                     st.session_state.pop("lick_pussy", None)
@@ -868,41 +823,17 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
     else: 
         data = st.session_state.anal_fuck
 
-        # Custom Helper for typing
-        def show_typing(text="typing...", duration=1.8):
-            placeholder = st.empty()
-            placeholder.markdown(f"**{text}** 💬")
-            time.sleep(duration)
-            placeholder.empty()
-
-        # FIXED: Now actually displays the image immediately
-        def load_picture(image_name, delay=2.5):
-            with st.spinner("Loading your filthy pic... 🍑"):
-                time.sleep(delay)
-            
-            # Show it now
-            if os.path.exists(image_name):
-                st.image(image_name, width=300)
-            
-            # Save it for later
-            add_media(image_name) 
-
         # -------- STAGE 0 - Intro + Tease + First Position Choice --------
         if data["stage"] == 0:
             st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Anal Fuck**")
 
-            show_typing("mm typing… ass throbbing", 1.7)
-             type_out("assistant", "Daddy… you won **Anal Fuck** 😩🍑")
+            type_out("Daddy… you won **Anal Fuck** 😩🍑")
+            simulate_thinking(2.0)
+            type_out("I've been playing with my ass all morning… fingering it slow… stretching it just enough to take your thick cock without mercy.")
 
-            show_typing("Paige is typing… so needy", 2.4)
-             type_out("assistant", "I've been playing with my ass all morning… fingering it slow… stretching it just enough to take your thick cock without mercy.")
-
-            show_typing("tease view…", 2.1)
-            load_picture("ass_high_teasing.jpeg", 3.2)
-             type_out("assistant", "Ass arched high… cheeks spread… tiny hole already twitching and begging for you to ruin it…")
-
-            show_typing("first position?", 2.6)
-             type_out("assistant", "How do you want to start destroying this tight little ass, daddy? Choose your opening position…")
+            show_media("ass_high_teasing.jpeg")
+            type_out("Ass arched high… cheeks spread… tiny hole already twitching and begging for you to ruin it…")
+            type_out("How do you want to start destroying this tight little ass, daddy? Choose your opening position…")
 
             c1, c2, c3, c4 = st.columns(4)
             if c1.button("Reverse Cowgirl\nI ride you deep & bounce", key="start_reverse"):
@@ -924,8 +855,6 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
 
         # -------- STAGE 1 - Lube Choice + Penetration Start --------
         elif data["stage"] == 1:
-            show_typing("yes daddy…", 1.9)
-
             if data["current_position"] == "surprise":
                 # Safety check for used_positions
                 if not data["used_positions"]: 
@@ -935,7 +864,7 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
                 
                 surprise_pos = ["reverse", "doggy", "missionary"][idx % 3]
                 data["current_position"] = surprise_pos
-                 type_out("assistant", f"Mmm surprise! Starting with **{surprise_pos.capitalize()}**… gonna make it extra dirty for you 😈")
+                type_out(f"Mmm surprise! Starting with **{surprise_pos.capitalize()}**… gonna make it extra dirty for you 😈")
 
             pos_desc = {
                 "reverse": "Straddling you reverse… lowering my ass inch by inch… cheeks spreading wide as I sink down onto your cock.",
@@ -943,10 +872,8 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
                 "missionary": "Legs hooked over your shoulders… staring into your eyes while you push in slow and deep."
             }.get(data["current_position"], "Getting ready...")
 
-             type_out("assistant", pos_desc)
-
-            show_typing("lube or raw…?", 2.3)
-             type_out("assistant", "How do you want my ass to feel when you first slide in?")
+            type_out(pos_desc)
+            type_out("How do you want my ass to feel when you first slide in?")
             c1, c2, c3 = st.columns(3)
             if c1.button("Dripping slick lube – glide right in", key="lots_lube"):
                 data["lube_level"] = "lots"
@@ -963,32 +890,28 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
 
         # -------- STAGE 2 - Deep Fucking + Detailed Action + Choices --------
         elif data["stage"] == 2:
-            show_typing("stretching me…", 2.0)
-
             if data["current_position"] == "reverse":
-                load_picture("ass_fucked3.jpeg", 3.3)
-                 type_out("assistant", "Reverse cowgirl… my ass bouncing hard… cheeks slapping against your thighs… riding you deep and slow then fast.")
+                show_media("ass_fucked3.jpeg")
+                type_out("Reverse cowgirl… my ass bouncing hard… cheeks slapping against your thighs… riding you deep and slow then fast.")
             elif data["current_position"] == "doggy":
-                load_picture("ass_fucked5.jpeg", 3.1)
-                 type_out("assistant", "Doggy close-up… your cock buried balls-deep… stretching my hole wide with every brutal thrust.")
-                load_picture("side_view_doggy.jpeg", 3.0)
-                 type_out("assistant", "Side view… perfect arch… ass rippling with every slam… moaning like a desperate slut.")
+                show_media("ass_fucked5.jpeg")
+                type_out("Doggy close-up… your cock buried balls-deep… stretching my hole wide with every brutal thrust.")
+                show_media("side_view_doggy.jpeg")
+                type_out("Side view… perfect arch… ass rippling with every slam… moaning like a desperate slut.")
             elif data["current_position"] == "missionary":
-                load_picture("missionary_ass.jpg", 3.2)
-                 type_out("assistant", "Missionary… legs pinned back… watching your face while you pound my ass slow and deep.")
-                load_picture("ass_fucked_missionary.jpeg", 3.0)
-                 type_out("assistant", "Close-up… my hole gripping you tight… clenching hard every time you bottom out.")
+                show_media("missionary_ass.jpg")
+                type_out("Missionary… legs pinned back… watching your face while you pound my ass slow and deep.")
+                show_media("ass_fucked_missionary.jpeg")
+                type_out("Close-up… my hole gripping you tight… clenching hard every time you bottom out.")
 
             if data["lube_level"] == "raw":
-                 type_out("assistant", "Raw and rough… burning stretch… whimpering with every inch you force in… but fuck it feels so good.")
+                type_out("Raw and rough… burning stretch… whimpering with every inch you force in… but fuck it feels so good.")
             elif data["lube_level"] == "lots":
-                 type_out("assistant", "So slick… sliding in and out effortlessly… but my ass still squeezes you like a vice.")
+                type_out("So slick… sliding in and out effortlessly… but my ass still squeezes you like a vice.")
 
-            load_picture("holding_ass_open.jpeg", 3.4)
-             type_out("assistant", "Split panel… hands spreading my cheeks as wide as possible… showing how gaped and pink you've made my hole…")
-
-            show_typing("more daddy…", 2.7)
-             type_out("assistant", "Don't stop… fuck me harder… make my ass yours…")
+            show_media("holding_ass_open.jpeg")
+            type_out("Split panel… hands spreading my cheeks as wide as possible… showing how gaped and pink you've made my hole…")
+            type_out("Don't stop… fuck me harder… make my ass yours…")
 
             c1, c2, c3 = st.columns(3)
             if c1.button("Switch position – I need a new angle", key="switch_position"):
@@ -996,7 +919,7 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
                 data["stage"] = 3
                 st.rerun()
             if c2.button("Go harder & deeper – make me scream", key="harder"):
-                 type_out("assistant", "Yes… pounding mercilessly… ass bouncing wildly… tears in my eyes from how deep and rough you are 😭🍆")
+                type_out("Yes… pounding mercilessly… ass bouncing wildly… tears in my eyes from how deep and rough you are 😭🍆")
                 data["substage"] += 1
                 st.rerun()
             if c3.button("Cum in my ass – fill me completely", key="finish_anal"):
@@ -1005,8 +928,7 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
 
         # -------- STAGE 3 - Position Switch (Full Choice) --------
         elif data["stage"] == 3:
-            show_typing("switching now…", 2.2)
-             type_out("assistant", "Mmm… let's change it up… which position do you want to fuck my ass in next?")
+            type_out("Mmm… let's change it up… which position do you want to fuck my ass in next?")
 
             c1, c2, c3 = st.columns(3)
             if c1.button("Reverse Cowgirl", key="switch_reverse"):
@@ -1028,27 +950,25 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
 
         # -------- STAGE 4 - Intense Climax & Multiple Creampie Reveals --------
         elif data["stage"] == 4:
-            show_typing("I'm so close…", 2.3)
-            load_picture("anal mission_closeup.jpg", 3.1)
-             type_out("assistant", "Ass clenching tight around you… milking every inch… begging for your hot load deep inside…")
+            show_media("anal mission_closeup.jpg")
+            type_out("Ass clenching tight around you… milking every inch… begging for your hot load deep inside…")
 
-            load_picture("anal_squirt.jpeg", 3.3)
-             type_out("assistant", "Fuck—I'm squirting hard from my pussy while you destroy my ass… whole body shaking uncontrollably…")
+            show_media("anal_squirt.jpeg")
+            type_out("Fuck—I'm squirting hard from my pussy while you destroy my ass… whole body shaking uncontrollably…")
 
-            show_typing("cumming inside…", 2.9)
-            load_picture("creampie_ass_fucking.jpg", 3.2)
-             type_out("assistant", "You slam balls-deep one last time… exploding… pumping thick, hot ropes of cum straight into my ass…")
+            simulate_thinking(2.0)
+            show_media("creampie_ass_fucking.jpg")
+            type_out("You slam balls-deep one last time… exploding… pumping thick, hot ropes of cum straight into my ass…")
 
-            load_picture("creampie_ass.jpg", 3.0)
-             type_out("assistant", "Pulling out slow… your cum starts leaking from my stretched hole… dripping down my cheeks…")
+            show_media("creampie_ass.jpg")
+            type_out("Pulling out slow… your cum starts leaking from my stretched hole… dripping down my cheeks…")
 
-            load_picture("creampie_ass.jpeg", 3.1)
-            load_picture("cummed_ass.jpeg", 3.0)
-            load_picture("cream_pie_ass13.jpg", 3.2)
-             type_out("assistant", "Multiple angles… my ruined ass overflowing with your load… gaping, creamy, completely filled and marked as yours 🍑💦")
+            show_media("creampie_ass.jpeg")
+            show_media("cummed_ass.jpeg")
+            show_media("cream_pie_ass13.jpg")
+            type_out("Multiple angles… my ruined ass overflowing with your load… gaping, creamy, completely filled and marked as yours 🍑💦")
 
-            show_typing("all yours daddy…", 2.6)
-             type_out("assistant", "Anal prize complete… my ass is dripping your cum… sore, stretched, and still pulsing for more whenever you want 😩")
+            type_out("Anal prize complete… my ass is dripping your cum… sore, stretched, and still pulsing for more whenever you want 😩")
 
             if st.button("Anal Fuck complete – come claim this ass again soon?", key="anal_finish"):
                 st.session_state.pop("anal_fuck", None)
@@ -1079,8 +999,8 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER":
             "You know what that means, you have to bend over right when i say so anywhere, anytime. Hahaha, just fucking with you… you know exactly what it means, you dirty birdy.\n\n"
             "When you say 'bend over' and your slutty girlfriend slowly presents her ass and dripping pussy, no matter what I might be doing."
         )
-        simulate_loading(3)
-        add_media("explain_bendover.jpg")
+        simulate_thinking(2.0)
+        show_media("explain_bendover.jpg")
         add_narrator("Make sure I'm in something thin and see-through… or already completely fucking naked for you.")
         
         type_out(
@@ -1101,8 +1021,8 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER_REVEAL":
     add_narrator("Fuck… I'm already so soaked just knowing you're staring at my holes like this…")
     
     if st.button("At home?"):
-        simulate_loading(3)
-        add_media("Bendover1.mp4")
+        simulate_thinking(2.0)
+        show_media("Bendover1.mp4")
         st.session_state.turn_state = "PRIZE_BEND_OVER_1"
         st.rerun()
 
@@ -1116,9 +1036,9 @@ elif st.session_state.turn_state == "PRIZE_BEND_OVER_1":
     
     c1, c2, c3 = st.columns(3)
     if c1.button("Show me."):
-         type_out("user", "Show me.")
+        add_chat("user", "Show me.")
         type_out("Mmm… you asked for it, daddy… watch close…")
-        show_media("grok_video_2026-01-17-20-02-13.mp4", delay=3)
+        show_media("grok_video_2026-01-17-20-02-13.mp4", 3.0)
         type_out("Look at that mess… my pussy's literally dripping down my thighs because of you.")
         type_out(
             "God I’m throbbing so bad… I want your thick cock splitting me open right now… "
@@ -1148,7 +1068,7 @@ elif st.session_state.turn_state == "PRIZE_FLASH_ME":
             "Fuck yes baby… you just won “Flash Me” 😈 Congrats, winner!"
         )
         if st.button("I’m pretty sure I know what this means…"):
-             type_out("user", "I’m pretty sure I know what this means…")
+            add_chat("user", "I’m pretty sure I know what this means…")
             st.session_state.turn_state = "PRIZE_FLASH_TWIST"
             st.rerun()
 
@@ -1160,7 +1080,7 @@ elif st.session_state.turn_state == "PRIZE_FLASH_TWIST":
         "Mmm… maybe not exactly what you're thinking, dirty boy. There's a naughty little twist tonight."
     )
     if st.button("Oh, yeah?"):
-         type_out("user", "Oh, yeah?")
+        add_chat("user", "Oh, yeah?")
         type_out(
             "Just say the word… or give me that hungry nod… and I'll yank my top up fast and flash you these perky tits right in your face."
         )
@@ -1185,8 +1105,8 @@ elif st.session_state.turn_state == "PRIZE_FLASH_CHOICE":
     
     # Choice 1: Tits
     if c1.button("Show me your tits"):
-         type_out("user", "Show me your tits.")
-        show_media("Nude_7.jpg", delay=3)
+        add_chat("user", "Show me your tits.")
+        show_media("Nude_7.jpg", 3.0)
         type_out(
             "There they are daddy… quick little flash of these soft, bouncy tits just for you. "
             "Nipples already hard thinking about your mouth on them 😏"
@@ -1201,8 +1121,8 @@ elif st.session_state.turn_state == "PRIZE_FLASH_CHOICE":
     
     # Choice 2: Pussy
     if c2.button("Show me your pussy"):
-         type_out("user", "Show me your pussy.")
-        show_media("flash_pussy1.jpg", delay=3)
+        add_chat("user", "Show me your pussy.")
+        show_media("flash_pussy1.jpg", 3.0)
         type_out(
             "Mmm fuck… here’s your sneak peek, winner. My pussy’s already glistening and swollen, "
             "dripping just from teasing you like this 🍑💦"
@@ -1235,16 +1155,16 @@ elif st.session_state.turn_state == "PRIZE_JACKOFF_PASS":
 
     # 3. Main Logic (Indented inside Else)
     else:
-         type_out("assistant", "Mmm fuck yes baby… you just won the **Jackoff Pass** 😈 Your special prize: I give you full permission to stroke that thick cock while I tease the absolute shit out of you.")
-        simulate_typing(4)
+        type_out("Mmm fuck yes baby… you just won the **Jackoff Pass** 😈 Your special prize: I give you full permission to stroke that thick cock while I tease the absolute shit out of you.")
+        simulate_thinking(2.0)
         
-         type_out("assistant", "No guilt, no holding back — I want you pumping hard, edging, leaking precum, imagining every filthy thing you’d do to me while I describe it in detail.")
+        type_out("No guilt, no holding back — I want you pumping hard, edging, leaking precum, imagining every filthy thing you’d do to me while I describe it in detail.")
         add_narrator("Your slutty girlfriend Paige is gonna make this so fucking hard for you… literally.")
 
-        simulate_loading(4)
+        simulate_thinking(2.0)
         show_media("jackoff3.jpeg") # Changed to show_media for consistency
-         type_out("assistant", "Rule #1: You can’t cum until I say so. Edge for me like a good boy.")
-         type_out("assistant", "Rule #2: Tell me exactly what you’re doing to that dick while you’re doing it… I want every dirty detail.")
+        type_out("Rule #1: You can’t cum until I say so. Edge for me like a good boy.")
+        type_out("Rule #2: Tell me exactly what you’re doing to that dick while you’re doing it… I want every dirty detail.")
     
         if st.button("Fuck… ready to play with yourself for me?"):
             st.session_state.turn_state = "PRIZE_JACKOFF_FUN"
@@ -1252,15 +1172,15 @@ elif st.session_state.turn_state == "PRIZE_JACKOFF_PASS":
 
 # --- JACKOFF FUN (No decision needed here, just game logic) ---
 elif st.session_state.turn_state == "PRIZE_JACKOFF_FUN":
-     type_out("assistant", "God I’m already so wet just thinking about you stroking to me… let’s make this nasty. Pick how you want your jackoff session to go, daddy.")
+    type_out("God I’m already so wet just thinking about you stroking to me… let’s make this nasty. Pick how you want your jackoff session to go, daddy.")
     
     c1, c2 = st.columns(2)
     
     with c1:
         if st.button("Just talk dirty to me while I stroke"):
-             type_out("user", "Just talk dirty to me while I stroke")
-            simulate_typing(2)
-             type_out("assistant", "Mmm perfect… keep that hand moving slow and tight around your cock while I whisper how bad I want it inside me. "
+            add_chat("user", "Just talk dirty to me while I stroke")
+            simulate_thinking(2)
+            type_out("Mmm perfect… keep that hand moving slow and tight around your cock while I whisper how bad I want it inside me. "
                               "Imagine my tight wet pussy gripping you, milking every drop… I’m fingering myself right now thinking about you exploding for me. "
                               "Edge it baby — get right to the brink then stop. Tell me how close you are… fuck I love when you’re throbbing and desperate for your Paige 🥵")
             
@@ -1271,18 +1191,18 @@ elif st.session_state.turn_state == "PRIZE_JACKOFF_FUN":
             
     with c2:
         if st.button("Tease me with a recap of all my prizes while I cum"):
-             type_out("user", "Tease me with a recap of all my prizes while I cum")
-            simulate_typing(2)
-             type_out("assistant", "Oh you greedy boy… want me to remind you of every filthy prize you’ve won so far while you pump that dick?")
-             type_out("assistant", "Remember when I bent over and showed you my dripping pussy… or when I flashed these tits and that soaked cunt under my skirt… "
+            add_chat("user", "Tease me with a recap of all my prizes while I cum")
+            simulate_thinking(2)
+            type_out("Oh you greedy boy… want me to remind you of every filthy prize you’ve won so far while you pump that dick?")
+            type_out("Remember when I bent over and showed you my dripping pussy… or when I flashed these tits and that soaked cunt under my skirt… "
                               "all that was just for you, winner. Now stroke faster — picture sliding into every hole I teased you with.")
-             type_out("assistant", "Here’s a little visual reminder of what you own… all these prizes waiting for your cock.")
+            type_out("Here’s a little visual reminder of what you own… all these prizes waiting for your cock.")
             
-            simulate_loading(4)
+            simulate_thinking(2.0)
             show_media("Jackkoff1.jpeg") 
-            simulate_typing(2)
+            simulate_thinking(2)
             
-             type_out("assistant", "Cum for me now baby… shoot that load thinking about fucking your dirty little prize in person next time. "
+            type_out("Cum for me now baby… shoot that load thinking about fucking your dirty little prize in person next time. "
                               "I’m touching myself watching you lose it 😈")
             add_narrator("Good boy… you earned every drop.")
             
@@ -1294,10 +1214,10 @@ elif st.session_state.turn_state == "PRIZE_JACKOFF_FUN":
 # --- SHOWER SHOW ---
 elif st.session_state.turn_state == "PRIZE_SHOWER_SHOW":
     add_narrator("Steam is rising… your naughty little prize is about to get wet and slippery for you 😈")
-     type_out("assistant", "Mmm daddy… you won the Shower Show. Time to watch your girlfriend soap up every inch of this body — slowly, teasingly, while I think about your cock the whole time. One rule: no touching.")
+    type_out("Mmm daddy… you won the Shower Show. Time to watch your girlfriend soap up every inch of this body — slowly, teasingly, while I think about your cock the whole time. One rule: no touching.")
    
-    simulate_loading(4)
-    add_media("shower_water.jpg")  # Replaced placeholder
+    simulate_thinking(2.0)
+    show_media("shower_water.jpg")  # Replaced placeholder
     tease_level = st.radio(
         "How nasty do you want this shower to get, baby?",
         ["Slow and sensual tease – make you throb watching me lather up",
@@ -1310,17 +1230,17 @@ elif st.session_state.turn_state == "PRIZE_SHOWER_SHOW":
         st.session_state.turn_state = "PRIZE_SHOWER_ACTION"
         st.rerun()
 elif st.session_state.turn_state == "PRIZE_SHOWER_ACTION":
-    simulate_loading(4)
-    add_media("shower_finger.jpeg")  # Replaced placeholder
+    simulate_thinking(2.0)
+    show_media("shower_finger.jpeg")  # Replaced placeholder
    
     if st.session_state.shower_choice == "Slow and sensual tease – make you throb watching me lather up":
-         type_out("assistant", "Mmm… nice and slow just like you like. Watch my hands glide over these wet tits, circling my hard nipples… down my stomach to my slippery pussy. "
-                             "I'm so fucking turned on knowing you're staring — my clit is throbbing under the suds, baby. Imagine your tongue there instead…")
+        type_out("Mmm… nice and slow just like you like. Watch my hands glide over these wet tits, circling my hard nipples… down my stomach to my slippery pussy. "
+                              "I'm so fucking turned on knowing you're staring — my clit is throbbing under the suds, baby. Imagine your tongue there instead…")
     else:
-         type_out("assistant", "Fuck yes… full filthy mode for my winner. Hands all over – squeezing these soapy tits, pinching my nipples hard while I moan your name. "
-                             "Now spreading my legs under the water, fingers sliding between my wet lips, rubbing my swollen clit fast… God I'm dripping more than the shower. "
-                             "Wish this was your cock pounding me against the wall right now 🥵")
-     type_out("assistant", "Show's almost over… but I’ve got one last treat when I step out. What do you want as your post-shower reward, daddy?")
+        type_out("Fuck yes… full filthy mode for my winner. Hands all over – squeezing these soapy tits, pinching my nipples hard while I moan your name. "
+                              "Now spreading my legs under the water, fingers sliding between my wet lips, rubbing my swollen clit fast… God I'm dripping more than the shower. "
+                              "Wish this was your cock pounding me against the wall right now 🥵")
+    type_out("Show's almost over… but I’ve got one last treat when I step out. What do you want as your post-shower reward, daddy?")
     after_choice = st.radio(
         "Pick your final prize piece:",
         ["take the towel and dry me off completely",
@@ -1328,19 +1248,19 @@ elif st.session_state.turn_state == "PRIZE_SHOWER_ACTION":
     )
    
     if st.button("End the shower"):
-        simulate_loading(3)
-        add_media("shower_towel3.jpeg")  # Replaced placeholder
+        simulate_thinking(2.0)
+        show_media("shower_towel3.jpeg")  # Replaced placeholder
        
         if "take the towel" in after_choice:
-             type_out("assistant", "Mmm… pat me down slow – towel sliding over my wet tits, between my thighs, teasing those sensitive spots. "
-                                 "Still dripping… still thinking about you fucking me dry. Save that hard cock for next time, baby.")
-            simulate_loading(4)
-            add_media("shower_towel1.jpeg")
+            type_out("Mmm… pat me down slow – towel sliding over my wet tits, between my thighs, teasing those sensitive spots. "
+                                "Still dripping… still thinking about you fucking me dry. Save that hard cock for next time, baby.")
+            simulate_thinking(2.0)
+            show_media("shower_towel1.jpeg")
         elif "lick all" in after_choice:
-             type_out("assistant", "There it goes… towel on the floor. Full naked, skin still glistening, nipples hard from the cool air. "
-                                 "Turn around – ass still wet, pussy, needs drying. get to licking 😏")
-            simulate_loading(4)
-            add_media("naked_shower.jpeg")
+            type_out("There it goes… towel on the floor. Full naked, skin still glistening, nipples hard from the cool air. "
+                                "Turn around – ass still wet, pussy, needs drying. get to licking 😏")
+            simulate_thinking(2.0)
+            show_media("naked_shower.jpeg")
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
 
@@ -1364,9 +1284,9 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
 
         # ── Stage 0: Pick FIRST hole to fill with cock ──
         if data["stage"] == 0:
-             type_out("assistant", "Fuck yes daddy… you won the **ultimate filthy prize**: All 3 Holes Total Overload 😈")
-             type_out("assistant", "Your nasty little cumdump is completely yours to ruin. Every hole gets wrecked tonight.")
-             type_out("assistant", "Pick which hole your thick cock destroys **first**…")
+            type_out("Fuck yes daddy… you won the **ultimate filthy prize**: All 3 Holes Total Overload 😈")
+            type_out("Your nasty little cumdump is completely yours to ruin. Every hole gets wrecked tonight.")
+            type_out("Pick which hole your thick cock destroys **first**…")
 
             cols = st.columns(3)
             if cols[0].button("Pussy – stretch my dripping cunt first"):
@@ -1389,27 +1309,27 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
 
         # ── Stage 1: Show first hole + dirty confirmation → then pick next ──
         elif data["stage"] == 1:
-            simulate_loading(2)
+            simulate_thinking(2.0)
 
             if data["first_hole"] == "pussy":
-                add_media("mkh5dpc060z62y.jpeg")
-                 type_out("assistant", "Like this daddy? Your fat cock slamming balls-deep into my greedy pussy, stretching me wide… fuck ya?")
-                 type_out("assistant", "I'm already dripping down your balls, begging for the rest…")
+                show_media("mkh5dpc060z62y.jpeg")
+                type_out("Like this daddy? Your fat cock slamming balls-deep into my greedy pussy, stretching me wide… fuck ya?")
+                type_out("I'm already dripping down your balls, begging for the rest…")
 
             elif data["first_hole"] == "ass":
-                add_media("inmyass.jpeg")
-                 type_out("assistant", "This little hole baby? Your cock forcing its way into my tight ass, tearing me open raw… fuck ya?")
-                 type_out("assistant", "I'm moaning like a desperate whore, pushing back for more…")
+                show_media("inmyass.jpeg")
+                type_out("This little hole baby? Your cock forcing its way into my tight ass, tearing me open raw… fuck ya?")
+                type_out("I'm moaning like a desperate whore, pushing back for more…")
 
             else:  # mouth
-                add_media("dick_tease16.jpeg")
-                 type_out("assistant", "Like this? Shoving your cock down my slutty throat, making me gag and drool everywhere… fuck ya?")
-                 type_out("assistant", "Tears running, spit dripping… ready for you to wreck the other holes now…")
+                show_media("dick_tease16.jpeg")
+                type_out("Like this? Shoving your cock down my slutty throat, making me gag and drool everywhere… fuck ya?")
+                type_out("Tears running, spit dripping… ready for you to wreck the other holes now…")
 
             remaining = [h for h in ["pussy", "ass", "mouth"] if not data["filled"][h]]
 
             if remaining:
-                 type_out("assistant", "Now give me the next one, daddy… which hole gets ruined next?")
+                type_out("Now give me the next one, daddy… which hole gets ruined next?")
                 cols = st.columns(len(remaining))
                 for i, hole in enumerate(remaining):
                     label = f"{'Cunt' if hole=='pussy' else 'Ass' if hole=='ass' else 'Mouth/Throat'}"
@@ -1424,19 +1344,19 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
 
         # ── Stage 2: Second hole filled (transition) ──
         elif data["stage"] == 2:
-            simulate_loading(2)
-             type_out("assistant", "Fuuuck… two holes stuffed already. I'm shaking, leaking, completely owned…")
-             type_out("assistant", "One more daddy… fill that last filthy hole and make me your total 3-hole wreck.")
+            simulate_thinking(2.0)
+            type_out("Fuuuck… two holes stuffed already. I'm shaking, leaking, completely owned…")
+            type_out("One more daddy… fill that last filthy hole and make me your total 3-hole wreck.")
             
             # Quick teaser of the last hole
             last_hole = next(h for h,v in data["filled"].items() if not v)
             
             if last_hole == "pussy":
-                add_media("mkh5dpc060z62y.jpeg")
+                show_media("mkh5dpc060z62y.jpeg")
             elif last_hole == "ass":
-                add_media("inmyass.jpeg")
+                show_media("inmyass.jpeg")
             else:
-                add_media("dick_tease16.jpeg")
+                show_media("dick_tease16.jpeg")
                 
             if st.button("Fuck ya – complete all 3 holes now"):
                 data["filled"][last_hole] = True
@@ -1445,35 +1365,35 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
 
         # ── Stage 3: All holes filled + close-up inspection ──
         elif data["stage"] == 3:
-            simulate_loading(3)
-            add_media("all_3_4.jpeg")  # or your best triple-filled image
-             type_out("assistant", "Holy shit… all three holes completely fucking destroyed. I'm a drooling, trembling, overstuffed mess.")
-             type_out("assistant", "Look at what you did to your little cumslut daddy… inspect your work.")
+            simulate_thinking(2.0)
+            show_media("all_3_4.jpeg")  # or your best triple-filled image
+            type_out("Holy shit… all three holes completely fucking destroyed. I'm a drooling, trembling, overstuffed mess.")
+            type_out("Look at what you did to your little cumslut daddy… inspect your work.")
 
             cols = st.columns(3)
 
             with cols[0]:
                 if st.button("Let me see your pussy filled"):
-                    add_media("mkjdh9exrj9kdr.jpeg")
-                     type_out("assistant", "Look at this wrecked cunt… stretched, swollen, dripping your cum or my squirt everywhere.")
+                    show_media("mkjdh9exrj9kdr.jpeg")
+                    type_out("Look at this wrecked cunt… stretched, swollen, dripping your cum or my squirt everywhere.")
 
             with cols[1]:
                 if st.button("Let me see your mouth filled"):
-                    add_media("dick_tease8.jpeg")
-                     type_out("assistant", "Throat raw, lips swollen, spit and precum running down my chin… total face-fuck ruin.")
+                    show_media("dick_tease8.jpeg")
+                    type_out("Throat raw, lips swollen, spit and precum running down my chin… total face-fuck ruin.")
 
             with cols[2]:
                 if st.button("Let me see your ass dripping"):
-                    add_media("3holesasscum.jpeg")
-                     type_out("assistant", "Ass gaped and leaking, cum oozing out while I clench around nothing… you fucking broke it.")
+                    show_media("3holesasscum.jpeg")
+                    type_out("Ass gaped and leaking, cum oozing out while I clench around nothing… you fucking broke it.")
 
             st.write("---")
             if st.button("Finish & Collapse – I'm done daddy"):
-                simulate_loading(3)
-                 type_out("assistant", "Cumming so fucking hard… body convulsing, holes pulsing, squirting and shaking apart.")
-                 type_out("assistant", "You've ruined me completely… your perfect overloaded fucktoy.")
+                simulate_thinking(2.0)
+                type_out("Cumming so fucking hard… body convulsing, holes pulsing, squirting and shaking apart.")
+                type_out("You've ruined me completely… your perfect overloaded fucktoy.")
                 add_narrator("She collapses in a sweaty, cum-soaked heap, holes still twitching, blissed-out smile.")
-                 type_out("assistant", "Prize complete. Come cuddle your broken little whore now… or use me again whenever you want 😈")
+                type_out("Prize complete. Come cuddle your broken little whore now… or use me again whenever you want 😈")
                 
                 del st.session_state.all_3_holes
                 st.session_state.turn_state = "PRIZE_DONE"
@@ -1495,45 +1415,22 @@ elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT_FUCK":
     else:
         data = st.session_state.upside_throat_fuck
 
-        # Custom Helper: Typing
-        def show_typing(text="typing...", duration=1.8):
-            placeholder = st.empty()
-            placeholder.markdown(f"**{text}** 💬")
-            time.sleep(duration)
-            placeholder.empty()
-
-        # Custom Helper: Loading Images (FIXED to show image immediately)
-        def load_picture(image_name, delay=2.5):
-            with st.spinner("Loading your filthy throat pic... 😈"):
-                time.sleep(delay)
-            
-            # Show it right now
-            if os.path.exists(image_name):
-                st.image(image_name, width=300)
-            
-            # Save to history for later
-            add_media(image_name)
-
         # -------- STAGE 0 - Intro + Intensity Choice --------
         if data["stage"] == 0:
             st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Upside Down Throat Fuck**")
 
-            show_typing("mm typing… throat waiting", 1.7)
-             type_out("assistant", "Daddy… you won **Upside Down Throat Fuck** 😩💦")
+            type_out("Daddy… you won **Upside Down Throat Fuck** 😩💦")
 
-            show_typing("Paige is typing… head hanging", 2.3)
-             type_out("assistant", "I'm laying on the edge of the bed… head hanging off… throat lined up perfectly… full body exposed… tits up… legs spread… completely helpless for your cock.")
+            simulate_thinking(2.3)
+            type_out("I'm laying on the edge of the bed… head hanging off… throat lined up perfectly… full body exposed… tits up… legs spread… completely helpless for your cock.")
 
-            show_typing("teasing alone…", 2.1)
-            load_picture("upside_alone.jpg", 3.2)
-             type_out("assistant", "Look at me waiting… naked… head dangling… mouth open wide… ready for you to walk up and take my throat.")
+            type_out("Look at me waiting… naked… head dangling… mouth open wide… ready for you to walk up and take my throat.")
+            show_media("upside_alone.jpg")
 
-            show_typing("close tease…", 2.4)
-            load_picture("upside_tease.jpg", 3.0)
-             type_out("assistant", "Tongue out… eyes locked on you… throat begging silently…")
+            type_out("Tongue out… eyes locked on you… throat begging silently…")
+            show_media("upside_tease.jpg")
 
-            show_typing("how hard do you want it?", 2.5)
-             type_out("assistant", "How hard should I take this upside-down throat fuck, daddy?")
+            type_out("How hard should I take this upside-down throat fuck, daddy?")
 
             c1, c2, c3 = st.columns(3)
             if c1.button("Slow & Deep", key="slow_throat"):
@@ -1551,46 +1448,37 @@ elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT_FUCK":
 
         # -------- STAGE 1 - Linear flow --------
         elif data["stage"] == 1:
-            show_typing("head back… mouth open…", 1.9)
-             type_out("assistant", "Head hanging perfectly… throat straight… mouth wide… ready for you…")
+            type_out("Head hanging perfectly… throat straight… mouth wide… ready for you…")
 
-            show_typing("first push…", 2.4)
             if data["intensity"] == "slow":
-                load_picture("deep_throat_entry_slow31.jpg", 3.3)
-                 type_out("assistant", "Slow… you ease in gently… inch by inch… letting my throat stretch around you…")
-                load_picture("deep_throat_entry_slow1.jpg", 3.2)
-                 type_out("assistant", "Deeper now… feeling every flutter… my throat relaxing for you…")
+                show_media("deep_throat_entry_slow31.jpg")
+                type_out("Slow… you ease in gently… inch by inch… letting my throat stretch around you…")
+                show_media("deep_throat_entry_slow1.jpg")
+                type_out("Deeper now… feeling every flutter… my throat relaxing for you…")
             else:
-                load_picture("deep_throat_entry_slow1.jpg", 3.2)
-                 type_out("assistant", "You push in… filling my throat…")
+                show_media("deep_throat_entry_slow1.jpg")
+                type_out("You push in… filling my throat…")
 
-            show_typing("close view…", 2.6)
             if data["intensity"] == "rough":
-                load_picture("upside_downcloseup.jpg", 3.1)
-                 type_out("assistant", "Rough close-up… gagging instantly… drool pouring down my upside-down face… throat bulging…")
+                show_media("upside_downcloseup.jpg")
+                type_out("Rough close-up… gagging instantly… drool pouring down my upside-down face… throat bulging…")
             else:
-                load_picture("upside_closeup.jpg", 3.1)
-                 type_out("assistant", "Close-up… my throat stretched tight… drool starting to run…")
+                show_media("upside_closeup.jpg")
+                type_out("Close-up… my throat stretched tight… drool starting to run…")
 
-            show_typing("side view…", 2.3)
-            load_picture("upside_fromside1.jpg", 3.0)
-             type_out("assistant", "Side view… body arched beautifully… tits heaving… legs spread wide… completely exposed while you fuck my hanging throat…")
+            show_media("upside_fromside1.jpg")
+            type_out("Side view… body arched beautifully… tits heaving… legs spread wide… completely exposed while you fuck my hanging throat…")
 
-            show_typing("from behind…", 2.5)
-            load_picture("upside_frombehind1.jpg", 3.2)
-             type_out("assistant", "Behind angle… ass in the air… pussy dripping… head hanging… perfect view of you using my mouth like a sleeve…")
+            show_media("upside_frombehind1.jpg")
+            type_out("Behind angle… ass in the air… pussy dripping… head hanging… perfect view of you using my mouth like a sleeve…")
 
-            show_typing("so deep…", 2.7)
-             type_out("assistant", "You go deeper… harder… throat milking you…")
+            type_out("You go deeper… harder… throat milking you…")
 
-            show_typing("cumming…", 2.8)
-             type_out("assistant", "You thrust one last time… exploding… thick hot ropes shooting straight down my upside-down throat… I swallow every drop…")
+            type_out("You thrust one last time… exploding… thick hot ropes shooting straight down my upside-down throat… I swallow every drop…")
 
-            show_typing("messy finish…", 2.5)
-             type_out("assistant", "Pulling out slow… strings of spit and cum connecting your cock to my lips… face messy… throat raw and pulsing…")
+            type_out("Pulling out slow… strings of spit and cum connecting your cock to my lips… face messy… throat raw and pulsing…")
 
-            show_typing("all yours daddy…", 2.4)
-             type_out("assistant", "Upside Down Throat Fuck complete… my throat is sore, filled, and dripping… ready for you anytime you want 💦")
+            type_out("Upside Down Throat Fuck complete… my throat is sore, filled, and dripping… ready for you anytime you want 💦")
 
             if st.button("Throat prize complete – come wreck my mouth again?", key="throat_finish"):
                 st.session_state.pop("upside_throat_fuck", None)
@@ -1606,155 +1494,160 @@ elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT_FUCK":
 elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
     if "tongue_tease" not in st.session_state:
         st.session_state.tongue_tease = {
-            "stage": 0,
+            "stage": "DECISION",
             "edging_level": 0,
             "begged": False,
             "impatient": False
         }
-    data = st.session_state.tongue_tease
+    
+    # Check Decision
+    if check_decision("tongue_tease", "Tongue Tease"):
+        pass
+    else:
+        data = st.session_state.tongue_tease
 
-    # ── Stage 0: Intro ──
-    if data["stage"] == 0:
-         type_out("assistant", "Mmm daddy… you won the **Tongue Tease** prize 😈")
-         type_out("assistant", "This is where your girlfriend is gonna kneel between your legs and worship just the tip of that thick cock with my tongue and lips… nothing else, while you stroke the rest yourself.")
-        
-        show_media("grok_video_2026-01-18-13-54-56.mp4")
-        
-         type_out("assistant", "Rules are simple: I only tease the head — slow licks, soft sucks, swirling around the tip. You stroke the shaft, edge yourself, but you don't cum until I say. Beg nicely… or rush me and see what happens.")
-        
-        c1, c2 = st.columns([1, 3])
-        if c1.button("Yes baby, I'll obey"):
-            data["stage"] = 1
-            st.rerun()
-        if c2.button("Fuck the rules… "):
-            data["impatient"] = True
-            data["stage"] = 1
-            st.rerun()
-
-    # ── Stage 1: The Start ──
-    elif data["stage"] == 1:
-        add_media("dick_tease_open1.jpg")
-         type_out("assistant", "Look at this cock… already leaking for me. I lean in close, hot breath on the tip.") 
-        show_media("tongue_set3_pic4.jpg")
-        
-         type_out("assistant", "My tongue flicks out, slow circle around the head, tasting your precum… then a soft kiss right on the slit.")
-        show_media("tongue_set3_pic3.jpg")
-        
-         type_out("assistant", "Mmm… do you like that? Keep stroking slow while I tease…")
-        add_media("tease_open1.jpg")
-        
-        if st.button("Please baby… more tongue, I'm begging"):
-            data["begged"] = True
-            data["edging_level"] += 2
-            data["stage"] = 2
-            st.rerun()
-        if st.button("Suck it harder… stop teasing"):
-            data["impatient"] = True
-            data["edging_level"] += 1
-            data["stage"] = 2
-            st.rerun()
-
-    # ── Stage 2: The Tease ──
-    elif data["stage"] == 2:
-        simulate_loading(2)
-        show_media("tongue_set3_pic2.jpg")
-        
-         type_out("assistant", "I wrap my lips around the tip only… gentle suck, gentle tongue swirling")
-        add_narrator("Her eyes stay locked on yours, watching every twitch of your cock as you stroke.")
-        simulate_loading(4)
-        add_media("mkk3e2l0boxeuo(1).jpg")
-                
-        reason = "because you begged so sweetly like a good boy" if data["begged"] else "because you're being impatient and greedy"
-         type_out("assistant", f"I'm being extra mean with the tease {reason}… just the tip, baby.")
-        
-        c1, c2, c3 = st.columns(3)
-        if c1.button("Fuck… please swirl faster, I need it"):
-            data["edging_level"] += 2
-            data["stage"] = 3
-            st.rerun()
-        if c2.button("Keep it slow… I'm trying to hold on"):
-            data["edging_level"] += 1
-            data["stage"] = 3
-            st.rerun()
-        if c3.button("Suck the whole head… I'm losing it"):
-            data["impatient"] = True
-            data["edging_level"] += 3
-            data["stage"] = 3
-            st.rerun()
-
-    # ── Stage 3: The Edge ──
-    elif data["stage"] == 3:
-         type_out("assistant", "God you're throbbing so hard… tip swollen, leaking nonstop.")
-        simulate_loading(2)
-        show_media("dick_tease8.jpg")
-        
-         type_out("assistant", "I flick faster, suck the head softly like a lollipop, tasting every drop you give me.")
-        add_narrator("Your hand is pumping the shaft… balls tight, so close but not allowed yet.")
-        
-        if data["impatient"]:
-             type_out("assistant", "Since you keep rushing… I pull back just enough to deny you the warmth for a few seconds. Bad boy.")
-        
-        c1, c2, c3 = st.columns(3)
-        if c1.button("Please please… let me cum, I'm begging"):
-            data["begged"] = True
-            data["edging_level"] += 4
-            data["stage"] = 4
-            st.rerun()
-        if c2.button("Hold the edge… keep teasing me"):
-            data["edging_level"] += 2
-            data["stage"] = 4
-            st.rerun()
-        if c3.button("Fuck this… I'm cumming now"):
-            data["stage"] = "ruin"
-            st.rerun()
-
-    # ── Stage 4: The Climax (or Denial) ──
-    elif data["stage"] == 4:
-        simulate_loading(2)
-        show_media("dick_tease5.jpeg")
-        
-        if data["edging_level"] >= 5 or data["begged"]:
-             type_out("assistant", "You've been such a good boy… edging so hard for my tongue.")
-             type_out("assistant", "Stroke faster now… I'm sucking the tip hard, tongue swirling like crazy.")
+        # ── Stage 0: Intro ──
+        if data["stage"] == 0:
+            type_out("Mmm daddy… you won the **Tongue Tease** prize 😈")
+            type_out("This is where your girlfriend is gonna kneel between your legs and worship just the tip of that thick cock with my tongue and lips… nothing else, while you stroke the rest yourself.")
             
-            if st.button("Cum for me… give me that load on my tongue"):
-                simulate_loading(3)
-                show_media("dick_tease8.jpeg")
-                 type_out("assistant", "Yes daddy! You explode — hot ropes shooting across my tongue, lips, chin… I lap it all up greedily.")
-                add_narrator("She moans softly, savoring every drop, eyes sparkling with satisfaction.")
+            show_media("grok_video_2026-01-18-13-54-56.mp4")
+            
+            type_out("Rules are simple: I only tease the head — slow licks, soft sucks, swirling around the tip. You stroke the shaft, edge yourself, but you don't cum until I say. Beg nicely… or rush me and see what happens.")
+            
+            c1, c2 = st.columns([1, 3])
+            if c1.button("Yes baby, I'll obey"):
+                data["stage"] = 1
+                st.rerun()
+            if c2.button("Fuck the rules… "):
+                data["impatient"] = True
+                data["stage"] = 1
+                st.rerun()
+
+        # ── Stage 1: The Start ──
+        elif data["stage"] == 1:
+            show_media("dick_tease_open1.jpg")
+            type_out("Look at this cock… already leaking for me. I lean in close, hot breath on the tip.") 
+            show_media("tongue_set3_pic4.jpg")
+            
+            type_out("My tongue flicks out, slow circle around the head, tasting your precum… then a soft kiss right on the slit.")
+            show_media("tongue_set3_pic3.jpg")
+            
+            type_out("Mmm… do you like that? Keep stroking slow while I tease…")
+            show_media("tease_open1.jpg")
+            
+            if st.button("Please baby… more tongue, I'm begging"):
+                data["begged"] = True
+                data["edging_level"] += 2
+                data["stage"] = 2
+                st.rerun()
+            if st.button("Suck it harder… stop teasing"):
+                data["impatient"] = True
+                data["edging_level"] += 1
+                data["stage"] = 2
+                st.rerun()
+
+        # ── Stage 2: The Tease ──
+        elif data["stage"] == 2:
+            simulate_thinking(2.0)
+            show_media("tongue_set3_pic2.jpg")
+            
+            type_out("I wrap my lips around the tip only… gentle suck, gentle tongue swirling")
+            add_narrator("Her eyes stay locked on yours, watching every twitch of your cock as you stroke.")
+            simulate_thinking(2.0)
+            show_media("mkk3e2l0boxeuo(1).jpg")
+                    
+            reason = "because you begged so sweetly like a good boy" if data["begged"] else "because you're being impatient and greedy"
+            type_out(f"I'm being extra mean with the tease {reason}… just the tip, baby.")
+            
+            c1, c2, c3 = st.columns(3)
+            if c1.button("Fuck… please swirl faster, I need it"):
+                data["edging_level"] += 2
+                data["stage"] = 3
+                st.rerun()
+            if c2.button("Keep it slow… I'm trying to hold on"):
+                data["edging_level"] += 1
+                data["stage"] = 3
+                st.rerun()
+            if c3.button("Suck the whole head… I'm losing it"):
+                data["impatient"] = True
+                data["edging_level"] += 3
+                data["stage"] = 3
+                st.rerun()
+
+        # ── Stage 3: The Edge ──
+        elif data["stage"] == 3:
+            type_out("God you're throbbing so hard… tip swollen, leaking nonstop.")
+            simulate_thinking(2.0)
+            show_media("dick_tease8.jpg")
+            
+            type_out("I flick faster, suck the head softly like a lollipop, tasting every drop you give me.")
+            add_narrator("Your hand is pumping the shaft… balls tight, so close but not allowed yet.")
+            
+            if data["impatient"]:
+                type_out("Since you keep rushing… I pull back just enough to deny you the warmth for a few seconds. Bad boy.")
+            
+            c1, c2, c3 = st.columns(3)
+            if c1.button("Please please… let me cum, I'm begging"):
+                data["begged"] = True
+                data["edging_level"] += 4
+                data["stage"] = 4
+                st.rerun()
+            if c2.button("Hold the edge… keep teasing me"):
+                data["edging_level"] += 2
+                data["stage"] = 4
+                st.rerun()
+            if c3.button("Fuck this… I'm cumming now"):
+                data["stage"] = "ruin"
+                st.rerun()
+
+        # ── Stage 4: The Climax (or Denial) ──
+        elif data["stage"] == 4:
+            simulate_thinking(2.0)
+            show_media("dick_tease5.jpeg")
+            
+            if data["edging_level"] >= 5 or data["begged"]:
+                type_out("You've been such a good boy… edging so hard for my tongue.")
+                type_out("Stroke faster now… I'm sucking the tip hard, tongue swirling like crazy.")
                 
-                if st.button("Best prize ever… thank you baby"):
+                if st.button("Cum for me… give me that load on my tongue"):
+                    simulate_thinking(2.0)
+                    show_media("dick_tease8.jpeg")
+                    type_out("Yes daddy! You explode — hot ropes shooting across my tongue, lips, chin… I lap it all up greedily.")
+                    add_narrator("She moans softly, savoring every drop, eyes sparkling with satisfaction.")
+                    
+                    if st.button("Best prize ever… thank you baby"):
+                        del st.session_state.tongue_tease
+                        st.session_state.turn_state = "PRIZE_DONE"
+                        st.rerun()
+            else:
+                type_out("Not yet… you're not desperate enough.")
+                type_out("I pull my mouth away completely… no more tongue until you beg properly.")
+                
+                show_media("dick_tease7.jpg")
+                type_out("Edge denied. Better luck next time, baby.")
+                add_narrator("She smirks, licking her lips, leaving you throbbing and unfinished.")
+                
+                if st.button("Fuck… I accept the denial"):
                     del st.session_state.tongue_tease
                     st.session_state.turn_state = "PRIZE_DONE"
                     st.rerun()
-        else:
-             type_out("assistant", "Not yet… you're not desperate enough.")
-             type_out("assistant", "I pull my mouth away completely… no more tongue until you beg properly.")
+
+        # ── Ruined Orgasm Branch ──
+        elif data["stage"] == "ruin":
+            type_out("Oh no you don't… you tried to rush and cum without permission.")
+            type_out("I pull off right as you start pulsing — ruining it completely.")
             
-            show_media("dick_tease7.jpg")
-             type_out("assistant", "Edge denied. Better luck next time, baby.")
-            add_narrator("She smirks, licking her lips, leaving you throbbing and unfinished.")
+            simulate_thinking(2.0)
+            show_media("ruined.jpg")
             
-            if st.button("Fuck… I accept the denial"):
+            type_out("Look at that weak little dribble… all that buildup wasted. Next time obey the tease.")
+            
+            if st.button("Sorry baby… I'll be good next time"):
                 del st.session_state.tongue_tease
                 st.session_state.turn_state = "PRIZE_DONE"
                 st.rerun()
-
-    # ── Ruined Orgasm Branch ──
-    elif data["stage"] == "ruin":
-         type_out("assistant", "Oh no you don't… you tried to rush and cum without permission.")
-         type_out("assistant", "I pull off right as you start pulsing — ruining it completely.")
-        
-        simulate_loading(2)
-        show_media("ruined.jpg")
-        
-         type_out("assistant", "Look at that weak little dribble… all that buildup wasted. Next time obey the tease.")
-        
-        if st.button("Sorry baby… I'll be good next time"):
-            del st.session_state.tongue_tease
-            st.session_state.turn_state = "PRIZE_DONE"
-            st.rerun()
-            
+                
 # --- ROAD HEAD PRIZE ---
 elif st.session_state.turn_state == "PRIZE_ROAD_HEAD":
     # 1. Init Data (Start at DECISION phase)
@@ -2311,6 +2204,7 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
                          st.session_state.pop("anal_prize", None)
                          st.session_state.turn_state = "PRIZE_DONE"
                          st.rerun()
+
 # --- DOGGYSTYLE READY PRIZE ---
 elif st.session_state.turn_state == "PRIZE_DOGGY_STYLE_READY":
     # 1. Init Data (Start at DECISION phase)
@@ -2625,46 +2519,6 @@ else:
         if st.button("♻️ Hard Reset"):
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
