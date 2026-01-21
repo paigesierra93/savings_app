@@ -1412,22 +1412,22 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
             if c1.button("Yes baby, I'll obey"): data["stage"] = 1; st.rerun()
             if c2.button("Fuck the rules… "): data["impatient"] = True; data["stage"] = 1; st.rerun()
         elif data["stage"] == 1:
-            show_media("tongue_tease_tip12.jpg")
+            show_media("tongue_tease_tip12.JPG")
             type_out("Look at this cock… already leaking for me. I lean in close, hot breath on the tip.") 
-            show_media("tongue_tease_tip66.jpg")
+            show_media("tongue_tease_tip66.JPG")
             type_out("My tongue flicks out, slow circle around the head, tasting your precum… then a soft kiss right on the slit.")
-            show_media("tongue_tease_tip11.jpg")
+            show_media("tongue_tease_tip11.JPG")
             type_out("Mmm… do you like that? Keep stroking slow while I tease…")
-            show_media("tongue_tease_tip10.jpg")
+            show_media("tongue_tease_tip10.JPG")
             if st.button("Please baby… more tongue, I'm begging"): data["begged"] = True; data["edging_level"] += 2; data["stage"] = 2; st.rerun()
             if st.button("Suck it harder… stop teasing"): data["impatient"] = True; data["edging_level"] += 1; data["stage"] = 2; st.rerun()
         elif data["stage"] == 2:
             simulate_thinking(2.0)
-            show_media("tongue_tease_tip2.jpg")
+            show_media("tongue_tease_tip2.JPG")
             type_out("I wrap my lips around the tip only… gentle suck, gentle tongue swirling")
             add_narrator("Her eyes stay locked on yours, watching every twitch of your cock as you stroke.")
             simulate_thinking(2.0)
-            show_media("tongue_tease_tip1.jpg")
+            show_media("tongue_tease_tip1.JPG")
             reason = "because you begged so sweetly like a good boy" if data["begged"] else "because you're being impatient and greedy"
             type_out(f"I'm being extra mean with the tease {reason}… just the tip, baby.")
             c1, c2, c3 = st.columns(3)
@@ -1437,7 +1437,7 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
         elif data["stage"] == 3:
             type_out("God you're throbbing so hard… tip swollen, leaking nonstop.")
             simulate_thinking(2.0)
-            show_media("tongue_tease_tip7.jpg")
+            show_media("tongue_tease_tip7.JPG")
             type_out("I flick faster, suck the head softly like a lollipop, tasting every drop you give me.")
             add_narrator("Your hand is pumping the shaft… balls tight, so close but not allowed yet.")
             if data["impatient"]: type_out("Since you keep rushing… I pull back just enough to deny you the warmth for a few seconds. Bad boy.")
@@ -1447,20 +1447,20 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
             if c3.button("Fuck this… I'm cumming now"): data["stage"] = "ruin"; st.rerun()
         elif data["stage"] == 4:
             simulate_thinking(2.0)
-            show_media("tongue_tease_tip5.jpeg")
+            show_media("tongue_tease_tip5.JPG")
             if data["edging_level"] >= 5 or data["begged"]:
                 type_out("You've been such a good boy… edging so hard for my tongue.")
                 type_out("Stroke faster now… I'm sucking the tip hard, tongue swirling like crazy.")
                 if st.button("Cum for me… give me that load on my tongue"):
                     simulate_thinking(2.0)
-                    show_media("tongue_tease_tip5.jpeg")
+                    show_media("tongue_tease_tip5.JPG")
                     type_out("Yes daddy! You explode — hot ropes shooting across my tongue, lips, chin… I lap it all up greedily.")
                     add_narrator("She moans softly, savoring every drop, eyes sparkling with satisfaction.")
                     if st.button("Best prize ever… thank you baby"): del st.session_state.tongue_tease; st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
             else:
                 type_out("Not yet… you're not desperate enough.")
                 type_out("I pull my mouth away completely… no more tongue until you beg properly.")
-                show_media("dick_tease7.jpg")
+                show_media("tongue_tease_tip8.JPG")
                 type_out("Edge denied. Better luck next time, baby.")
                 add_narrator("She smirks, licking her lips, leaving you throbbing and unfinished.")
                 if st.button("Fuck… I accept the denial"): del st.session_state.tongue_tease; st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
@@ -1820,6 +1820,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
