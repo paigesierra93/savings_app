@@ -1423,7 +1423,7 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
             if st.button("Suck it harder… stop teasing"): data["impatient"] = True; data["edging_level"] += 1; data["stage"] = 2; st.rerun()
         elif data["stage"] == 2:
             simulate_thinking(2.0)
-            2show_media(tongue_tease_tip2.jpg")
+            2show_media("tongue_tease_tip2.jpg")
             type_out("I wrap my lips around the tip only… gentle suck, gentle tongue swirling")
             add_narrator("Her eyes stay locked on yours, watching every twitch of your cock as you stroke.")
             simulate_thinking(2.0)
@@ -1820,6 +1820,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
