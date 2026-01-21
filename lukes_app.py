@@ -1032,57 +1032,117 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
             
-# --- BEND OVER ---
+# --- BEND OVER PRIZE ---
 elif st.session_state.turn_state == "PRIZE_BEND_OVER":
+    # 1. Init Data
     if "bend_over" not in st.session_state:
         st.session_state.bend_over = {"stage": "DECISION"}
     
+    # 2. Check Decision
     if check_decision("bend_over", "Bend Over"):
         pass
+
+    # 3. Main Logic
     else:
-        enter_state(
-            "PRIZE_BEND_OVER",
-            "assistant",
-            "You know what that means, you have to bend over right when i say so anywhere, anytime. Hahaha, just fucking with you… you know exactly what it means, you dirty birdy."
-        )
-        simulate_thinking(2.0)
-        show_media("explain_bendover.jpg")
-        add_narrator("Make sure I'm in something thin and see-through… or already completely fucking naked for you.")
-        type_out("But listen carefully, baby — look all you want… stare at my holes, watch me drip… but **no touching**.")
-        type_out("Here's your prize, winner… watch me bend over nice and slow, arching this ass just for you… like this…")
-        
-        if st.button("In the grocery store?"):
-            st.session_state.turn_state = "PRIZE_BEND_OVER_REVEAL"
+        data = st.session_state.bend_over
+
+        # ── Stage 0: Intro ──
+        if data.get("stage") == 0:
+            type_out("You've won Bend Over!")
+            simulate_thinking(2.0)
+            type_out("Let me just walk you through how this actually goes down so you know exactly what you've won 😈")
+            
+            if st.button("Ok what are the rules?"):
+                data["stage"] = 1
+                st.rerun()
+
+        # ── Stage 1: The Rules ──
+        elif data["stage"] == 1:
+            type_out("Ok you dirty perv. Rules are simple and filthy:")
+            type_out("Whenever you say \"Bend over\" out loud or text it.")
+            simulate_thinking(2.5)
+            type_out("The second those words hit—I stop whatever the fuck I'm doing. Drop it. Bend over right there for a full 60 seconds.")
+            type_out("Hands planted, ass popped high, back arched deep, legs spread a little so you get the view.")
+            type_out("In that minute you get to do anything except fuck me.")
+            
+            if st.button("Like what?"):
+                data["stage"] = 2
+                st.rerun()
+
+        # ── Stage 2: Allowed Actions ──
+        elif data["stage"] == 2:
+            type_out("Grab, spank, spread, tease my pussy with your fingers or cockhead (rubbing only—no sliding in), pinch whatever you can reach, grind against me, whisper how much of a desperate slut I am… whatever makes you hard.")
+            simulate_thinking(3.0)
+            type_out("But no penetration. No dick inside. Not even a little.")
+            type_out("Timer dings at 60? Everything stops. I stand up. Pussy throbbing, maybe dripping.")
+            
+            if st.button("Can I have an example?"):
+                data["stage"] = 3
+                st.rerun()
+
+        # ── Stage 3: The Scenario ──
+        elif data["stage"] == 3:
+            type_out("Imagine I’m in the bedroom doing laundry, sorting clothes on the bed like a good girl.")
+            type_out("Wearing your black hoodie (barely covers my ass), those tight black booty shorts wedged up between my cheeks, no panties underneath.")
+            
+            if st.button("I need visuals"):
+                data["stage"] = 4
+                st.rerun()
+
+        # ── Stage 4: Visuals Part 1 ──
+        elif data["stage"] == 4:
+            type_out("You would. Here you go..")
+            simulate_thinking(2.0)
+            show_media("laundry1.jpg")
+            
+            type_out("As I was saying.. Imagine I’m in the bedroom doing laundry, sorting clothes on the bed like a good girl")
+            type_out("You walk in from work, see me like that, drop your bag… and just say it.")
+            
+            if st.button("Bend over."):
+                data["stage"] = 5
+                st.rerun()
+
+        # ── Stage 5: The Command & Reaction ──
+        elif data["stage"] == 5:
+            type_out("Thasts right.")
+            simulate_thinking(1.5)
+            type_out("I freeze. Stop folding mid-shirt. Turn slow. Plant both hands on the bed. Arch my back hard. Pop my hips out. Ass up high… exactly like this.")
+            
+            simulate_thinking(2.5)
+            show_media("laundry3.jpg")
+            
+            type_out("See? Instant. Obedient.")
+            type_out("60 seconds starts ticking the moment you say it.")
+            type_out("I stay frozen like that—ass presented, shorts hugging every inch, pussy already getting wet just from knowing you're staring.")
+            type_out("You step up behind me… and the clock is running. What are you doing to me in those 60 seconds, baby?")
+            
+            if st.button("What can I do?"):
+                data["stage"] = 6
+                st.rerun()
+
+        # ── Stage 6: The Finale ──
+        elif data["stage"] == 6:
+            type_out("Spreading my cheeks wide and blowing cool air on my slit?")
+            type_out("Rubbing your cock slow between my thighs so I feel how hard you are without getting any?")
+            type_out("Giving me slow, stinging spanks till my ass jiggles and turns pink?")
+            type_out("Teasing my clit through the fabric with one finger till the shorts are soaked?")
+            type_out("Or just gripping my hips and grinding against me while telling me how pathetic I look begging without you even fucking me?")
+            
+            simulate_thinking(3.0)
+            type_out("The real question is...what will you do?")
+            show_media("laundry4.jpg")
+            
+            # Finish Buttons
+            if st.button("Prize Complete – I know what I'm doing next time"):
+                st.session_state.pop("bend_over", None)
+                st.session_state.turn_state = "PRIZE_DONE"
+                st.rerun()
+
+        # Global Exit Button (Always available)
+        if st.button("🎰 The Exit - Save this prize for later"):
+            st.session_state.pop("bend_over", None)
+            st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
-
-# --- BEND OVER REVEAL ---
-elif st.session_state.turn_state == "PRIZE_BEND_OVER_REVEAL":
-    show_media("grocery_bendover.jpeg")
-    add_narrator("Fuck… I'm already so soaked just knowing you're staring at my holes like this…")
-    
-    if st.button("At home?"):
-        simulate_thinking(2.0)
-        show_media("Bendover1.mp4")
-        st.session_state.turn_state = "PRIZE_BEND_OVER_1"
-        st.rerun()
-
-# --- BEND OVER ENDING ---
-elif st.session_state.turn_state == "PRIZE_BEND_OVER_1":
-    enter_state(
-        "PRIZE_BEND_OVER_1",
-        "assistant",
-        "Want to see just how fucking wet your prize got for you?"
-    )
-    c1, c2, c3 = st.columns(3)
-    if c1.button("Show me."):
-        add_chat("user", "Show me.")
-        type_out("Mmm… you asked for it, daddy… watch close…")
-        show_media("grok_video_2026-01-17-20-02-13.mp4", 3.0)
-        type_out("Look at that mess… my pussy's literally dripping down my thighs because of you.")
-        type_out("God I’m throbbing so bad… I want your thick cock splitting me open right now… but nope. Not yet.")
-        st.session_state.pop("bend_over", None) 
-        st.session_state.turn_state = "PRIZE_DONE"
-        st.rerun()
 
 # --- PRIZE: FLASH ME ---
 elif st.session_state.turn_state == "PRIZE_FLASH_ME":
@@ -1820,6 +1880,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
