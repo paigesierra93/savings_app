@@ -1287,66 +1287,104 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
 
 # --- UPSIDE DOWN THROAT FUCK PRIZE ---
 elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT_FUCK":
+    # 1. Init Data
     if "upside_throat_fuck" not in st.session_state:
-        st.session_state.upside_throat_fuck = {"stage": "DECISION", "intensity": "slow"}
+        st.session_state.upside_throat_fuck = {"stage": 0}
+    
+    data = st.session_state.upside_throat_fuck
 
-    if check_decision("upside_throat_fuck", "Upside Down Throat Fuck"):
-        pass
-    else:
-        data = st.session_state.upside_throat_fuck
-        if data["stage"] == 0:
-            st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Upside Down Throat Fuck**")
-            type_out("Daddy… you won **Upside Down Throat Fuck** 😩💦")
-            simulate_thinking(2.3)
-            type_out("I'm laying on the edge of the bed… head hanging off… throat lined up perfectly… full body exposed… tits up… legs spread… completely helpless for your cock.")
-            type_out("Look at me waiting… naked… head dangling… mouth open wide… ready for you to walk up and take my throat.")
-            show_media("upside_alone.jpg")
-            type_out("Tongue out… eyes locked on you… throat begging silently…")
-            show_media("upside_tease.jpg")
-            type_out("How hard should I take this upside-down throat fuck, daddy?")
-            c1, c2, c3 = st.columns(3)
-            if c1.button("Slow & Deep", key="slow_throat"):
-                data["intensity"] = "slow"; data["stage"] = 1; st.rerun()
-            if c2.button("Medium Pace", key="medium_throat"):
-                data["intensity"] = "medium"; data["stage"] = 1; st.rerun()
-            if c3.button("Rough & Merciless", key="rough_throat"):
-                data["intensity"] = "rough"; data["stage"] = 1; st.rerun()
+    # ── Stage 0: Intro & The Choice ──
+    if data["stage"] == 0:
+        type_out("Okay baby, you've fucking leveled up. Upside-down throat fuck.")
+        type_out("I'm pretty sure you already know exactly how this filthy setup works…")
 
-        elif data["stage"] == 1:
-            type_out("Head hanging perfectly… throat straight… mouth wide… ready for you…")
-            if data["intensity"] == "slow":
-                show_media("deep_throat_entry_slow31.jpg")
-                type_out("Slow… you ease in gently… inch by inch… letting my throat stretch around you…")
-                show_media("deep_throat_entry_slow1.jpg")
-                type_out("Deeper now… feeling every flutter… my throat relaxing for you…")
-            else:
-                show_media("deep_throat_entry_slow1.jpg")
-                type_out("You push in… filling my throat…")
+        c1, c2 = st.columns(2)
+        
+        # Option 1: Save & Exit
+        if c1.button("I do, thanks (save & exit)"):
+            st.session_state.data["inventory"].append("Upside Down Throat Fuck")
+            save_data(st.session_state.data)
+            type_out("Saved for later. Good self control, daddy.")
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
             
-            if data["intensity"] == "rough":
-                show_media("upside_downcloseup.jpg")
-                type_out("Rough close-up… gagging instantly… drool pouring down my upside-down face… throat bulging…")
-            else:
-                show_media("upside_closeup.jpg")
-                type_out("Close-up… my throat stretched tight… drool starting to run…")
+        # Option 2: Play the scene
+        if c2.button("I do… but I love it when you talk filthy about it"):
+            data["stage"] = 1
+            st.rerun()
+
+    # ── Stage 1: The Description ──
+    elif data["stage"] == 1:
+        type_out("Ohhh, since you want me to get nasty and spell out every dirty detail… because you get off so hard when I talk like a complete slut… fine. I'll tell you everything.")
+        
+        simulate_thinking(2.5)
+        type_out("I’m lying on my back right at the edge of the bed, head dangling off upside-down, mouth forced wide open like a hungry little cocksleeve. Throat perfectly lined up, ready to be used as your personal fuck-pipe.")
+
+        simulate_thinking(2.0)
+        type_out("Let me guess… you want the nasty pictures too, don’t you? Wanna see what a messy, drooling wreck I become for you?")
+
+        if st.button("Fuck yes, show me the pictures"):
+            data["stage"] = 2
+            st.rerun()
+
+    # ── Stage 2: The Visuals ──
+    elif data["stage"] == 2:
+        show_media("upside_down_1.jpeg")
+        
+        type_out("My blonde hair hangs down toward the floor like a cheap curtain. Green eyes staring up at you, already watering a little in anticipation. My whole naked body laid out like an offering—tits heaving, legs spread, cunt already glistening and twitching while you get to ruin my throat.")
+
+        show_media("upside_down_3.jpeg")
+
+        type_out("You press that thick cock against my lips… then slowly feed it in. Past my tongue. Past my tonsils. All the way down my upside-down throat until my nose is mashed against your balls and I’m choking on you.")
+
+        simulate_thinking(3.0)
+        type_out("Slow at first… then you start really fucking my face. Long, full strokes that make my throat bulge visibly. Gagging wetly around every thrust. Thick ropes of drool and spit pouring up my face, over my eyes, into my hair—gravity turning me into your sloppy, slobbering mess.")
+
+        show_media("upside_down_4.jpg")
+
+        type_out("And while you’re balls-deep in my gagging throat, your hands get to play with whatever the fuck they want:")
+
+        if st.button("Like what?"):
+            data["stage"] = 3
+            st.rerun()
+
+    # ── Stage 3: The Hands & Finale ──
+    elif data["stage"] == 3:
+        type_out("Shove two or three fingers knuckle-deep in my soaked cunt, curling hard against that spot that makes me cum...")
+        type_out("Rub vicious little circles on my swollen clit until my hips jerk and grind against nothing...")
+        type_out("Tease my nipples until I whimper around your cock...")
+        type_out("Slide a slick finger (or two) straight into my tight asshole, stretching me open while you choke me with dick...")
+
+        show_media("upside_down_5.jpg")
+        type_out("—whatever makes me clench harder around your dick.")
+
+        simulate_thinking(2.0)
+        type_out("No time limit.")
+        type_out("You decide how fast, how deep. You can go slow and make me suffer every inch…")
+        type_out("I stay right there—head hanging, throat open, body presented—until you’re done dumping load after load…")
+        
+        show_media("upside_down_6.jpg")
+
+        c1, c2 = st.columns(2)
+        
+        if c1.button("Save for later"):
+            st.session_state.data["inventory"].append("Upside Down Throat Fuck")
+            save_data(st.session_state.data)
+            type_out("Smart. I'll be waiting on the edge of the bed whenever you're ready.")
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
             
-            show_media("upside_fromside1.jpg")
-            type_out("Side view… body arched beautifully… tits heaving… legs spread wide… completely exposed while you fuck my hanging throat…")
-            show_media("upside_frombehind1.jpg")
-            type_out("Behind angle… ass in the air… pussy dripping… head hanging… perfect view of you using my mouth like a sleeve…")
-            type_out("You go deeper… harder… throat milking you…")
-            type_out("You thrust one last time… exploding… thick hot ropes shooting straight down my upside-down throat… I swallow every drop…")
-            type_out("Pulling out slow… strings of spit and cum connecting your cock to my lips… face messy… throat raw and pulsing…")
-            type_out("Upside Down Throat Fuck complete… my throat is sore, filled, and dripping… ready for you anytime you want 💦")
+        if c2.button("Use this NOW"):
+            # Redeem immediately
+            ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            st.session_state.data["history_log"].append(f"{ts} - REDEEMED: Upside Down Throat Fuck")
+            save_data(st.session_state.data)
             
-            if st.button("Throat prize complete – come wreck my mouth again?", key="throat_finish"):
-                st.session_state.pop("upside_throat_fuck", None)
-                st.session_state.turn_state = "PRIZE_DONE"
-                st.rerun()
-            if st.button("🎰 The Exit - Save the rest of this throat for later?", key="throat_exit_global"):
-                st.session_state.pop("upside_throat_fuck", None)
-                st.session_state.turn_state = "PRIZE_DONE"
-                st.rerun()
+            type_out("Then come get it, daddy. I'm already in position. 😈")
+            st.session_state.pop("upside_throat_fuck", None)
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
+
 
 # --- TONGUE TEASE ---
 elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
@@ -1772,6 +1810,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
