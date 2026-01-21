@@ -144,20 +144,56 @@ def simulate_thinking(seconds=None):
         seconds = random.uniform(1.0, 2.5) 
     with st.chat_message("assistant", avatar="paige.png"):
         with st.spinner("Paige is typing..."):
+            
+# ==========================================
+#       PART 3: HELPER FUNCTIONS (FIXED - NO REPEATS)
+# ==========================================
+import random 
+import time
+
+def add_chat(role, content):
+    """Adds to history without animation."""
+    st.session_state.history.append({"type": "chat", "role": role, "content": content})
+
+def add_narrator(content):
+    st.session_state.history.append({"type": "narrator", "content": content})
+
+def add_media(filepath):
+    # DEDUPLICATION FOR MEDIA
+    # Check the last 5 items to see if this media was just sent
+    if st.session_state.history:
+        recent_media = [item.get('path') for item in st.session_state.history[-5:] if item.get('type') == 'media']
+        if filepath in recent_media:
+            return
+
+    if filepath.lower().endswith(('.mp4', '.mov', '.webm')):
+        media_type = "video"
+    else:
+        media_type = "image"
+    st.session_state.history.append({"type": "media", "path": filepath, "kind": media_type})
+
+def simulate_thinking(seconds=None):
+    if seconds is None:
+        seconds = random.uniform(1.0, 2.5) 
+    with st.chat_message("assistant", avatar="paige.png"):
+        with st.spinner("Paige is typing..."):
             time.sleep(seconds)
 
 def type_out(*args, min_delay=0.03, max_delay=0.08):
-    """Smart Typewriter with Duplicate Shield."""
+    """Smart Typewriter with AGGRESSIVE Duplicate Shield."""
     if len(args) == 1: text = args[0]
     elif len(args) == 2: text = args[1]
     else: return
 
-    # Duplicate Shield
+    # --- AGGRESSIVE DUPLICATE SHIELD ---
+    # Check the last 15 messages. If this exact text appears, 
+    # assume it was already printed in this logic loop and SKIP IT.
     if st.session_state.history:
-        last_msg = st.session_state.history[-1]
-        if last_msg.get("role") == "assistant" and last_msg.get("content") == text:
+        recent_content = [msg.get('content') for msg in st.session_state.history[-15:] if msg.get('type') == 'chat']
+        if text in recent_content:
             return 
 
+    # If new, animate it
     with st.chat_message("assistant", avatar="paige.png"):
         placeholder = st.empty()
         full_response = ""
@@ -171,9 +207,11 @@ def type_out(*args, min_delay=0.03, max_delay=0.08):
     add_chat("assistant", text)
 
 def show_media(path, delay=1.5):
+    # Duplicate Shield for Showing Media
+    # Check if we already showed this path recently
     if st.session_state.history:
-        last_item = st.session_state.history[-1]
-        if last_item.get("type") == "media" and last_item.get("path") == path:
+        recent_media = [item.get('path') for item in st.session_state.history[-5:] if item.get('type') == 'media']
+        if path in recent_media:
             return
 
     with st.chat_message("assistant", avatar="paige.png"):
@@ -234,6 +272,7 @@ def check_decision(key, prize_name):
             ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
             st.session_state.data["history_log"].append(f"{ts} - BANKED: {prize_name}")
             save_data(st.session_state.data)
+            
             type_out(f"Smart choice. I've put **{prize_name}** in your inventory.")
             del st.session_state[key]
             st.session_state.turn_state = "PRIZE_DONE"
@@ -295,6 +334,7 @@ def get_paige_line(mood):
     if mood == "mean": return random.choice(roasts)
     if mood == "payday": return random.choice(payday_celebration)
     return "You broke even. I'm keeping my clothes on."
+
 
 # ==========================================
 #       PART 5: SIDEBAR (THE STRIP-TEASE BANK)
@@ -1880,6 +1920,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
