@@ -204,6 +204,65 @@ def type_out(*args, min_delay=0.03, max_delay=0.08):
             else: placeholder.markdown(full_response)
             time.sleep(random.uniform(min_delay, max_delay))
             
+# ==========================================
+#       PART 3: HELPER FUNCTIONS (FIXED - NO REPEATS)
+# ==========================================
+import random 
+import time
+
+def add_chat(role, content):
+    """Adds to history without animation."""
+    st.session_state.history.append({"type": "chat", "role": role, "content": content})
+
+def add_narrator(content):
+    st.session_state.history.append({"type": "narrator", "content": content})
+
+def add_media(filepath):
+    # DEDUPLICATION FOR MEDIA
+    # Check the last 5 items to see if this media was just sent
+    if st.session_state.history:
+        recent_media = [item.get('path') for item in st.session_state.history[-5:] if item.get('type') == 'media']
+        if filepath in recent_media:
+            return
+
+    if filepath.lower().endswith(('.mp4', '.mov', '.webm')):
+        media_type = "video"
+    else:
+        media_type = "image"
+    st.session_state.history.append({"type": "media", "path": filepath, "kind": media_type})
+
+def simulate_thinking(seconds=None):
+    if seconds is None:
+        seconds = random.uniform(1.0, 2.5) 
+    with st.chat_message("assistant", avatar="paige.png"):
+        with st.spinner("Paige is typing..."):
+            time.sleep(seconds)
+
+def type_out(*args, min_delay=0.03, max_delay=0.08):
+    """Smart Typewriter with AGGRESSIVE Duplicate Shield."""
+    if len(args) == 1: text = args[0]
+    elif len(args) == 2: text = args[1]
+    else: return
+
+    # --- AGGRESSIVE DUPLICATE SHIELD ---
+    # Check the last 15 messages. If this exact text appears, 
+    # assume it was already printed in this logic loop and SKIP IT.
+    if st.session_state.history:
+        recent_content = [msg.get('content') for msg in st.session_state.history[-15:] if msg.get('type') == 'chat']
+        if text in recent_content:
+            return 
+
+    # If new, animate it
+    with st.chat_message("assistant", avatar="paige.png"):
+        placeholder = st.empty()
+        full_response = ""
+        words = text.split()
+        for i, word in enumerate(words):
+            full_response += word + " "
+            if i < len(words) - 1: placeholder.markdown(full_response + "▌")
+            else: placeholder.markdown(full_response)
+            time.sleep(random.uniform(min_delay, max_delay))
+            
     add_chat("assistant", text)
 
 def show_media(path, delay=1.5):
@@ -1920,6 +1979,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
