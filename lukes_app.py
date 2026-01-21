@@ -297,19 +297,58 @@ def get_paige_line(mood):
     return "You broke even. I'm keeping my clothes on."
 
 # ==========================================
-#       PART 5: SIDEBAR
+#       PART 5: SIDEBAR (THE STRIP-TEASE BANK)
 # ==========================================
 with st.sidebar:
-    st.header("🏦 The Bank")
-    st.metric("🎟️ TICKETS", st.session_state.data["tickets"])
+    st.header("🏦 The Bank of Paige")
+    
+    # --- 1. THE STRIP-TEASE GOAL ---
+    current_savings = st.session_state.data['house_fund'] + st.session_state.data['tank_balance']
+    # You can change this goal amount
+    goal = 10000.0 
+    
+    # Calculate Percentage (0.0 to 1.0)
+    percent = min(current_savings / goal, 1.0)
+    
+    # Determine "Clothing Status" based on savings
+    if percent < 0.10:
+        status = "🧥 Status: Fully Clothed (Winter Coat)"
+        note = "I'm cold and broke. Warm me up with cash."
+    elif percent < 0.25:
+        status = "👚 Status: Coat's off... tight sweater on."
+        note = "Okay, I see you making moves."
+    elif percent < 0.40:
+        status = "👗 Status: Sweater on the floor. Tank top time."
+        note = "Getting a little hot in here..."
+    elif percent < 0.60:
+        status = "🍑 Status: Pants are gone. Just panties left."
+        note = "Do you like this view? Save more to see the rest."
+    elif percent < 0.80:
+        status = "👙 Status: Bra is unclasped... holding it up."
+        note = "I'm trembling... almost there daddy."
+    elif percent < 1.0:
+        status = "🔥 Status: TOTALLY NAKED."
+        note = "Take me. Anywhere. We're free."
+    else:
+        status = "👑 Status: WIFE MATERIAL."
+        note = "We own the house. I own your cock."
+
+    st.write(f"🚀 **EXIT PROGRESS:** {int(percent*100)}%")
+    st.progress(percent)
+    st.write(f"**{status}**")
+    st.caption(f"*{note}*")
+    
     st.divider()
+
+    # --- 2. METRICS ---
+    st.metric("🎟️ TICKETS", st.session_state.data["tickets"])
     st.metric("🏠 HOUSE FUND", f"${st.session_state.data.get('house_fund', 0.0):,.2f}")
     st.metric("🛡️ HOLDING TANK", f"${st.session_state.data['tank_balance']:,.2f}")
     st.metric("🌑 BLACKOUT FUND", f"${st.session_state.data.get('bridge_fund', 0.0):,.2f}")
-    st.divider()
-    st.metric("💵 SAFE TO SPEND", f"${st.session_state.data.get('wallet_balance', 0.0):,.2f}")
     
     st.divider()
+    
+    # --- 3. INVENTORY & ADMIN ---
     st.subheader("🎒 Prize Inventory")
     inventory = st.session_state.data.get("inventory", [])
     if inventory:
@@ -331,7 +370,6 @@ with st.sidebar:
         st.session_state.history = []
         st.session_state.turn_state = "WALLET_CHECK"
         st.rerun()
-
 # ==========================================
 #       PART 6: MAIN CHAT INTERFACE
 # ==========================================
@@ -368,7 +406,6 @@ st.markdown("---")
 # ==========================================
 #       PART 7: THE BRAIN (LOGIC)
 # ==========================================
-
 # --- 1. START SCREEN ---
 if st.session_state.turn_state == "WALLET_CHECK":
     if st.session_state.data["tickets"] > 0:
@@ -378,7 +415,8 @@ if st.session_state.turn_state == "WALLET_CHECK":
             st.rerun()
         st.markdown("---")
     
-    c1, c2, c3, c4, c5 = st.columns(5)
+    # UPDATED: 6 Columns to include The Quickie
+    c1, c2, c3, c4, c5, c6 = st.columns(6)
     is_open, lock_msg = check_payday_window(admin_code) 
     
     if is_open:
@@ -399,6 +437,44 @@ if st.session_state.turn_state == "WALLET_CHECK":
         st.rerun()
     if c5.button("📜 Ledger"): 
         st.session_state.turn_state = "VIEW_LEDGER"
+        st.rerun()
+    # NEW FEATURE: THE QUICKIE
+    if c6.button("💋 Quickie"):
+        st.session_state.turn_state = "THE_QUICKIE"
+        st.rerun()
+
+# --- THE QUICKIE (New Logic Block) ---
+elif st.session_state.turn_state == "THE_QUICKIE":
+    # Simple logic: Give 5 tickets and a random line
+    quickie_lines = [
+        "Fast and dirty... just how I like it. Here's 5 tickets.",
+        "Mmm... you caught me changing. Take these tickets and don't peek... okay, peek a little.",
+        "Quick kiss for a good boy. Now get back to work.",
+        "I missed you. Here's a little treat for checking in.",
+        "Thinking about my tits? Yeah, me too. +5 Tickets."
+    ]
+    
+    # Prevent spamming (optional simple check)
+    if "last_quickie" not in st.session_state:
+        st.session_state.last_quickie = 0
+        
+    current_time = time.time()
+    
+    # 60 second cooldown on the quickie
+    if current_time - st.session_state.last_quickie > 60:
+        bonus = 5
+        st.session_state.data["tickets"] += bonus
+        save_data(st.session_state.data)
+        st.session_state.last_quickie = current_time
+        
+        line = random.choice(quickie_lines)
+        type_out(f"{line}\n\n🎟️ **+5 TICKETS**")
+        st.balloons()
+    else:
+        type_out("Whoa there, tiger. I need a minute to recover. Come back later.")
+        
+    if st.button("Back to Bank"):
+        st.session_state.turn_state = "WALLET_CHECK"
         st.rerun()
 
 # --- VIEW LEDGER SCREEN ---
@@ -1336,22 +1412,22 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
             if c1.button("Yes baby, I'll obey"): data["stage"] = 1; st.rerun()
             if c2.button("Fuck the rules… "): data["impatient"] = True; data["stage"] = 1; st.rerun()
         elif data["stage"] == 1:
-            show_media("dick_tease_open1.jpg")
+            show_media("tongue_tease_tip12.jpg")
             type_out("Look at this cock… already leaking for me. I lean in close, hot breath on the tip.") 
-            show_media("tongue_set3_pic4.jpg")
+            show_media("tongue_tease_tip66.jpg")
             type_out("My tongue flicks out, slow circle around the head, tasting your precum… then a soft kiss right on the slit.")
-            show_media("tongue_set3_pic3.jpg")
+            show_media("tongue_tease_tip11.jpg")
             type_out("Mmm… do you like that? Keep stroking slow while I tease…")
-            show_media("tease_open1.jpg")
+            show_media("tongue_tease_tip10.jpg")
             if st.button("Please baby… more tongue, I'm begging"): data["begged"] = True; data["edging_level"] += 2; data["stage"] = 2; st.rerun()
             if st.button("Suck it harder… stop teasing"): data["impatient"] = True; data["edging_level"] += 1; data["stage"] = 2; st.rerun()
         elif data["stage"] == 2:
             simulate_thinking(2.0)
-            show_media("tongue_set3_pic2.jpg")
+            2show_media(tongue_tease_tip2.jpg")
             type_out("I wrap my lips around the tip only… gentle suck, gentle tongue swirling")
             add_narrator("Her eyes stay locked on yours, watching every twitch of your cock as you stroke.")
             simulate_thinking(2.0)
-            show_media("mkk3e2l0boxeuo(1).jpg")
+            show_media("tongue_tease_tip1.jpg")
             reason = "because you begged so sweetly like a good boy" if data["begged"] else "because you're being impatient and greedy"
             type_out(f"I'm being extra mean with the tease {reason}… just the tip, baby.")
             c1, c2, c3 = st.columns(3)
@@ -1361,7 +1437,7 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
         elif data["stage"] == 3:
             type_out("God you're throbbing so hard… tip swollen, leaking nonstop.")
             simulate_thinking(2.0)
-            show_media("dick_tease8.jpg")
+            show_media("tongue_tease_tip7.jpg")
             type_out("I flick faster, suck the head softly like a lollipop, tasting every drop you give me.")
             add_narrator("Your hand is pumping the shaft… balls tight, so close but not allowed yet.")
             if data["impatient"]: type_out("Since you keep rushing… I pull back just enough to deny you the warmth for a few seconds. Bad boy.")
@@ -1371,13 +1447,13 @@ elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
             if c3.button("Fuck this… I'm cumming now"): data["stage"] = "ruin"; st.rerun()
         elif data["stage"] == 4:
             simulate_thinking(2.0)
-            show_media("dick_tease5.jpeg")
+            show_media("tongue_tease_tip5.jpeg")
             if data["edging_level"] >= 5 or data["begged"]:
                 type_out("You've been such a good boy… edging so hard for my tongue.")
                 type_out("Stroke faster now… I'm sucking the tip hard, tongue swirling like crazy.")
                 if st.button("Cum for me… give me that load on my tongue"):
                     simulate_thinking(2.0)
-                    show_media("dick_tease8.jpeg")
+                    show_media("tongue_tease_tip5.jpeg")
                     type_out("Yes daddy! You explode — hot ropes shooting across my tongue, lips, chin… I lap it all up greedily.")
                     add_narrator("She moans softly, savoring every drop, eyes sparkling with satisfaction.")
                     if st.button("Best prize ever… thank you baby"): del st.session_state.tongue_tease; st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
@@ -1744,5 +1820,6 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
