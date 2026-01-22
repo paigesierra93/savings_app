@@ -761,165 +761,131 @@ elif st.session_state.turn_state == "PRIZE_LICK_PUSSY":
                 st.session_state.turn_state = "PRIZE_DONE"
                 st.rerun()
 
-# --- ANAL FUCK PRIZE --- 
+# --- ANAL FUCK PRIZE ---
 elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
+    # 1. Init Data
     if "anal_fuck" not in st.session_state:
         st.session_state.anal_fuck = {
             "stage": "DECISION", 
-            "current_position": None,
-            "lube_level": "normal",
-            "substage": 0,
-            "used_positions": []
+            "position": None, 
+            "substage": 0
         }
 
+    # 2. Check Decision
     if check_decision("anal_fuck", "Anal Fuck"):
         pass
-    else: 
+
+    # 3. Main Logic
+    else:
         data = st.session_state.anal_fuck
 
-        # -------- STAGE 0 --------
+        # ── STAGE 0: Confession & Tease Buildup ──
         if data["stage"] == 0:
-            st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Anal Fuck**")
             type_out("Daddy… you won **Anal Fuck** 😩🍑")
             simulate_thinking(2.0)
-            type_out("I've been playing with my ass all morning… fingering it slow… stretching it just enough to take your thick cock without mercy.")
-            show_media("ass_high_teasing.jpeg")
+            type_out("p- i have a confession…")
+
+            show_media("anal_opening1.JPG")
+            type_out("you see... ive been playing with my ass all morning…")
+            
+            show_media("anal_opening.JPG")
+            type_out("fingering it slow…")
+            
+            show_media("anal_opening2.JPG")
+            type_out("stretching it just enough to take your thick cock without mercy.")
+            
+            show_media("anal_opening4.JPG")
             type_out("Ass arched high… cheeks spread… tiny hole already twitching and begging for you to ruin it…")
+            
+            type_out("so im so glad you won 'anal fuck' because my tight little hole is begging for it.")
             type_out("How do you want to start destroying this tight little ass, daddy? Choose your opening position…")
 
-            c1, c2, c3, c4 = st.columns(4)
-            if c1.button("Reverse Cowgirl\nI ride you deep & bounce", key="start_reverse"):
-                data["current_position"] = "reverse"
+            c1, c2 = st.columns(2)
+            if c1.button("Missionary – legs hooked over your shoulders…"):
+                data["position"] = "missionary"
                 data["stage"] = 1
-                st.rerun()
-            if c2.button("Doggy\nHard pounding from behind", key="start_doggy"):
-                data["current_position"] = "doggy"
-                data["stage"] = 1
-                st.rerun()
-            if c3.button("Missionary Anal\nLegs up, deep & intimate", key="start_missionary"):
-                data["current_position"] = "missionary"
-                data["stage"] = 1
-                st.rerun()
-            if c4.button("Surprise me\nYou decide how to take it first", key="start_surprise"):
-                data["current_position"] = "surprise"
-                data["stage"] = 1
+                data["substage"] = 0
                 st.rerun()
 
-        # -------- STAGE 1 --------
+            if c2.button("Doggy – full view of your work, ass up high"):
+                data["position"] = "doggy"
+                data["stage"] = 1
+                data["substage"] = 0
+                st.rerun()
+
+        # ── STAGE 1: The Action (Branching Paths) ──
         elif data["stage"] == 1:
-            if data["current_position"] == "surprise":
-                if not data["used_positions"]: 
-                    idx = 0 
-                else: 
-                    idx = len(data["used_positions"])
-                surprise_pos = ["reverse", "doggy", "missionary"][idx % 3]
-                data["current_position"] = surprise_pos
-                type_out(f"Mmm surprise! Starting with **{surprise_pos.capitalize()}**… gonna make it extra dirty for you 😈")
+            
+            # --- MISSIONARY PATH ---
+            if data["position"] == "missionary":
+                if data["substage"] == 0:
+                    type_out("Like this daddy?")
+                    show_media("anal_opening6.jpeg")
+                    if st.button("Fuck ya show me more"):
+                        data["substage"] = 1
+                        st.rerun()
+                
+                elif data["substage"] == 1:
+                    type_out("omg daddy that feels so fcuking good. keep fucking my tight little ass like that")
+                    show_media("anal_opening7.jpeg")
+                    if st.button("I'm gonna cum"):
+                        data["substage"] = 2
+                        st.rerun()
+                
+                elif data["substage"] == 2:
+                    type_out("oh, fuck. yes. daddy. thank you")
+                    show_media("anal_opening8.jpeg")
+                    simulate_thinking(2.0)
+                    show_media("ass_cum2.jpeg")
+                    type_out("Look at that… your hot cum leaking out of my stretched hole while I’m still shaking under you… fuck, daddy, you filled me so deep…")
+                    
+                    if st.button("Prize complete – back to casino"):
+                        st.session_state.pop("anal_fuck", None)
+                        st.session_state.turn_state = "PRIZE_DONE"
+                        st.rerun()
 
-            pos_desc = {
-                "reverse": "Straddling you reverse… lowering my ass inch by inch… cheeks spreading wide as I sink down onto your cock.",
-                "doggy": "Face buried in the pillow, ass high… you grip my hips tight and slam in deep from behind.",
-                "missionary": "Legs hooked over your shoulders… staring into your eyes while you push in slow and deep."
-            }.get(data["current_position"], "Getting ready...")
+            # --- DOGGY PATH ---
+            elif data["position"] == "doggy":
+                if data["substage"] == 0:
+                    type_out("Like this daddy?")
+                    show_media("anal_opening_doggystyle1.JPG")
+                    if st.button("Show me more"):
+                        data["substage"] = 1
+                        st.rerun()
 
-            type_out(pos_desc)
-            type_out("How do you want my ass to feel when you first slide in?")
-            c1, c2, c3 = st.columns(3)
-            if c1.button("Dripping slick lube – glide right in", key="lots_lube"):
-                data["lube_level"] = "lots"
-                data["stage"] = 2
-                st.rerun()
-            if c2.button("Light lube – tight & gripping", key="normal_lube"):
-                data["lube_level"] = "normal"
-                data["stage"] = 2
-                st.rerun()
-            if c3.button("Raw – feel every tight inch", key="raw_lube"):
-                data["lube_level"] = "raw"
-                data["stage"] = 2
-                st.rerun()
+                elif data["substage"] == 1:
+                    type_out("ok you perv. look at this asshole, stretched and begging for you.")
+                    show_media("anal_opening_doggystyle2.JPG")
+                    if st.button("Touch it"):
+                        data["substage"] = 2
+                        st.rerun()
 
-        # -------- STAGE 2 --------
-        elif data["stage"] == 2:
-            if data["current_position"] == "reverse":
-                show_media("ass_fucked3.jpeg")
-                type_out("Reverse cowgirl… my ass bouncing hard… cheeks slapping against your thighs… riding you deep and slow then fast.")
-            elif data["current_position"] == "doggy":
-                show_media("ass_fucked5.jpeg")
-                type_out("Doggy close-up… your cock buried balls-deep… stretching my hole wide with every brutal thrust.")
-                show_media("side_view_doggy.jpeg")
-                type_out("Side view… perfect arch… ass rippling with every slam… moaning like a desperate slut.")
-            elif data["current_position"] == "missionary":
-                show_media("missionary_ass.jpg")
-                type_out("Missionary… legs pinned back… watching your face while you pound my ass slow and deep.")
-                show_media("ass_fucked_missionary.jpeg")
-                type_out("Close-up… my hole gripping you tight… clenching hard every time you bottom out.")
+                elif data["substage"] == 2:
+                    show_media("anal_opening_doggystyle3.JPG")
+                    if st.button("Fuck it"):
+                        data["substage"] = 3
+                        st.rerun()
 
-            if data["lube_level"] == "raw":
-                type_out("Raw and rough… burning stretch… whimpering with every inch you force in… but fuck it feels so good.")
-            elif data["lube_level"] == "lots":
-                type_out("So slick… sliding in and out effortlessly… but my ass still squeezes you like a vice.")
+                elif data["substage"] == 3:
+                    show_media("anal_opening_doggystyle4.JPG")
+                    show_media("anal_opening_doggystyle5.JPEG")
+                    if st.button("FUCK IT im cumming"):
+                        data["substage"] = 4
+                        st.rerun()
 
-            show_media("holding_ass_open.jpeg")
-            type_out("Split panel… hands spreading my cheeks as wide as possible… showing how gaped and pink you've made my hole…")
-            type_out("Don't stop… fuck me harder… make my ass yours…")
+                elif data["substage"] == 4:
+                    show_media("anal_opening_doggystyle10.JPG")
+                    simulate_thinking(2.0)
+                    show_media("ass_cum4.jpeg")
+                    type_out("Oh god… pulling out and watching your thick load drip down my ass cheeks… my hole gaping and pulsing… you fucking owned it, daddy…")
+                    
+                    if st.button("Prize complete – back to casino"):
+                        st.session_state.pop("anal_fuck", None)
+                        st.session_state.turn_state = "PRIZE_DONE"
+                        st.rerun()
 
-            c1, c2, c3 = st.columns(3)
-            if c1.button("Switch position – I need a new angle", key="switch_position"):
-                data["used_positions"].append(data["current_position"])
-                data["stage"] = 3
-                st.rerun()
-            if c2.button("Go harder & deeper – make me scream", key="harder"):
-                type_out("Yes… pounding mercilessly… ass bouncing wildly… tears in my eyes from how deep and rough you are 😭🍆")
-                data["substage"] += 1
-                st.rerun()
-            if c3.button("Cum in my ass – fill me completely", key="finish_anal"):
-                data["stage"] = 4
-                st.rerun()
-
-        # -------- STAGE 3 --------
-        elif data["stage"] == 3:
-            type_out("Mmm… let's change it up… which position do you want to fuck my ass in next?")
-            c1, c2, c3 = st.columns(3)
-            if c1.button("Reverse Cowgirl", key="switch_reverse"):
-                data["current_position"] = "reverse"
-                data["stage"] = 2
-                st.rerun()
-            if c2.button("Doggy", key="switch_doggy"):
-                data["current_position"] = "doggy"
-                data["stage"] = 2
-                st.rerun()
-            if c3.button("Missionary Anal", key="switch_missionary"):
-                data["current_position"] = "missionary"
-                data["stage"] = 2
-                st.rerun()
-            if st.button("Stay in current – just pound harder", key="stay_hard"):
-                data["stage"] = 2
-                st.rerun()
-
-        # -------- STAGE 4 --------
-        elif data["stage"] == 4:
-            show_media("anal mission_closeup.jpg")
-            type_out("Ass clenching tight around you… milking every inch… begging for your hot load deep inside…")
-            show_media("anal_squirt.jpeg")
-            type_out("Fuck—I'm squirting hard from my pussy while you destroy my ass… whole body shaking uncontrollably…")
-            simulate_thinking(2.0)
-            show_media("creampie_ass_fucking.jpg")
-            type_out("You slam balls-deep one last time… exploding… pumping thick, hot ropes of cum straight into my ass…")
-            show_media("creampie_ass.jpg")
-            type_out("Pulling out slow… your cum starts leaking from my stretched hole… dripping down my cheeks…")
-            show_media("creampie_ass.jpeg")
-            show_media("cummed_ass.jpeg")
-            show_media("cream_pie_ass13.jpg")
-            type_out("Multiple angles… my ruined ass overflowing with your load… gaping, creamy, completely filled and marked as yours 🍑💦")
-            type_out("Anal prize complete… my ass is dripping your cum… sore, stretched, and still pulsing for more whenever you want 😩")
-
-            if st.button("Anal Fuck complete – come claim this ass again soon?", key="anal_finish"):
-                st.session_state.pop("anal_fuck", None)
-                st.session_state.turn_state = "PRIZE_DONE"
-                st.rerun()
-
-        # Global exit
-        if st.button("🎰 The Exit - Save the rest of this ass for later?", key="anal_exit_global"):
+        # Global Exit
+        if st.button("🎰 The Exit - Save the rest for later?"):
             st.session_state.pop("anal_fuck", None)
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
@@ -1810,6 +1776,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
