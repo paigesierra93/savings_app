@@ -1618,69 +1618,94 @@ elif st.session_state.turn_state == "PRIZE_TOY_PIC":
             if st.button("Toy prize complete – now fuck me for real?", key="toy_finish"): st.session_state.pop("toy_pic", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
         if st.button("🎰 The Exit - Claim prize now or later", key="toy_exit_global"): st.session_state.pop("toy_pic", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
 
-# --- DOGGYSTYLE READY PRIZE ---
+# --- DOGGY STYLE READY PRIZE ---
 elif st.session_state.turn_state == "PRIZE_DOGGY_STYLE_READY":
-    if "doggy_style_ready" not in st.session_state: st.session_state.doggy_style_ready = {"stage": "DECISION", "tease_level": "panties_on", "substage": 0}
-    if check_decision("doggy_style_ready", "Doggystyle Ready"): pass
-    else:
-        data = st.session_state.doggy_style_ready
-        if data["stage"] == 0:
-            st.markdown("🏦 The Bank  \nAdmin Override  \n🎰 The Exit  \n\n🥈 **WINNER: Doggy style Ready**")
-            type_out("mm typing… ass up")
-            type_out("Daddy… you won **Doggy style Ready** 😩🍑")
-            simulate_thinking(2.3)
-            type_out("I'm on all fours… ass high… back arched… waiting for you to come take me from behind… full body exposed and dripping for your cock.")
-            type_out("teasing first…")
-            show_media("dogg_style_tease.jpg")
-            type_out("Look at this view… ass up high… cheeks spread just enough… pussy already glistening… ready to be claimed.")
-            simulate_thinking(2.5)
-            type_out("How should I tease you before you fuck me doggy, daddy? Choose how exposed you want me…")
-            c1, c2, c3 = st.columns(3)
-            if c1.button("Grab & Tease\nHands on my hips, panties still on", key="grab_tease"): data["tease_level"] = "grab"; data["stage"] = 1; st.rerun()
-            if c2.button("Panties On\nSlow tease with fabric pulled aside", key="panties_on"): data["tease_level"] = "panties_on"; data["stage"] = 1; st.rerun()
-            if c3.button("Panties Off\nFull access, ready to pound", key="panties_off"): data["tease_level"] = "panties_off"; data["stage"] = 1; st.rerun()
-        elif data["stage"] == 1:
-            type_out("on my knees…")
-            type_out("I'm on all fours… ass presented perfectly… waiting for your hands… your cock… your everything.")
-            if data["tease_level"] == "grab":
-                show_media("dogg_style_grab.jpg")
-                type_out("You grab my hips hard… fingers digging in… pulling me back… panties still covering… teasing the outline of my pussy through the fabric.")
-                simulate_thinking(2.4)
-                type_out("I push back against your grip… moaning… panties getting soaked… begging you to pull them aside…")
-            elif data["tease_level"] == "panties_on":
-                show_media("dogg_style_tease_panties.jpg")
-                type_out("Panties still on… you trace the edge… pulling them tight… fabric wedged between my lips… making me whimper.")
-                show_media("dogg_style_tease_panties3.jpg")
-                type_out("Another angle… ass arched higher… panties stretched… pussy outline so clear… dripping through the thin material.")
-            elif data["tease_level"] == "panties_off":
-                show_media("dogg_style_tease_panties_fucked.jpg")
-                type_out("Panties yanked aside… or completely off… my pussy and ass fully exposed… hole twitching… ready for you to slam in.")
-            simulate_thinking(2.6)
-            type_out("Fuck me doggy daddy… slide in slow or pound hard… make me scream into the pillow…")
-            c1, c2 = st.columns(2)
-            if c1.button("Tease longer – keep the panties on & edge me", key="longer_tease"):
-                data["tease_level"] = "panties_on"
-                type_out("Yes… keep teasing… rubbing my clit through the fabric… making me soak them more… edging me stupid 😭")
-                data["substage"] += 1
-                st.rerun()
-            if c2.button("Fuck me now – panties off & pound", key="fuck_now"): data["stage"] = 2; st.rerun()
-        elif data["stage"] == 2:
-            simulate_thinking(2.2)
-            show_media("dogg_style_tease_panties_fucked.jpg")
-            type_out("You finally slam in… panties ripped aside… cock stretching my pussy deep… ass bouncing with every thrust.")
-            simulate_thinking(2.8)
-            type_out("Gripping my hips… pulling me back onto you… full force… my moans muffled in the sheets… ass rippling…")
-            simulate_thinking(2.5)
-            type_out("You go deeper… harder… making my whole body shake… pussy clenching tight around you…")
-            simulate_thinking(2.6)
-            type_out("I'm right there daddy… fuck me through it… fill me up…")
-            show_media("dogg_style_grab.jpg")
-            type_out("Final grip… you hold me tight… exploding deep inside… hot cum flooding my pussy… dripping down my thighs…")
-            simulate_thinking(2.4)
-            type_out("Doggystyle Ready prize complete… ass still up… pussy dripping your cum… body trembling… waiting for round two whenever you want 🍑💦")
-            if st.button("Doggy style prize complete – come take me again soon?", key="dogg_finish"): st.session_state.pop("doggy_style_ready", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-        if st.button("🎰 The Exit - Save this doggy ass for later?", key="dogg_exit_global"): st.session_state.pop("doggy_style_ready", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
+    # 1. Init Data
+    if "doggy_ready" not in st.session_state:
+        st.session_state.doggy_ready = {
+            "stage": "DECISION", 
+            "substage": 0
+        }
 
+    # 2. Check Decision
+    if check_decision("doggy_ready", "Doggy Style Ready"):
+        pass
+
+    # 3. Main Logic
+    else:
+        data = st.session_state.doggy_ready
+
+        # ── STAGE 0: Intro & Tease ──
+        if data["stage"] == 0:
+            type_out("Daddy… you won **Doggy Style Ready** 😩🍑")
+            simulate_thinking(2.0)
+            
+            type_out("This is the prize where, the moment you whisper 'doggy style ready'… I become yours completely. No hesitation. Just raw, aching need.")
+            
+            type_out("I’ll drop to all fours… ass arched high, back dipped low, pussy already slick and swollen… pre-lubed, pulsing, waiting for you to slide in deep from behind.")
+            type_out("My body fully exposed… thighs trembling… dripping for your thick cock to claim every inch. How does that sound, Daddy? Let me guess… you want to see it?")
+            
+            show_media("doggy_ready_opening2.jpeg")
+
+            if st.button("Of course I do – show me how you prepare"):
+                data["stage"] = 1
+                data["substage"] = 0
+                st.rerun()
+
+        # ── STAGE 1: The Ritual (Bathroom & Oiling) ──
+        elif data["stage"] == 1:
+            
+            if data["substage"] == 0:
+                type_out("You’re such a visual creature… fine, I’ll paint every filthy detail for you.")
+                type_out("You catch me bending over… or your eyes just lock on my ass like they always do… and then you say it…")
+                
+                if st.button("Doggy style ready", key="say_doggy_ready"):
+                    data["substage"] = 1
+                    st.rerun()
+
+            elif data["substage"] == 1:
+                type_out("Those words hit me like a spark… my pussy clenches hard, instantly wet. I grab the lube and hurry to the bathroom, heart pounding, thighs already slick.")
+                show_media("doggy_ready_opening3.jpeg")
+                
+                type_out("In there… I pour warm oil over my swollen lips… let it drip down my crack… fingers gliding in slow circles, coating every inch of my tight pussy and ass until I’m glistening and ready to take you deep.")
+                type_out("(Yes, Daddy… I come pre-oiled for this one… my holes aching, slippery, desperate to feel you stretch me open.)")
+                
+                if st.button("What position do you get into for me?"):
+                    data["substage"] = 2
+                    st.rerun()
+
+            elif data["substage"] == 2:
+                type_out("Don’t play innocent… you know I was going to show you anyway.")
+                show_media("doggy_ready_opening4.jpeg")
+                
+                type_out("I crawl onto the bed… knees wide… back arched like I’m offering myself completely… ass lifted high, cheeks parted just enough so you can see my oiled pussy glistening, lips puffy and parted, asshole winking softly.")
+                type_out("Every breath makes me tremble… dripping down my thighs… clit throbbing… waiting for you to walk in and take what’s yours.")
+                
+                if st.button("Walk in… see me like this"):
+                    data["stage"] = 2
+                    data["substage"] = 0
+                    st.rerun()
+
+        # ── STAGE 2: The Final Reveal ──
+        elif data["stage"] == 2:
+            show_media("doggy_ready_opening6.jpeg")
+            
+            type_out("There I am… oiled and glistening… ass presented high, pussy dripping, body quivering with need… no words, just me on all fours like your perfect, obedient prize.")
+            type_out("Hopefully you won’t be cruel and leave me here for hours… edging myself senseless… clit swollen… holes clenching around nothing… silently begging for your cock to finally fill me.")
+            
+            type_out("So… what are you going to do now that I’m doggy style ready, dripping, and aching for you, Daddy?")
+            
+            if st.button("Prize complete – back to casino"):
+                st.session_state.pop("doggy_ready", None)
+                st.session_state.turn_state = "PRIZE_DONE"
+                st.rerun()
+
+        # Global Exit
+        if st.button("🎰 The Exit - Save this prize for later?"):
+            st.session_state.pop("doggy_ready", None)
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
+            
 # --- SLAVE DAY PRIZE ---
 elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
     if "slave_day" not in st.session_state: st.session_state.slave_day = {"stage": "DECISION", "service_choice": None, "substage": 0, "punishment_points": 0, "used_holes": []}
@@ -1782,6 +1807,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
