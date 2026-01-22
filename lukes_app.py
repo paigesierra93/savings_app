@@ -1688,7 +1688,7 @@ elif st.session_state.turn_state == "PRIZE_DOGGY_STYLE_READY":
 
         # ── STAGE 2: The Final Reveal ──
         elif data["stage"] == 2:
-            show_media("doggy_ready_opening6.jpeg")
+            show_media("doggy_ready_opening5.jpeg")
             
             type_out("There I am… oiled and glistening… ass presented high, pussy dripping, body quivering with need… no words, just me on all fours like your perfect, obedient prize.")
             type_out("Hopefully you won’t be cruel and leave me here for hours… edging myself senseless… clit swollen… holes clenching around nothing… silently begging for your cock to finally fill me.")
@@ -1807,6 +1807,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
