@@ -781,24 +781,26 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
 
         # ── STAGE 0: Confession & Tease Buildup ──
         if data["stage"] == 0:
-            type_out("Daddy… you won **Anal Fuck** 😩🍑")
+            type_out("Daddy… you fucking won **Anal Fuck** 😩🍑 My greedy little asshole is already soaked thinking about it.")
             simulate_thinking(2.0)
-            type_out("p- i have a confession…")
-
+            
+            type_out("So… I have a filthy confession…")
             show_media("anal_opening1.JPG")
-            type_out("you see... ive been playing with my ass all morning…")
             
-            show_media("anal_opening.JPG")
-            type_out("fingering it slow…")
+            type_out("I’ve been such a dirty slut all morning… playing with my tight little ass, shoving fingers in deep, getting it sloppy and ready for your thick cock.")
             
+            type_out("Fingering it slow at first… then faster… curling them just right so I’m whimpering your name into the pillow…")
             show_media("anal_opening2.JPG")
-            type_out("stretching it just enough to take your thick cock without mercy.")
+            
+            type_out("Stretching my greedy hole wide enough to take every brutal inch of you without mercy… god, it’s already pulsing just thinking about you wrecking it.")
+            
+            type_out("Ass arched high like a bitch in heat… cheeks spread wide… that tiny pink pucker twitching and winking, literally begging for you to ruin it, daddy.")
+            show_media("anal_opening3.JPG")
+
+            type_out("So when I saw you won 'Anal Fuck' my cunt dripped instantly. This desperate little asshole has been trained all morning just for you.")
+            type_out("How do you want to start destroying this needy, pre-stretched fuckhole, daddy? Pick your position and fucking ruin me…")
             
             show_media("anal_opening4.JPG")
-            type_out("Ass arched high… cheeks spread… tiny hole already twitching and begging for you to ruin it…")
-            
-            type_out("so im so glad you won 'anal fuck' because my tight little hole is begging for it.")
-            type_out("How do you want to start destroying this tight little ass, daddy? Choose your opening position…")
 
             c1, c2 = st.columns(2)
             if c1.button("Missionary – legs hooked over your shoulders…"):
@@ -807,7 +809,7 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
                 data["substage"] = 0
                 st.rerun()
 
-            if c2.button("Doggy – full view of your work, ass up high"):
+            if c2.button("Doggy – ass up high, full view"):
                 data["position"] = "doggy"
                 data["stage"] = 1
                 data["substage"] = 0
@@ -818,27 +820,30 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
             
             # --- MISSIONARY PATH ---
             if data["position"] == "missionary":
+                
                 if data["substage"] == 0:
-                    type_out("Like this daddy?")
+                    type_out("Like this, Daddy? Legs pinned back… ass presented… hole already winking at your fat cock…")
                     show_media("anal_opening6.jpeg")
-                    if st.button("Fuck ya show me more"):
+                    if st.button("Fuck ya show me more – stretch me wide"):
                         data["substage"] = 1
                         st.rerun()
                 
                 elif data["substage"] == 1:
-                    type_out("omg daddy that feels so fcuking good. keep fucking my tight little ass like that")
+                    type_out("Ohhh fuck yes… that thick head popping past my rim… filling my slutty ass so deep… pound it, Daddy, make me your anal bitch.")
                     show_media("anal_opening7.jpeg")
-                    if st.button("I'm gonna cum"):
+                    if st.button("Fuck it, I'm gonna cum – ruin my hole"):
                         data["substage"] = 2
                         st.rerun()
                 
                 elif data["substage"] == 2:
-                    type_out("oh, fuck. yes. daddy. thank you")
+                    type_out("Oh god—yes—Daddy—thank you for wrecking my tight little ass… I’m cumming so hard around your cock… fill me, please…")
                     show_media("anal_opening8.jpeg")
-                    simulate_thinking(2.0)
-                    show_media("ass_cum2.jpeg")
-                    type_out("Look at that… your hot cum leaking out of my stretched hole while I’m still shaking under you… fuck, daddy, you filled me so deep…")
                     
+                    simulate_thinking(2.0)
+                    type_out("Look at that filthy mess… your hot cum oozing out of my gaped, ruined hole while my legs are still shaking… fuck, Daddy, you bred my ass so good…")
+                    # Note: Using the doggy last image here as requested in original script
+                    show_media("anal_oppening_doggystyle_last.JPG")
+
                     if st.button("Prize complete – back to casino"):
                         st.session_state.pop("anal_fuck", None)
                         st.session_state.turn_state = "PRIZE_DONE"
@@ -846,38 +851,40 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
 
             # --- DOGGY PATH ---
             elif data["position"] == "doggy":
+                
                 if data["substage"] == 0:
-                    type_out("Like this daddy?")
+                    type_out("Like this, Daddy? Ass up, face down… hole already stretched and dripping… ready to be used like your personal fucktoy.")
                     show_media("anal_opening_doggystyle1.JPG")
-                    if st.button("Show me more"):
+                    if st.button("Show me more – spread me wider"):
                         data["substage"] = 1
                         st.rerun()
 
                 elif data["substage"] == 1:
-                    type_out("ok you perv. look at this asshole, stretched and begging for you.")
-                    show_media("anal_opening_doggystyle2.JPG")
-                    if st.button("Touch it"):
+                    type_out("Mmm you perv… look at this greedy asshole, already gaping a little… begging for your cock to split it open again.")
+                    show_media("anal_opening_doggystyle3.JPG")
+                    if st.button("Touch it – finger my ruined hole first"):
                         data["substage"] = 2
                         st.rerun()
 
                 elif data["substage"] == 2:
-                    show_media("anal_opening_doggystyle3.JPG")
-                    if st.button("Fuck it"):
+                    show_media("anal_opening_doggystyle2.JPG")
+                    if st.button("Fuck it – destroy me"):
                         data["substage"] = 3
                         st.rerun()
 
                 elif data["substage"] == 3:
                     show_media("anal_opening_doggystyle4.JPG")
+                    type_out("That’s it, Daddy—slam that fat cock balls-deep—fuck my stretched asshole like the dirty cum-dump I am.")
                     show_media("anal_opening_doggystyle5.JPEG")
-                    if st.button("FUCK IT im cumming"):
+                    if st.button("FUCK IT I’m cumming – breed my ass"):
                         data["substage"] = 4
                         st.rerun()
 
                 elif data["substage"] == 4:
-                    show_media("anal_opening_doggystyle10.JPG")
                     simulate_thinking(2.0)
-                    show_media("ass_cum4.jpeg")
-                    type_out("Oh god… pulling out and watching your thick load drip down my ass cheeks… my hole gaping and pulsing… you fucking owned it, daddy…")
+                    show_media("anal_oppening_doggystyle_last.JPG")
+                    type_out("Oh fuck yes… pulling out slow… watching your thick ropes drip down my cheeks and leak out of my gaping, ruined hole… you fucking owned this ass, Daddy…")
+                    show_media("anal_opening_doggystyle10.JPG")
                     
                     if st.button("Prize complete – back to casino"):
                         st.session_state.pop("anal_fuck", None)
@@ -889,7 +896,6 @@ elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
             st.session_state.pop("anal_fuck", None)
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
-            
 # --- BEND OVER PRIZE ---
 elif st.session_state.turn_state == "PRIZE_BEND_OVER":
     # 1. Init Data
@@ -1776,6 +1782,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
