@@ -1230,13 +1230,13 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
 
         elif data["stage"] == 3:
             simulate_thinking(2.0)
-            show_media("all_3_4.jpeg") 
+            show_media("edit3.jfif") 
             type_out("Holy shit… all three holes completely fucking destroyed. I'm a drooling, trembling, overstuffed mess.")
             type_out("Look at what you did to your little cumslut daddy… inspect your work.")
             cols = st.columns(3)
             with cols[0]:
                 if st.button("Let me see your pussy filled"):
-                    show_media("mkjdh9exrj9kdr.jpeg")
+                    show_media("mkn3g6i0yis91v.jpeg")
                     type_out("Look at this wrecked cunt… stretched, swollen, dripping your cum or my squirt everywhere.")
             with cols[1]:
                 if st.button("Let me see your mouth filled"):
@@ -1244,7 +1244,7 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
                     type_out("Throat raw, lips swollen, spit and precum running down my chin… total face-fuck ruin.")
             with cols[2]:
                 if st.button("Let me see your ass dripping"):
-                    show_media("3holesasscum.jpeg")
+                    show_media("mkjdh9exrj9kdr.jpeg")
                     type_out("Ass gaped and leaking, cum oozing out while I clench around nothing… you fucking broke it.")
             st.write("---")
             if st.button("Finish & Collapse – I'm done daddy"):
@@ -1782,6 +1782,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
