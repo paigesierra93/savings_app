@@ -270,7 +270,7 @@ with st.sidebar:
     goal = 10000.0 
     percent = min(current_savings / goal, 1.0)
     
-    if percent < 0.10: status = "🧥 Status: Fully Clothed"; note = "I'm cold and broke. Warm me up with cash."
+    if percent < 0.10: status = "🧥 Status: Fully Clothed"; note = "Im poor. Help me."
     elif percent < 0.25: status = "👚 Status: Coat's off..."; note = "Okay, I see you making moves."
     elif percent < 0.40: status = "👗 Status: Sweater on the floor."; note = "Getting a little hot in here..."
     elif percent < 0.60: status = "🍑 Status: Just panties left."; note = "Do you like this view? Save more."
@@ -1782,6 +1782,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
