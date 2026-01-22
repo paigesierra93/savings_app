@@ -1220,7 +1220,7 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
             type_out("Fuuuck… two holes stuffed already. I'm shaking, leaking, completely owned…")
             type_out("One more daddy… fill that last filthy hole and make me your total 3-hole wreck.")
             last_hole = next(h for h,v in data["filled"].items() if not v)
-            if last_hole == "pussy": show_media("mkh5dpc060z62y.jpeg")
+            if last_hole == "pussy": show_media(mkn3g6i0yis91v.jpeg")
             elif last_hole == "ass": show_media("inmyass.jpeg")
             else: show_media("dick_tease16.jpeg")
             if st.button("Fuck ya – complete all 3 holes now"):
@@ -1782,6 +1782,7 @@ else:
     if st.session_state.turn_state != "PRIZE_DONE":
         st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
         if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
 
 
 
