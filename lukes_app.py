@@ -255,11 +255,57 @@ def get_paige_line(mood):
         "💰 **PAYDAY:** Bills paid. Bridge funded. You're handling business like a man. Come claim your reward.",
         "💰 **PAYDAY:** We survived another 2 weeks. I'm so proud of you. Now let's put the rest in the house fund.",
         "💰 **PAYDAY:** Money in the bank, roof over our head (for now). Let's get out of here."
-    ]
-    if mood == "sexy": return random.choice(sexy_praise)
+  if mood == "sexy": return random.choice(sexy_praise)
     if mood == "mean": return random.choice(roasts)
     if mood == "payday": return random.choice(payday_celebration)
     return "You broke even. I'm keeping my clothes on."
+
+def spend_waterfall(amount, category):
+    """
+    Deducts money in this order: Wallet -> Tank -> House -> Bridge.
+    Returns a text summary of what happened for Paige to say.
+    """
+    if amount <= 0: return "You spent... nothing? Okay."
+    
+    # 1. Try Wallet (Safe to Spend)
+    remaining_cost = amount
+    
+    if st.session_state.data['wallet_balance'] >= remaining_cost:
+        st.session_state.data['wallet_balance'] -= remaining_cost
+        log_money(amount, category, "expense")
+        return f"💸 Paid ${amount:.2f} for {category} from your Allowance."
+    else:
+        # Empty Wallet
+        paid_so_far = st.session_state.data['wallet_balance']
+        remaining_cost -= paid_so_far
+        st.session_state.data['wallet_balance'] = 0.0
+        
+        # 2. Try Tank
+        if st.session_state.data['tank_balance'] >= remaining_cost:
+            st.session_state.data['tank_balance'] -= remaining_cost
+            log_money(amount, category, "expense")
+            return f"⚠️ Allowance empty. Took ${remaining_cost:.2f} from the **Tank** to cover {category}."
+        else:
+            # Empty Tank
+            paid_tank = st.session_state.data['tank_balance']
+            remaining_cost -= paid_tank
+            st.session_state.data['tank_balance'] = 0.0
+            
+            # 3. Try House Fund (Danger Zone)
+            if st.session_state.data['house_fund'] >= remaining_cost:
+                st.session_state.data['house_fund'] -= remaining_cost
+                log_money(amount, category, "expense")
+                return f"🛑 TANK EMPTY. You just dipped into the **HOUSE FUND** for ${remaining_cost:.2f}. We are moving backwards."
+            else:
+                # Empty House Fund
+                paid_house = st.session_state.data['house_fund']
+                remaining_cost -= paid_house
+                st.session_state.data['house_fund'] = 0.0
+                
+                # 4. Blackout Fund (Emergency)
+                st.session_state.data['bridge_fund'] -= remaining_cost
+                log_money(amount, category, "expense")
+                return f"💀 BROKE. House Fund gone. Deducted ${remaining_cost:.2f} from **Blackout/Bills**. We are in trouble."
 
 # ==========================================
 #       PART 5: SIDEBAR
@@ -343,24 +389,93 @@ st.markdown("---")
 #       PART 7: THE BRAIN (LOGIC)
 # ==========================================
 
+# --- 1. START SCREEN ---
 if st.session_state.turn_state == "WALLET_CHECK":
     if st.session_state.data["tickets"] > 0:
         st.info(f"🎟️ You have {st.session_state.data['tickets']} tickets banked.")
-        if st.button("🎰 ENTER CASINO FLOOR (Skip Income)"): st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
-    st.markdown("---")
-    c1, c2, c3, c4 = st.columns(4) 
-    c5, c6, c7 = st.columns(3) 
+        if st.button("🎰 ENTER CASINO FLOOR (Skip Income)"):
+            st.session_state.turn_state = "CHOOSE_TIER"
+            st.rerun()
+        st.markdown("---")
+    
+    # Updated to 4 columns per row for better layout
+    c1, c2, c3, c4 = st.columns(4)
+    c5, c6, c7, c8 = st.columns(4)
+    
     is_open, lock_msg = check_payday_window(admin_code) 
+    
+    # Row 1
     if is_open:
         if c1.button("💰 Paycheck"): st.session_state.turn_state = "INPUT_PAYCHECK"; st.rerun()
-    else: c1.warning(lock_msg)
+    else: 
+        c1.warning(lock_msg)
+        
     if c2.button("📱 Dayforce"): st.session_state.turn_state = "INPUT_DAILY"; st.rerun()
     if c3.button("💸 Side Job"): st.session_state.turn_state = "INPUT_SIDE_HUSTLE"; st.rerun()
     if c4.button("🏦 The Tank"): st.session_state.turn_state = "MANAGE_FUNDS"; st.rerun()
+    
+    # Row 2
     if c5.button("📜 Ledger"): st.session_state.turn_state = "VIEW_LEDGER"; st.rerun()
     if c6.button("💋 Quickie"): st.session_state.turn_state = "THE_QUICKIE"; st.rerun()
     if c7.button("🔐 The Vault"): st.session_state.turn_state = "THE_VAULT"; st.rerun()
+    # NEW STORE BUTTON
+    if c8.button("🛍️ Store"): st.session_state.turn_state = "THE_STORE"; st.rerun()
 
+# --- THE STORE (Daily Transactions) ---
+elif st.session_state.turn_state == "THE_STORE":
+    st.subheader("🛍️ Paige's Store")
+    st.caption("Track your spending. It comes out of your Allowance first, then the Tank, then the House.")
+    
+    cost = st.number_input("Cost ($):", min_value=0.0, step=1.0)
+    
+    st.write("Quick Categories:")
+    c1, c2, c3 = st.columns(3)
+    
+    if c1.button("🍔 Food / Lunch"):
+        if cost > 0:
+            msg = spend_waterfall(cost, "Food")
+            save_data(st.session_state.data)
+            type_out(msg)
+            # Paige Roast for food
+            if cost > 15: type_out(get_paige_line("mean")) 
+            st.rerun()
+        else: st.error("Enter a cost first.")
+
+    if c2.button("⛽ Gas / Transport"):
+        if cost > 0:
+            msg = spend_waterfall(cost, "Gas")
+            save_data(st.session_state.data)
+            type_out(msg)
+            st.rerun()
+        else: st.error("Enter a cost first.")
+
+    if c3.button("💡 Bill / Utility"):
+        if cost > 0:
+            msg = spend_waterfall(cost, "Bill")
+            save_data(st.session_state.data)
+            type_out(msg)
+            st.rerun()
+        else: st.error("Enter a cost first.")
+        
+    st.markdown("---")
+    st.write("Other Purchase:")
+    custom_item = st.text_input("Item Name (e.g. ' Vape', 'Game'):")
+    if st.button("Buy Custom Item"):
+        if cost > 0 and custom_item:
+            msg = spend_waterfall(cost, custom_item)
+            save_data(st.session_state.data)
+            type_out(msg)
+            # General Roast
+            type_out(get_paige_line("mean"))
+            st.rerun()
+        else:
+            st.error("Enter cost and name.")
+
+    if st.button("Back to Bank"):
+        st.session_state.turn_state = "WALLET_CHECK"
+        st.rerun()
+
+# --- VIEW LEDGER ---
 elif st.session_state.turn_state == "VIEW_LEDGER":
     st.subheader("📜 Transaction Ledger")
     if "ledger" in st.session_state.data and st.session_state.data["ledger"]:
@@ -371,6 +486,7 @@ elif st.session_state.turn_state == "VIEW_LEDGER":
     else: st.info("No transaction history yet.")
     if st.button("Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
+# --- THE QUICKIE ---
 elif st.session_state.turn_state == "THE_QUICKIE":
     quickie_lines = ["Fast and dirty... just how I like it. Here's 5 tickets.", "Mmm... you caught me changing. Take these tickets and don't peek... okay, peek a little.", "Quick kiss for a good boy. Now get back to work.", "Thinking about my tits? Yeah, me too. +5 Tickets."]
     if "last_quickie" not in st.session_state: st.session_state.last_quickie = 0
@@ -386,6 +502,7 @@ elif st.session_state.turn_state == "THE_QUICKIE":
     else: type_out("Whoa there, tiger. I need a minute to recover. Come back later.")
     if st.button("Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
+# --- THE VAULT ---
 elif st.session_state.turn_state == "THE_VAULT":
     st.subheader("🔐 The Vault")
     st.info("Save money in the **House Fund** to unlock permanent access to these rewards.")
@@ -410,6 +527,7 @@ elif st.session_state.turn_state == "THE_VAULT":
     st.divider()
     if st.button("Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
+# --- INPUTS ---
 elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
     st.subheader("💸 Side Hustle Input")
     side_amount = st.number_input("Side Income Amount ($):", min_value=0.0, step=5.0)
@@ -513,6 +631,7 @@ elif st.session_state.turn_state == "MANAGE_FUNDS":
             st.rerun()
     if c3.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
+# --- CASINO ---
 elif st.session_state.turn_state == "CHOOSE_TIER":
     tix = st.session_state.data["tickets"]
     st.subheader(f"🎰 Casino Floor (Balance: {tix} Tickets)")
@@ -530,7 +649,8 @@ elif st.session_state.turn_state == "CHOOSE_TIER":
     if st.button("Save Tickets & Exit"):
         save_data(st.session_state.data)
         type_out(f"Walking away? {get_ticket_save_response()}")
-        st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+        st.session_state.turn_state = "WALLET_CHECK"
+        st.rerun()
 
 elif st.session_state.turn_state == "CHECK_FAIL":
     type_out("Check too low. Try harder.")
@@ -565,7 +685,7 @@ elif st.session_state.turn_state == "SPIN_GOLD":
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
         st.rerun()
     else: st.error("Not enough tickets"); st.session_state.turn_state="CHOOSE_TIER"; st.rerun()
-
+        
 # ==========================================
 #       PRIZE SCRIPTS
 # ======================================
@@ -1151,152 +1271,197 @@ elif st.session_state.turn_state == "PRIZE_SHOWER_ACTION":
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
 
-# --- ALL 3 HOLES ---
+# --- ALL 3 HOLES (STORY-STYLE) ---
 elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
+    # 1. Init Data
     if "all_3_holes" not in st.session_state:
         st.session_state.all_3_holes = {
-            "stage": 0,
-            "first_hole": None,
-            "tool": None,
+            "stage": "DECISION", # Start at Decision Phase
+            "first_hole": None, 
+            "tool": None, 
             "substage": 0
         }
 
-    data = st.session_state.all_3_holes
+    # 2. Check Decision (Bank or Use)
+    if check_decision("all_3_holes", "All 3 Holes"):
+        pass
 
-    # ── STAGE 0: Intro & Choose First Hole ──
-    if data["stage"] == 0:
-        type_out("Shit baby… you won **All 3 Holes** 😈 You know what that means?")
-        if st.button("What does it mean, Daddy?"):
-            data["substage"] = 1
-            st.rerun()
+    # 3. Main Logic
+    else:
+        data = st.session_state.all_3_holes
+
+        # ── STAGE 0: Intro Story ──
+        if data["stage"] == 0:
+            type_out("Baby… you actually fucking did it.")
+            simulate_thinking(2.0)
             
-        if data.get("substage") == 1:
-            type_out("Well…")
+            type_out("Three years in your mom’s house… every paycheck you didn’t blow, every side hustle, every time you said no to going out so we could save… it was all for this.")
+            type_out("For us. For our own place. For nights where it’s just you and me… no doors creaking, no one else around.")
+            
             show_media("3_holes_opening.jfif")
-            type_out("That means you get to fuck **all three** of my tight, needy little holes tonight… one after another… until I’m trembling, leaking, and begging for mercy.")
-            type_out("So which one do you want to start destroying first, Daddy?")
+            
+            type_out("I’m at home right now thinking about you at work… touching myself, getting ready, dripping just imagining the moment you walk through **our** front door.")
+            type_out("This prize? This is me saying thank you… by letting you have **all three** of my tight, needy holes tonight. One after another… until I’m shaking and begging.")
+            type_out("So tell me, love… which one do you want to claim first when you get home?")
             
             c1, c2, c3 = st.columns(3)
-            if c1.button("My ass – stretch that tight little hole first"):
-                data["first_hole"] = "ass"
-                data["stage"] = 1
-                data["substage"] = 0
-                st.rerun()
             
-            if c2.button("My pussy – fill my dripping cunt first"):
+            if c1.button("My pussy first… I want you to feel how wet saving for our place made me"):
                 data["first_hole"] = "pussy"
                 data["stage"] = 1
-                data["substage"] = 0
                 st.rerun()
             
-            if c3.button("My mouth – fuck my throat raw first"):
+            if c2.button("My ass first… I’ve been training it just for our new bedroom"):
+                data["first_hole"] = "ass"
+                data["stage"] = 1
+                st.rerun()
+            
+            if c3.button("My mouth first… so I can thank you on my knees the second you walk in"):
                 data["first_hole"] = "mouth"
                 data["stage"] = 1
-                data["substage"] = 0
                 st.rerun()
 
-    # ── STAGE 1: Choose Tool for First Hole ──
-    elif data["stage"] == 1:
-        if data["substage"] == 0:
+        # ── STAGE 1: Tool Choice for First Hole ──
+        elif data["stage"] == 1:
+            
+            # --- ASS BRANCH ---
             if data["first_hole"] == "ass":
-                type_out("So you want to fuck my little asshole first? Mmm… I’ve been aching for it all day.")
+                type_out("Mmm… my little asshole first? God yes, baby… I’ve been aching for you to stretch it all day while you’re stuck at work.")
                 show_media("3_holes_opening_ass1.jfif")
-                type_out("Pick your tool, Daddy… how do you want to ruin this tight hole?")
+                type_out("How do you want to ruin it tonight?")
+                
                 c1, c2 = st.columns(2)
-                if c1.button("I want to fuck your ass with my thick cock"):
-                    data["tool"] = "dick"; data["substage"] = 1; st.rerun()
-                if c2.button("I want to see you squirm while I fuck you with a toy"):
-                    data["tool"] = "toy"; data["substage"] = 2; st.rerun()
+                if c1.button("Fuck it deep with your thick cock"):
+                    data["tool"] = "dick"
+                    data["stage"] = 2
+                    st.rerun()
+                if c2.button("Tease me with a toy… make me squirm while you watch"):
+                    data["tool"] = "toy"
+                    data["stage"] = 2
+                    st.rerun()
 
+            # --- PUSSY BRANCH ---
             elif data["first_hole"] == "pussy":
-                type_out("Time to fuck my pussy? Ohhh yes, Daddy… it’s already dripping for you.")
+                type_out("My pussy first? Ohhh yes… it’s already so wet thinking about you coming home to our own place.")
                 show_media("3_holes_opening_pussy1.jfif")
-                type_out("What do you want to fuck it with?")
+                type_out("What do you want to fuck it with tonight?")
+                
                 c1, c2 = st.columns(2)
-                if c1.button("Fuck me deep with your cock"):
-                    data["tool"] = "dick"; data["substage"] = 1; st.rerun()
-                if c2.button("Tease me slow with a toy until I’m begging"):
-                    data["tool"] = "toy"; data["substage"] = 2; st.rerun()
+                if c1.button("Your cock… pound me until I can’t think"):
+                    data["tool"] = "dick"
+                    data["stage"] = 2
+                    st.rerun()
+                if c2.button("A toy… tease me slow until I’m begging for the real thing"):
+                    data["tool"] = "toy"
+                    data["stage"] = 2
+                    st.rerun()
 
+            # --- MOUTH BRANCH ---
             elif data["first_hole"] == "mouth":
-                type_out("So you’re gonna fuck my mouth first? Mmm… my throat is already tingling for you.")
-                show_media("3_holes_opening_mouth1.jfif")
-                type_out("What are you gonna use to wreck it?")
+                type_out("My mouth first? Mmm… I’m already on my knees in my head, waiting for you to walk in.")
+                show_media("3_holes_opening_mouth_choice1.jpeg")
+                type_out("How do you want to use it?")
+                
                 c1, c2 = st.columns(2)
-                if c1.button("Shove your cock down my throat"):
-                    data["tool"] = "dick"; data["substage"] = 1; st.rerun()
-                if c2.button("Make me gag on a toy while you watch"):
-                    data["tool"] = "toy"; data["substage"] = 2; st.rerun()
+                if c1.button("Shove your cock down my throat… use me"):
+                    data["tool"] = "dick"
+                    data["stage"] = 2
+                    st.rerun()
+                if c2.button("Make me gag on a toy while you stroke yourself"):
+                    data["tool"] = "toy"
+                    data["stage"] = 2
+                    st.rerun()
 
-        # ── Tool = Dick Path ──
-        elif data["substage"] == 1:
-            if data["first_hole"] == "ass":
-                type_out("That’s right baby… fuck this little ass with that thick cock… stretch me wide, make me moan like your needy slut.")
-                show_media("3_holes_opening_ass_dick_choice1.jfif")
-                type_out("Are you gonna cum for me, Daddy? Fill my tight hole?")
-                if st.button("Cumming – breed my ass"):
-                    show_media("3_holes_opening_ass_dick_cum1.jfif")
-                    type_out("Oh fuck yes… feel me clenching around you… milking every hot drop deep inside…")
-                    data["stage"] = 3; st.rerun()
+        # ── STAGE 2: Action / Climax for Chosen Hole ──
+        elif data["stage"] == 2:
+            
+            # --- DICK PATHS ---
+            if data["tool"] == "dick":
+                if data["first_hole"] == "ass":
+                    type_out("That’s right baby… fuck this little ass with that thick cock… stretch me wide, make me moan your name.")
+                    show_media("3_holes_opening_ass_dick_choice1.jfif")
+                    type_out("You gonna cum for me, Daddy? Fill my tight hole?")
+                    
+                    if st.button("Cumming – breed my ass"):
+                        show_media("3_holes_opening_ass_dick_cum1.jfif")
+                        type_out("Oh fuck yes… feel me clenching… milking every hot drop deep inside… thank you for saving for us.")
+                        data["stage"] = 3
+                        st.rerun()
 
-            elif data["first_hole"] == "pussy":
-                type_out("Fuck that little pussy, baby… pound it deep, make it grip you so tight.")
-                show_media("3_holes_opening_pussy_dick_fucking1.jfif")
-                type_out("You gonna cum for me? Fill it up?")
-                if st.button("Fill it up – breed my cunt"):
-                    show_media("3_holes_opening_pussy_dick_cum1.jfif")
-                    type_out("Mmm yes… feel my pussy pulsing around your cock… taking every thick spurt…")
-                    data["stage"] = 3; st.rerun()
+                elif data["first_hole"] == "pussy":
+                    type_out("Fuck that little pussy, baby… pound it deep, make it grip you so tight.")
+                    show_media("3_holes_opening_pussy_dick_fucking1.jfif")
+                    type_out("You gonna cum inside me? Fill our future home with this moment?")
+                    
+                    if st.button("Fill it up – breed my cunt"):
+                        show_media("3_holes_opening_pussy_dick_cum1.jfif")
+                        type_out("Mmm yes… feel my pussy pulsing… taking every thick spurt… this is what we saved for.")
+                        data["stage"] = 3
+                        st.rerun()
 
-            elif data["first_hole"] == "mouth":
-                show_media("3_holes_opening_mouth2.jfif")
-                type_out("Let me suck that cock… shove it down my throat… use my mouth like your personal fucktoy.")
-                if st.button("Fuck I’m cumming – down my throat"):
-                    show_media("3_holes_opening3_holes_mouth_dick1.jfif")
-                    type_out("Mmm… swallowing every hot rope… throat working around you… such a good girl for Daddy.")
-                    data["stage"] = 3; st.rerun()
+                elif data["first_hole"] == "mouth":
+                    show_media("3_holes_opening_mouth2.jfif")
+                    type_out("Let me suck that cock… shove it down my throat… thank you for every dollar you saved.")
+                    
+                    if st.button("Fuck I’m cumming – down my throat"):
+                        show_media("3_holes_opening3_holes_mouth_dick1.jfif")
+                        type_out("Mmm… swallowing every hot rope… throat working around you… such a good girl for my hardworking man.")
+                        data["stage"] = 3
+                        st.rerun()
 
-        # ── Tool = Toy Path ──
-        elif data["substage"] == 2:
-            if data["first_hole"] == "ass":
-                type_out("Ohhh… you want to see me squirm on edge while you stroke yourself and fuck me with a toy at the same time?")
-                show_media("3_holes_opening_ass_toy1.jfif")
-                type_out("Go ahead, Daddy… make me take it.")
-                if st.button("Fuck it – edge me hard"):
-                    type_out("Oh god… that thick toy stretching my ass… I’m shaking, dripping, so close…")
-                    data["stage"] = 3; st.rerun()
+            # --- TOY PATHS ---
+            elif data["tool"] == "toy":
+                if data["first_hole"] == "ass":
+                    type_out("Ohhh… you want to see me squirm on edge while you stroke yourself and fuck me with a toy?")
+                    show_media("3_holes_opening_ass_toy1.jfif")
+                    type_out("Go ahead, Daddy… make me take it while I wait for you to come home.")
+                    
+                    if st.button("Fuck it – edge me hard"):
+                        type_out("Oh god… that thick toy stretching my ass… I’m shaking, dripping, so close…")
+                        data["stage"] = 3
+                        st.rerun()
 
-            elif data["first_hole"] == "pussy":
-                type_out("You want to tease my pussy with a toy… make me desperate and aching for your real cock?")
-                show_media("3_holes_opening_pussy_toy_fucking1.jfif")
-                if st.button("Tease – edge me until I’m begging"):
-                    type_out("Ohhh my god… I’m gonna cum… please Daddy…")
-                    data["substage"] = 3; st.rerun() # Move to sub-step for nested button effect
+                elif data["first_hole"] == "pussy":
+                    type_out("You want to tease my pussy with a toy… make me desperate and aching for your real cock when you get home?")
+                    show_media("3_holes_opening_pussy_toy_fucking1.jfif")
+                    
+                    if st.button("Tease – edge me until I’m begging"):
+                        type_out("Ohhh my god… I’m gonna cum… please hurry home, Daddy…")
+                        data["substage"] = 1 # Move to sub-step
+                        st.rerun()
+                    
+                    if data["substage"] == 1:
+                        if st.button("Make me cum"):
+                            show_media("3_holes_opening_toy_mouth_pussy.jfif")
+                            type_out("Fuuuck… cumming so hard around the toy… body shaking… pussy gushing… still desperate for you.")
+                            data["stage"] = 3
+                            st.rerun()
 
-            elif data["first_hole"] == "mouth":
-                type_out("Shove that toy in my mouth so I can’t talk anymore… fuck it like you want me to fuck your cock with my throat.")
-                show_media("3_holes_mouth_toy1.jpeg")
-                type_out("Mmm… gagging on it… drooling… ready for the real thing whenever you are.")
-                if st.button("Finish"): data["stage"] = 3; st.rerun()
+                elif data["first_hole"] == "mouth":
+                    type_out("Shove that toy in my mouth so I can’t talk anymore… fuck it like you want me to fuck your cock when you walk in.")
+                    show_media("3_holes_mouth_toy1.jpeg")
+                    type_out("Mmm… gagging on it… drooling… counting the minutes until it’s your cock instead.")
+                    data["stage"] = 3
+                    st.rerun()
 
-        # Sub-step for Pussy Toy finish
-        elif data["substage"] == 3 and data["first_hole"] == "pussy":
-             if st.button("Make her cum"):
-                show_media("3_holes_opening_toy_mouth_pussy.jfif")
-                type_out("Fuuuck… cumming so hard around the toy… body shaking… pussy gushing… still desperate for your cock.")
-                data["stage"] = 3; st.rerun()
+        # ── STAGE 3: Finish & Emotional Wrap ──
+        elif data["stage"] == 3:
+            simulate_thinking(3.0)
+            type_out("Ohhh fuck baby… you just claimed your prize… and every hole I gave you tonight is because of what you built for us.")
+            type_out("Three years of saving, grinding, waiting… and now we’re so close to our own place. To nights like this whenever we want.")
+            type_out("I’m still trembling at home thinking about you… come home soon, Daddy. I’ll be waiting… ready for the real thing.")
+            
+            if st.button("Prize complete – back to casino"):
+                st.session_state.pop("all_3_holes", None)
+                st.session_state.turn_state = "PRIZE_DONE"
+                st.rerun()
 
-    # ── STAGE 3: Finish & Collapse ──
-    if data["stage"] == 3:
-        simulate_thinking(3.0)
-        type_out("Ohhh fuck Daddy… you just wrecked all three of my needy little holes… I’m trembling, leaking, completely ruined for you.")
-        type_out("Prize complete… come cuddle your broken, blissed-out slut now… or use me again whenever you crave it 😈")
-        
-        if st.button("Back to casino – I’ll stay ready for next time"):
+        # Global Exit
+        if st.button("🎰 The Exit - Save this prize for later?"):
             st.session_state.pop("all_3_holes", None)
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
-            
+
 # --- UPSIDE DOWN THROAT FUCK PRIZE ---
 elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT_FUCK":
     # 1. Init Data
@@ -1835,18 +2000,28 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
 elif st.session_state.turn_state == "PRIZE_DONE":
     type_out("Session Complete. I've saved your progress, daddy. 💋")
     st.success("✅ Prize Claimed & Saved.")
+    
+    # Large, obvious buttons for next steps
     c1, c2, c3 = st.columns(3)
+    
     with c1:
-        if st.button("🏦 Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+        # Direct link back to Casino Floor
+        if st.button("🎰 SPIN AGAIN"): 
+            st.session_state.turn_state = "CHOOSE_TIER"
+            st.rerun()
+            
     with c2:
-        if st.button("🎰 Back to Casino"): st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
+        if st.button("🏦 Back to Bank"): 
+            st.session_state.turn_state = "WALLET_CHECK"
+            st.rerun()
+            
     with c3:
-        if st.button("💾 Save & Logout"): save_data(st.session_state.data); st.session_state.history = []; st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+        if st.button("💾 Save & Logout"): 
+            save_data(st.session_state.data)
+            st.session_state.history = []
+            st.session_state.turn_state = "WALLET_CHECK"
+            st.rerun()
 
-else:
-    if st.session_state.turn_state != "PRIZE_DONE":
-        st.error(f"⚠️ System Error: Stuck in unknown state '{st.session_state.turn_state}'")
-        if st.button("♻️ Hard Reset"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 
 
