@@ -255,6 +255,7 @@ def get_paige_line(mood):
         "💰 **PAYDAY:** Bills paid. Bridge funded. You're handling business like a man. Come claim your reward.",
         "💰 **PAYDAY:** We survived another 2 weeks. I'm so proud of you. Now let's put the rest in the house fund.",
         "💰 **PAYDAY:** Money in the bank, roof over our head (for now). Let's get out of here."
+    ]
   if mood == "sexy": return random.choice(sexy_praise)
     if mood == "mean": return random.choice(roasts)
     if mood == "payday": return random.choice(payday_celebration)
@@ -2021,6 +2022,7 @@ elif st.session_state.turn_state == "PRIZE_DONE":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
