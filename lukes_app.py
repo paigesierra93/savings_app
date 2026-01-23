@@ -103,8 +103,148 @@ if "history" not in st.session_state:
 if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_CHECK"
 
 # ==========================================
-#       PART 3.5: PAIGE'S SCRIPTED BRAIN
+#       PART 3: HELPER FUNCTIONS (ALL-IN-ONE)
 # ==========================================
+import random 
+import time
+
+# --- HISTORY MANAGERS ---
+def add_chat(role, content):
+    """Adds to history immediately."""
+    if "history" not in st.session_state:
+        st.session_state.history = []
+    st.session_state.history.append({"type": "chat", "role": role, "content": content})
+
+def add_narrator(content):
+    st.session_state.history.append({"type": "narrator", "content": content})
+
+def add_media(filepath):
+    if filepath.lower().endswith(('.mp4', '.mov', '.webm')):
+        media_type = "video"
+    else:
+        media_type = "image"
+    st.session_state.history.append({"type": "media", "path": filepath, "kind": media_type})
+
+def add_dual_media(path1, path2):
+    st.session_state.history.append({"type": "dual_media", "path1": path1, "path2": path2})
+
+# --- ANIMATION HELPERS ---
+def simulate_thinking(seconds=None):
+    if seconds is None:
+        seconds = random.uniform(1.0, 2.5) 
+    with st.chat_message("assistant", avatar="paige.png"):
+        with st.spinner("Paige is typing..."):
+            time.sleep(seconds)
+
+def type_out(*args, min_delay=0.03, max_delay=0.08):
+    """Smart Typewriter with Duplicate Shield."""
+    if len(args) == 1: text = args[0]
+    elif len(args) == 2: text = args[1]
+    else: return
+
+    # Duplicate Shield
+    if st.session_state.history:
+        last_msg = st.session_state.history[-1]
+        if last_msg.get("role") == "assistant" and last_msg.get("content") == text:
+            return 
+
+    with st.chat_message("assistant", avatar="paige.png"):
+        placeholder = st.empty()
+        full_response = ""
+        words = text.split()
+        for i, word in enumerate(words):
+            full_response += word + " "
+            if i < len(words) - 1: placeholder.markdown(full_response + "▌")
+            else: placeholder.markdown(full_response)
+            time.sleep(random.uniform(min_delay, max_delay))
+            
+    add_chat("assistant", text)
+
+def show_media(path, delay=1.5):
+    if st.session_state.history:
+        last_item = st.session_state.history[-1]
+        if last_item.get("type") == "media" and last_item.get("path") == path:
+            return
+
+    with st.chat_message("assistant", avatar="paige.png"):
+        with st.spinner("Sending media..."):
+            time.sleep(delay)
+        if os.path.exists(path):
+            if path.lower().endswith(('.mp4', '.mov', '.webm')): st.video(path)
+            else: st.image(path, width=300)
+        else: st.warning(f"Media unavailable: {path}")
+            
+    if os.path.exists(path): add_media(path)
+
+def spin_animation(tier, prizes):
+    placeholder = st.empty()
+    for _ in range(8):
+        placeholder.markdown(f"<h3 style='text-align: center; color: #555;'>🎰 {random.choice(prizes)}...</h3>", unsafe_allow_html=True)
+        time.sleep(0.1)
+    for _ in range(5):
+        placeholder.markdown(f"<h3 style='text-align: center; color: #888;'>🎰 {random.choice(prizes)}...</h3>", unsafe_allow_html=True)
+        time.sleep(0.3)
+    winner = random.choice(prizes)
+    placeholder.markdown(f"<h3 style='text-align: center; color: #FF4B4B;'>🎉 {winner} 🎉</h3>", unsafe_allow_html=True)
+    time.sleep(2.0)
+    placeholder.empty()
+    return winner
+
+def enter_state(state_name, role, content):
+    if st.session_state.get("last_state") != state_name:
+        add_chat(role, content)
+        st.session_state.last_state = state_name
+
+def get_ticket_save_response():
+    return random.choice([
+        "Smart choice. I'll keep them warm for you.",
+        "Walking away while you're ahead? I like a disciplined man.",
+        "They're safe with me. Come back when you're ready to spend.",
+        "Tickets saved. Don't make me wait too long..."
+    ])
+
+def check_decision(key, prize_name):
+    data = st.session_state.get(key)
+    if not data: return False
+    
+    if data.get("stage") == "DECISION":
+        add_chat("assistant", f"🎉 **WINNER: {prize_name.upper()}**")
+        type_out(f"You won {prize_name}. Do you want to redeem this right now, or save it in your inventory for a rainy day?")
+        
+        c1, c2 = st.columns(2)
+        if c1.button(f"🔥 Use {prize_name} Now"):
+            ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            st.session_state.data["history_log"].append(f"{ts} - REDEEMED: {prize_name}")
+            save_data(st.session_state.data)
+            data["stage"] = 0
+            st.rerun()
+
+        if c2.button("🎒 Save for Later"):
+            st.session_state.data["inventory"].append(prize_name)
+            ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            st.session_state.data["history_log"].append(f"{ts} - BANKED: {prize_name}")
+            save_data(st.session_state.data)
+            
+            type_out(f"Smart choice. I've put **{prize_name}** in your inventory.")
+            del st.session_state[key]
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
+        return True
+    return False
+
+def log_money(amount, note, category="income"):
+    if "ledger" not in st.session_state.data:
+        st.session_state.data["ledger"] = []
+    entry = {
+        "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "amount": amount,
+        "note": note,
+        "category": category
+    }
+    st.session_state.data["ledger"].insert(0, entry)
+    save_data(st.session_state.data)
+
+# --- PAIGE'S BRAIN (The Persona Lines) ---
 def get_paige_line(mood):
     sexy_praise = [
         "Good boy, Do you want a sloppy blow job in the kitchen? I want to give it to you.",
@@ -142,7 +282,6 @@ def get_paige_line(mood):
         "💰 **PAYDAY:** Money in the bank, roof over our head (for now). Let's get out of here."
     ]
 
-    # FIXED INDENTATION HERE
     if mood == "sexy": return random.choice(sexy_praise)
     if mood == "mean": return random.choice(roasts)
     if mood == "payday": return random.choice(payday_celebration)
@@ -194,6 +333,7 @@ def spend_waterfall(amount, category):
                 st.session_state.data['bridge_fund'] -= remaining_cost
                 log_money(amount, category, "expense")
                 return f"💀 BROKE. House Fund gone. Deducted ${remaining_cost:.2f} from **Blackout/Bills**. We are in trouble."
+                
 # ==========================================
 #       PART 5: SIDEBAR
 # ==========================================
@@ -1908,6 +2048,7 @@ elif st.session_state.turn_state == "PRIZE_DONE":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
