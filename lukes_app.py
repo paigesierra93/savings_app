@@ -1333,7 +1333,7 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
         if data["step"] == "intro":
             type_out("Baby… you actually fucking did it.")
             simulate_thinking(2.0)
-            type_out("Three years in your mom’s house… every paycheck you saved, every late night, every time you said no to going out… it was all for us. For our own place.")
+            type_out("Three years in your mom’s house… every penny youve tried to save to get us out of here. Every late night, every side job, every time you said no to going out… it was all for us. For our own place. Well get there soon enough baby.")
             
             show_media("3_holes_opening.jfif")
             
@@ -1409,7 +1409,7 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
                     show_media("3_holes_opening_pussy_dick_fucking1.jfif")
                     type_out("You gonna cum inside me?")
                     
-                    if st.button("Fill it up – breed my cunt"):
+                    if st.button("Fill my Pussy Up"):
                         show_media("3_holes_opening_pussy_dick_cum1.jfif")
                         type_out("Mmm yes… feel my pussy pulsing… taking every thick spurt…")
                         data["claimed"]["pussy"] = True
@@ -1421,7 +1421,7 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
                     type_out("Let me suck that cock… shove it down my throat… thank you for every dollar you saved.")
                     
                     if st.button("Fuck I’m cumming – down my throat"):
-                        show_media("3_holes_opening3_holes_mouth_dick1.jfif")
+                        show_media("3_holes_mouth_dick1.jfif")
                         type_out("Mmm… swallowing every hot rope… throat working around you…")
                         data["claimed"]["mouth"] = True
                         data["step"] = "next"
@@ -2052,6 +2052,7 @@ elif st.session_state.turn_state == "PRIZE_DONE":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
