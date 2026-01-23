@@ -137,16 +137,39 @@ def simulate_thinking(seconds=None):
             time.sleep(seconds)
 
 def type_out(*args, min_delay=0.03, max_delay=0.08):
-    """Smart Typewriter with Duplicate Shield."""
+    """
+    Smart Typewriter with AGGRESSIVE Duplicate Shield.
+    """
     if len(args) == 1: text = args[0]
     elif len(args) == 2: text = args[1]
     else: return
 
-    # Duplicate Shield
+    # --- AGGRESSIVE DUPLICATE SHIELD ---
+    # Scans the last 15 messages. If this text exists there, SKIP IT.
     if st.session_state.history:
-        last_msg = st.session_state.history[-1]
-        if last_msg.get("role") == "assistant" and last_msg.get("content") == text:
+        # Get list of recent chat content
+        recent_content = [
+            msg.get('content') 
+            for msg in st.session_state.history[-15:] 
+            if msg.get('type') == 'chat'
+        ]
+        
+        # If this exact line was said recently, do not say it again.
+        if text in recent_content:
             return 
+
+    # If safe, type it out
+    with st.chat_message("assistant", avatar="paige.png"):
+        placeholder = st.empty()
+        full_response = ""
+        words = text.split()
+        for i, word in enumerate(words):
+            full_response += word + " "
+            if i < len(words) - 1: placeholder.markdown(full_response + "▌")
+            else: placeholder.markdown(full_response)
+            time.sleep(random.uniform(min_delay, max_delay))
+            
+    add_chat("assistant", text)
 
     with st.chat_message("assistant", avatar="paige.png"):
         placeholder = st.empty()
@@ -2048,6 +2071,7 @@ elif st.session_state.turn_state == "PRIZE_DONE":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
