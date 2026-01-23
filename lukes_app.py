@@ -1310,122 +1310,173 @@ elif st.session_state.turn_state == "PRIZE_SHOWER_ACTION":
         st.session_state.turn_state = "PRIZE_DONE"
         st.rerun()
 
-# --- ALL 3 HOLES (STORY-STYLE) ---
+# --- ALL 3 HOLES (CLAIM ALL THREE – SMOOTH FLOW) ---
 elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
     if "all_3_holes" not in st.session_state:
         st.session_state.all_3_holes = {
-            "stage": 0, "first_hole": None, "tool": None, "substage": 0
+            "current_hole": None,           # which hole he's claiming right now
+            "claimed": {"pussy": False, "ass": False, "mouth": False},
+            "step": "intro"                 # intro → choose_hole → choose_tool → action → next
         }
+
     data = st.session_state.all_3_holes
-    # 2. Check Decision
-    if check_decision("all_3_holes", "All 3 Holes"):
-        pass
-    # 3. Main Logic
-    else:
-        # ── STAGE 0: Intro ──
-        if data["stage"] == 0:
-            type_out("Baby… you actually fucking did it.")
-            simulate_thinking(2.0)
-            type_out("Three years stuck at your mom’s… every dollar you saved instead of blowing it, every extra shift, every time you said no to going out… all so we could finally have our own place.")
-           
-            show_media("3_holes_opening.jfif")
-           
-            type_out("I’m at home right now while you’re at work… legs spread on our future bed, fingers teasing my holes, getting them slick and needy just thinking about the life we’re building.")
-            type_out("This prize? It’s me saying thank you… by giving you **all three** of my tight, dripping holes tonight. One after another… until I’m shaking, leaking your cum, and begging for more.")
-            type_out("So tell me, love… which one do you want to claim first when you walk through our door?")
-           
+
+    # ── Intro Story (only shown once) ──
+    if data["step"] == "intro":
+        type_out("Baby… you actually fucking did it.")
+        simulate_loading(2.0)
+        type_out("Three years in your mom’s house… every paycheck you saved, every late night, every time you said no to going out… it was all for us. For our own place.")
+        
+        show_media("3_holes_opening.jfif")
+        
+        type_out("I’m at home right now while you’re at work… legs spread, fingers teasing myself, getting ready to give you the ultimate thank-you.")
+        type_out("Tonight, when you walk through **our** door… you get **all three** of my tight, needy holes. One after another… until I’m shaking and dripping for you.")
+        type_out("Ready to start claiming them, love? Let’s go slow… which one do you want first?")
+
+        c1, c2, c3 = st.columns(3)
+        
+        if c1.button("Pussy first… I want to feel how wet our future made me"):
+            data["current_hole"] = "pussy"
+            data["step"] = "choose_tool"
+            st.rerun()
+        
+        if c2.button("Ass first… I’ve been stretching it all day for our new bedroom"):
+            data["current_hole"] = "ass"
+            data["step"] = "choose_tool"
+            st.rerun()
+        
+        if c3.button("Mouth first… so I can drop to my knees the second you get home"):
+            data["current_hole"] = "mouth"
+            data["step"] = "choose_tool"
+            st.rerun()
+
+    # ── Choose Tool for Current Hole ──
+    elif data["step"] == "choose_tool":
+        hole_name = "pussy" if data["current_hole"] == "pussy" else "ass" if data["current_hole"] == "ass" else "mouth"
+        
+        if data["current_hole"] == "ass":
+            type_out(f"Mmm… my tight little asshole first? God yes… I’ve been fingering it slow all day, getting it slick just for you.")
+            show_media("3_holes_opening_ass1.jfif")
+            type_out("How do you want to take it tonight?")
+        elif data["current_hole"] == "pussy":
+            type_out(f"My pussy first? Ohhh yes… it’s already dripping down my thighs thinking about you coming home to our place.")
+            show_media("3_holes_opening_pussy1.jfif")
+            type_out("What do you want to fuck it with?")
+        else:  # mouth
+            type_out(f"My mouth first? Mmm… I’m already on my knees in my head, lips parted, waiting to taste you.")
+            show_media("3_holes_opening_mouth_choice1.jpeg")
+            type_out("How do you want to use it?")
+        
+        c1, c2 = st.columns(2)
+        if c1.button("Your cock… I want to feel you deep"):
+            data["tool"] = "dick"
+            data["step"] = "action"
+            st.rerun()
+        
+        if c2.button("A toy… tease me until I’m begging for the real thing"):
+            data["tool"] = "toy"
+            data["step"] = "action"
+            st.rerun()
+
+    # ── Action / Claim for Current Hole ──
+    elif data["step"] == "action":
+        hole = data["current_hole"]
+        tool = data["tool"]
+        
+        if tool == "dick":
+            if hole == "ass":
+                type_out("That’s right baby… fuck this little ass with that thick cock… stretch me wide, make me moan your name.")
+                show_media("3_holes_opening_ass_dick_choice1.jfif")
+                type_out("You gonna cum for me? Fill my tight hole?")
+                
+                if st.button("Cumming – breed my ass"):
+                    show_media("3_holes_opening_ass_dick_cum1.jfif")
+                    type_out("Oh fuck yes… feel me clenching… milking every hot drop deep inside…")
+                    data["claimed"]["ass"] = True
+                    data["step"] = "next"
+                    st.rerun()
+
+            elif hole == "pussy":
+                type_out("Fuck that little pussy, baby… pound it deep, make it grip you so tight.")
+                show_media("3_holes_opening_pussy_dick_fucking1.jfif")
+                type_out("You gonna cum inside me?")
+                
+                if st.button("Fill it up – breed my cunt"):
+                    show_media("3_holes_opening_pussy_dick_cum1.jfif")
+                    type_out("Mmm yes… feel my pussy pulsing… taking every thick spurt…")
+                    data["claimed"]["pussy"] = True
+                    data["step"] = "next"
+                    st.rerun()
+
+            elif hole == "mouth":
+                show_media("3_holes_opening_mouth2.jfif")
+                type_out("Let me suck that cock… shove it down my throat… thank you for every dollar you saved.")
+                
+                if st.button("Fuck I’m cumming – down my throat"):
+                    show_media("3_holes_opening3_holes_mouth_dick1.jfif")
+                    type_out("Mmm… swallowing every hot rope… throat working around you…")
+                    data["claimed"]["mouth"] = True
+                    data["step"] = "next"
+                    st.rerun()
+
+        elif tool == "toy":
+            if hole == "ass":
+                type_out("Ohhh… you want to see me squirm while you fuck me with a toy?")
+                show_media("3_holes_opening_ass_toy1.jfif")
+                if st.button("Fuck it – edge me hard"):
+                    type_out("Oh god… that thick toy stretching my ass… I’m shaking, dripping, so close…")
+                    data["claimed"]["ass"] = True
+                    data["step"] = "next"
+                    st.rerun()
+
+            elif hole == "pussy":
+                type_out("You want to tease my pussy with a toy… make me desperate for your cock?")
+                show_media("3_holes_opening_pussy_toy_fucking1.jfif")
+                if st.button("Tease – edge me"):
+                    type_out("Ohhh my god… I’m gonna cum… please hurry home…")
+                    if st.button("Make me cum"):
+                        show_media("3_holes_opening_toy_mouth_pussy.jfif")
+                        type_out("Fuuuck… cumming so hard around the toy… pussy gushing…")
+                        data["claimed"]["pussy"] = True
+                        data["step"] = "next"
+                        st.rerun()
+
+            elif hole == "mouth":
+                type_out("Shove that toy in my mouth… fuck it like you’ll fuck me later.")
+                show_media("3_holes_mouth_toy1.jpeg")
+                if st.button("Finish"):
+                    data["claimed"]["mouth"] = True
+                    data["step"] = "next"
+                    st.rerun()
+
+    # ── STAGE: Next Hole or Finish ──
+    elif data["step"] == "next":
+        remaining = [h for h in ["pussy", "ass", "mouth"] if not data["claimed"][h]]
+        
+        if remaining:
+            type_out("Mmm… one hole down… I’m still trembling. Which one next, baby?")
             c1, c2, c3 = st.columns(3)
-            if c1.button("My pussy first… I want you to feel how soaked saving for our place made me"):
-                data["first_hole"] = "pussy"; data["stage"] = 1; st.rerun()
-            if c2.button("My ass first… I’ve been fingering it all day, ready for our new bedroom"):
-                data["first_hole"] = "ass"; data["stage"] = 1; st.rerun()
-            if c3.button("My mouth first… so I can drop to my knees and thank you the second you get home"):
-                data["first_hole"] = "mouth"; data["stage"] = 1; st.rerun()
-        # ── STAGE 1: Tool Choice ──
-        elif data["stage"] == 1:
-            if data["first_hole"] == "ass":
-                type_out("Mmm… my tight little asshole first? God yes, baby… I’ve been fingering it slow all day, stretching it just enough so you can slide in deep tonight.")
-                show_media("3_holes_opening_ass1.jfif")
-                type_out("How do you want to ruin it when you get home?")
-                c1, c2 = st.columns(2)
-                if c1.button("Fuck it deep with your thick cock"):
-                    data["tool"] = "dick"; data["stage"] = 2; st.rerun()
-                if c2.button("Tease me with a toy… make me drip while you watch"):
-                    data["tool"] = "toy"; data["stage"] = 2; st.rerun()
-            elif data["first_hole"] == "pussy":
-                type_out("My pussy first? Ohhh yes… it’s already dripping down my thighs thinking about you coming home to our own place.")
-                show_media("3_holes_opening_pussy1.jfif")
-                type_out("What do you want to fuck it with tonight?")
-                c1, c2 = st.columns(2)
-                if c1.button("Your cock… pound me until I’m screaming"):
-                    data["tool"] = "dick"; data["stage"] = 2; st.rerun()
-                if c2.button("A toy… tease me slow until I’m begging for your real cock"):
-                    data["tool"] = "toy"; data["stage"] = 2; st.rerun()
-            elif data["first_hole"] == "mouth":
-                type_out("My mouth first? Mmm… I’m already on my knees in my head, lips parted, waiting to taste you the second you walk in.")
-                show_media("3_holes_opening_mouth_choice1.jpeg")
-                type_out("How do you want to use it?")
-                c1, c2 = st.columns(2)
-                if c1.button("Shove your cock down my throat… use me"):
-                    data["tool"] = "dick"; data["stage"] = 2; st.rerun()
-                if c2.button("Make me gag on a toy while you stroke yourself"):
-                    data["tool"] = "toy"; data["stage"] = 2; st.rerun()
-        # ── STAGE 2: Action ──
-        elif data["stage"] == 2:
-            if data["tool"] == "dick":
-                if data["first_hole"] == "ass":
-                    type_out("That’s right baby… fuck this little ass with that thick cock… stretch me wide, make me moan your name into the pillow.")
-                    show_media("3_holes_opening_ass_dick_choice1.jfif")
-                    type_out("You gonna cum for me, Daddy? Fill my tight hole?")
-                    if st.button("Cumming – breed my ass"):
-                        show_media("3_holes_opening_ass_dick_cum1.jfif")
-                        type_out("Oh fuck yes… feel me clenching around you… milking every hot drop deep inside… this is what we saved for.")
-                        data["stage"] = 3; st.rerun()
-                elif data["first_hole"] == "pussy":
-                    type_out("Fuck that little pussy, baby… pound it deep, make it grip you so tight I can’t breathe.")
-                    show_media("3_holes_opening_pussy_dick_fucking1.jfif")
-                    type_out("You gonna cum inside me? Fill me up?")
-                    if st.button("Fill it up – breed my cunt"):
-                        show_media("3_holes_opening_pussy_dick_cum1.jfif")
-                        type_out("Mmm yes… feel my pussy pulsing… taking every thick spurt… thank you for building this with me.")
-                        data["stage"] = 3; st.rerun()
-                elif data["first_hole"] == "mouth":
-                    show_media("3_holes_opening_mouth2.jfif")
-                    type_out("Let me suck that cock… shove it down my throat… thank you for every dollar you saved for us.")
-                    if st.button("Fuck I’m cumming – down my throat"):
-                        show_media("3_holes_opening3_holes_mouth_dick1.jfif")
-                        type_out("Mmm… swallowing every hot rope… throat working around you… such a good girl for my man.")
-                        data["stage"] = 3; st.rerun()
-            elif data["tool"] == "toy":
-                if data["first_hole"] == "ass":
-                    type_out("Ohhh… you want to see me squirm on edge while you stroke yourself and fuck me with a toy?")
-                    show_media("3_holes_opening_ass_toy1.jfif")
-                    if st.button("Fuck it – edge me hard"):
-                        type_out("Oh god… that thick toy stretching my ass… I’m shaking, dripping, so close… hurry home, baby.")
-                        data["stage"] = 3; st.rerun()
-                elif data["first_hole"] == "pussy":
-                    if data["substage"] == 0:
-                        type_out("You want to tease my pussy with a toy? Make me desperate and aching for your real cock when you get home?")
-                        show_media("3_holes_opening_pussy_toy_fucking1.jfif")
-                        if st.button("Tease – edge me"):
-                            type_out("Ohhh my god… I’m gonna cum… please hurry home, Daddy…")
-                            data["substage"] = 1; st.rerun()
-                    elif data["substage"] == 1:
-                        if st.button("Make me cum"):
-                            show_media("3_holes_opening_toy_mouth_pussy.jfif")
-                            type_out("Fuuuck… cumming so hard around the toy… body shaking… pussy gushing… still desperate for you.")
-                            data["stage"] = 3; st.rerun()
-                elif data["first_hole"] == "mouth":
-                    type_out("Shove that toy in my mouth so I can’t talk anymore… fuck it like you want me to fuck your cock when you walk in.")
-                    show_media("3_holes_mouth_toy1.jpeg")
-                    if st.button("Finish"):
-                        data["stage"] = 3; st.rerun()
-        # ── STAGE 3: Finish ──
-        if data["stage"] == 3:
-            simulate_thinking(2.0)
-            type_out("Ohhh fuck Daddy… you just wrecked all three of my needy little holes… I’m trembling, leaking, completely ruined for you.")
-            type_out("Prize complete… come home soon, baby. I’ll be waiting in our future bed… ready for the real thing whenever you walk through the door 😈")
-            if st.button("Prize complete – back to casino"):
+            for i, hole in enumerate(remaining):
+                if i == 0 and c1.button(f"Next: my {hole}"):
+                    data["current_hole"] = hole
+                    data["step"] = "choose_tool"
+                    st.rerun()
+                elif i == 1 and c2.button(f"Next: my {hole}"):
+                    data["current_hole"] = hole
+                    data["step"] = "choose_tool"
+                    st.rerun()
+                elif i == 2 and c3.button(f"Next: my {hole}"):
+                    data["current_hole"] = hole
+                    data["step"] = "choose_tool"
+                    st.rerun()
+        else:
+            # All claimed – finish
+            simulate_loading(3.0)
+            type_out("Ohhh fuck baby… you just claimed all three… I’m shaking, leaking, completely yours.")
+            type_out("Three years of saving… and now we’re so close to our own place. To nights like this whenever we want.")
+            type_out("I’m still at home… dripping… waiting for you. Come home soon, Daddy.")
+            
+            if st.button("Prize complete – back to casino (I’ll stay ready for you)"):
                 st.session_state.pop("all_3_holes", None)
                 st.session_state.turn_state = "PRIZE_DONE"
                 st.rerun()
@@ -1989,6 +2040,7 @@ elif st.session_state.turn_state == "PRIZE_DONE":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
