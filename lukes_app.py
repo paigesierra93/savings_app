@@ -1495,19 +1495,15 @@ elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
                     st.rerun()
 
         # ── STAGE 3: Finish & Emotional Wrap ──
-        elif data["stage"] == 3:
-            simulate_thinking(3.0)
-            type_out("Ohhh fuck baby… you just claimed your prize… and every hole I gave you tonight is because of what you built for us.")
-            type_out("Three years of saving, grinding, waiting… and now we’re so close to our own place. To nights like this whenever we want.")
-            type_out("I’m still trembling at home thinking about you… come home soon, Daddy. I’ll be waiting… ready for the real thing.")
-            
-            if st.button("Prize complete – back to casino"):
-                st.session_state.pop("all_3_holes", None)
-                st.session_state.turn_state = "PRIZE_DONE"
-                st.rerun()
-
-        # Global Exit
-        if st.button("🎰 The Exit - Save this prize for later?"):
+    if data["stage"] == 3:
+        simulate_thinking(3.0)
+        
+        # These will now safely skip if they were already printed
+        type_out("Ohhh fuck baby… you just claimed your prize… and every hole I gave you tonight is because of what you built for us.")
+        type_out("Three years of saving, grinding, waiting… and now we’re so close to our own place. To nights like this whenever we want.")
+        type_out("I’m still trembling at home thinking about you… come home soon, Daddy. I’ll be waiting… ready for the real thing.")
+        
+        if st.button("Prize complete – back to casino"):
             st.session_state.pop("all_3_holes", None)
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
@@ -2071,6 +2067,7 @@ elif st.session_state.turn_state == "PRIZE_DONE":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
