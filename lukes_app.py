@@ -1936,131 +1936,270 @@ elif st.session_state.turn_state == "PRIZE_DOGGY_STYLE_READY":
                 st.session_state.turn_state = "PRIZE_DONE"
                 st.rerun()
 
-        # Global Exit
-        if st.button("🎰 The Exit - Save this prize for later?"):
-            st.session_state.pop("doggy_ready", None)
-            st.session_state.turn_state = "PRIZE_DONE"
-            st.rerun()
-            
-# --- SLAVE DAY PRIZE ---
+# --- SLAVE DAY (FULL INTERACTIVE SCRIPT) ---
 elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
+    # 1. Init Data
     if "slave_day" not in st.session_state:
-        st.session_state.slave_day = {"stage": "DECISION", "service_choice": None, "substage": 0, "punishment_points": 0, "used_holes": []}
-    
+        st.session_state.slave_day = {
+            "stage": "INTRO",
+            "path": None,  # "shower_tease", "rough", "in_shower"
+            "substage": 0
+        }
+
+    # 2. Check Decision
     if check_decision("slave_day", "Slave Day"):
         pass
-    
+
+    # 3. Main Logic
     else:
         data = st.session_state.slave_day
-        
-        if data["stage"] == 0:
-            st.markdown("🏦 The Bank \nAdmin Override \n🎰 The Exit \n\n🥈 **WINNER: Slave Day**")
-            type_out("mm typing… your property")
-            type_out("… you’ve won **Slave Day** 🖤😩")
-            simulate_thinking(2.4)
-            type_out("Three long years in your mom’s house… every paycheck you tucked away, every late night you chose saving over spending, every time you whispered 'one day we’ll have our own place'… it all led to this.")
-            type_out("I’m at home right now while you’re at work… slowly peeling off my clothes, skin flushed and warm, nipples already hard, pussy slick and aching just from thinking about how hard you worked for us.")
-            type_out("Today, when you finally walk through **our** door… I’m completely yours. Every curve, every hole, every breath… no limits, no hesitation. Just your devoted, dripping little slave waiting to worship you.")
-            simulate_thinking(2.2)
-            type_out("Look at me already… on my knees, full tits spilling out, panties dragged down to my thighs, mouth open and glistening, tongue flat and ready to taste you.")
-            show_media("slave_day_opening1.jfif")
-            type_out("My thighs are trembling… pussy lips swollen and wet, clit throbbing softly… I’ve been touching myself lightly all day, keeping on the edge, waiting for you to come claim what you earned.")
-            type_out("How do you want your slave to greet you tonight, love?")
+
+        # ── STAGE: OPENING SCENE ──
+        if data["stage"] == "INTRO":
+            type_out("Hey baby… guess what? You won Slave Day. 🎉")
+            type_out("And I’ve been such a good, patient girl all day… waiting, aching, getting ready just for you. 😏")
+            simulate_thinking(2.0)
+            
+            type_out("When you finally walk through that door to claim your prize… I’ll be right there. Exactly where you want me.")
+            type_out("Pants already yanked down around my thick thighs, bunched and trapping my knees.")
+            type_out("Shirt shoved up high over my tits, nipples stiff from the cool air and anticipation.")
+            type_out("Mouth open wide, tongue flat and out, drooling just a little already like the desperate little trophy I am.")
+            
+            show_media("slave_day_intro.jpg") # Replace with your file
+            
+            type_out("Your personal 24-hour sex slave starts… right now. No limits. No safewords unless you hear the real one.")
+            type_out("Tell me, Master… what are you going to do the second you open that door…?")
             
             c1, c2, c3 = st.columns(3)
-            if c1.button("Greet at the door – throat first, on knees when you walk in"):
-                data["service_choice"] = "door"; data["stage"] = 1; st.rerun()
-            if c2.button("Gaming slave – you play while I suck, that simple. Think you can handle it?"):
-                data["service_choice"] = "gaming"; data["stage"] = 1; st.rerun()
-            if c3.button("Fantasy fuck – any hole, any position, all day long"):
-                data["service_choice"] = "fantasy"; data["stage"] = 1; st.rerun()
-        
-        elif data["stage"] >= 1:
-            if data["service_choice"] == "door":
-                if data["substage"] == 0:
-                    type_out("Door opens… I’m right there on my knees, tits heavy and bare, nipples stiff from waiting, panties tangled at my knees, mouth wide open and slick with anticipation.")
-                    show_media("slave_day_opening2.jfif")
-                    simulate_thinking(2.2)
-                    type_out("You step inside… I crawl forward slowly, thighs glistening, eyes locked on yours… I nuzzle your bulge with my cheek, then unzip you with trembling teeth… take your thick cock straight to the back of my warm, waiting throat.")
-                    type_out("Mascara starts to streak almost instantly… soft gags filling the entryway… drool already dripping down my chin onto my bare tits… welcome home, my love.")
-                    data["substage"] = 1
-                    st.rerun()
-                elif data["substage"] == 1:
-                    type_out("You grip my hair tight… fuck my face harder… my throat bulges visibly with every deep thrust, eyes watering, spit bubbling at the corners of my mouth.")
-                    type_out("You hold me down… unload thick, hot ropes straight down my throat… I swallow greedily, throat working around you, not spilling a single drop… thank you for every dollar you saved for us.")
-                    type_out("What next? Keep me on my knees or drag me deeper into the house?")
-                    c1, c2 = st.columns(2)
-                    if c1.button("Keep on knees – more throat training"):
-                        data["substage"] = 2; st.rerun()
-                    if c2.button("Move to floor – bend over"):
-                        data["stage"] = 2; st.rerun()
             
-            elif data["service_choice"] == "gaming":
-                if data["substage"] == 0:
-                    type_out("You sit down to game… I’m already between your legs, heavy tits pressed against your thighs, ass arched high, no panties… my warm, wet lips wrap around your cock the second you’re hard.")
-                    show_media("slave_gaming_pet_good1.jfif")
-                    type_out("Your POV… slow, deep bobs… tongue swirling lazily along the underside… keeping perfectly quiet so you can focus… but my pussy is dripping down my inner thighs, clit throbbing just from having you in my mouth.")
+            if c1.button("Ignore me at first (Shower Tease)"):
+                data["path"] = "shower_tease"
+                data["stage"] = "SHOWER_TEASE"
+                st.rerun()
+                
+            if c2.button("Claim me immediately (Rough Greeting)"):
+                data["path"] = "rough"
+                data["stage"] = "ROUGH_GREETING"
+                st.rerun()
+                
+            if c3.button("Drag me to shower (In Shower)"):
+                data["path"] = "in_shower"
+                data["stage"] = "IN_SHOWER"
+                st.rerun()
+
+        # ── PATH: SHOWER TEASE ──
+        elif data["stage"] == "SHOWER_TEASE":
+            if data["substage"] == 0:
+                type_out("Ohhh fuck yes… you’re really gonna make your needy little toy wait? 😩💦")
+                type_out("I love it when you’re mean like that.")
+                type_out("I’ll stay frozen exactly like this—knees aching on the cold floor, pants tangled at my ankles, mouth open, tongue out—until you decide I’ve earned it.")
+                
+                show_media("slave_day_wait.jpg")
+                simulate_thinking(2.0)
+                
+                type_out("Hurry back… or don’t. I’m already throbbing just imagining being your ignored little decoration.")
+                
+                if st.button("Finish shower & open the door"):
                     data["substage"] = 1
                     st.rerun()
-                elif data["substage"] == 1:
-                    show_media("slave_gaming_pet1.jfif")
-                    type_out("Mid-game… I speed up on your wins, slow and torturous on losses… throat milking you between rounds… eyes gazing up at you, pleading silently for your cum.")
-                    type_out("Hours later… mascara streaked down my cheeks… jaw aching sweetly… but I never stop… swallowing thick load after load… thank you for building this life for us.")
-                    type_out("You’re in a ranked match… do I edge you painfully or make you cum right now?")
-                    c1, c2 = st.columns(2)
-                    if c1.button("Edge me – keep me throbbing for hours"):
-                        data["punishment_points"] += 1
-                        type_out("Yes Master… I slow to feather-light licks… edging you cruelly… whimpering softly like a needy pet, pussy clenching around nothing.")
-                        data["substage"] = 2
-                        st.rerun()
-                    if c2.button("Make me cum now – fill my throat mid-game"):
-                        type_out("I deepthroat hard… you explode down my throat while you clutch the controller… I swallow it all, moaning quietly around you.")
-                        data["stage"] = 2
-                        st.rerun()
             
-            elif data["service_choice"] == "fantasy":
-                if data["substage"] == 0:
-                    type_out("I’m your living fantasy… already naked, skin flushed and warm, thick plug stretching my ass, pussy glistening and swollen… waiting for you to decide how to use me all day in our future home.")
-                    show_media("slave_day_sexy_outfit1.jfif")
-                    type_out("Do you want me to slip into my sexy outfit… lace hugging my curves, barely covering my hard nipples and dripping pussy… or should I just be your good little pet? Tail swaying, ears on, completely naked and quivering?")
-                    show_media("slave_gaming_pet_good1.jfif")
-                    type_out("Or maybe you want your pet to show you some extra attention… crawling between your legs, sucking you slow and deep while you relax?")
-                    show_media("slave_gaming_pet1.jfif")
-                    type_out("Or have your pet hold your cock with her tight ass while you game… keeping you warm, throbbing, buried inside me?")
-                    show_media("slave_after_gaming_ass_tease1.jfif")
-                    type_out("You choose the position… I’m yours however you want.")
-                    show_media("slave_day_multi2.jfif")
-                    type_out("Or watch me fuck myself with all my toys… stretching my holes, moaning your name, keeping myself soaked and ready for when you finally take me?")
-                    show_media("slave_day_fuck_toys1.jfif")
-                    type_out("Or just look at me like this… still half-clothed, pussy lips swollen and peeking out, tits bare and aching… so how do you want me, Daddy? I’m all yours.")
-                    show_media("slave_day_close1.jfif")
-                    type_out("Tell me… how should your slave start serving you tonight?")
+            elif data["substage"] == 1:
+                type_out("Mouth still wide. Eyes closed submissively. I’m ready… please…")
+                type_out("You walk past slowly the first time—cock glistening, brushing my lips just enough to make me whimper.")
+                type_out("Second pass: I lunge eagerly. Lips wrap tight around the head, sucking slow and sloppy.")
+                type_out("Third pass: Hungrier. Sloppier. I take you deeper, moaning around your length like the pathetic, cock-starved girlfriend I am.")
+                
+                type_out("So… now that you’ve had your fun making me worship it… what’s next?")
+                
+                c1, c2 = st.columns(2)
+                if c1.button("Strip & join me in shower"):
+                    data["stage"] = "SHOWER_TIME"
+                    data["substage"] = 0
+                    st.rerun()
+                if c2.button("Take me to bed already"):
+                    data["stage"] = "BEDTIME"
+                    data["substage"] = 0
+                    st.rerun()
+
+        # ── PATH: ROUGH GREETING ──
+        elif data["stage"] == "ROUGH_GREETING":
+            if data["substage"] == 0:
+                type_out("Ohhh fuck yes baby… straight to claiming what’s yours. 😈💦")
+                type_out("Door swings open. No words. You close the distance in two steps.")
+                type_out("Your hand dives between my spread thighs—two fingers slamming straight into my dripping, aching cunt.")
+                type_out("I scream-moan around the other hand you shove deep into my open mouth, muffling me while I suck your fingers like they’re your cock.")
+                
+                show_media("slave_day_rough.jpg")
+                
+                type_out("You finger-fuck me mercilessly—deep, fast curls hammering that spot until my whole body jolts.")
+                type_out("I’m whimpering around your fingers—“Please… don’t stop… gonna cum for you… please Master…”")
+                
+                if st.button("Make me cum & clean your fingers"):
                     data["substage"] = 1
                     st.rerun()
-                elif data["substage"] == 1:
-                    show_media("slave44.jpeg")
-                    type_out("End of day… naked, tied spread-eagle on our future bed… skin flushed and marked, eyes glassy and rolled back… completely fucked-out, holes still twitching and leaking.")
-                    show_media("slave55.jpeg")
-                    show_media("slave90.jpeg")
-                    type_out("Your slave is sore, dripping, utterly ruined… thank you for using me all day. This is what we saved for… our own place, our own time, our own pleasure.")
-                    simulate_thinking(2.6)
-                    type_out("Slave Day complete… your toy is exhausted but still yours whenever you want 🖤")
-                    if data["punishment_points"] > 2:
-                        type_out("…and I’ve earned punishment tomorrow for being such a needy, dripping slut.")
-                    if st.button("End Slave Day – your slave awaits tomorrow’s orders", key="slave_finish_interactive"):
-                        st.session_state.pop("slave_day", None)
-                        st.session_state.turn_state = "PRIZE_DONE"
-                        st.rerun()
-        
-        if st.button("🎰 The Exit - Pause my slavery for now?", key="slave_exit_interactive"):
+            
+            elif data["substage"] == 1:
+                type_out("Mmm… you’ve got me so fucking worked up now… pussy still twitching around nothing… clit throbbing… 😩")
+                type_out("So what’s next while I’m still your dripping, obedient prize? Pick one, baby 👅")
+                
+                c1, c2 = st.columns(2)
+                if c1.button("Take me to the shower"):
+                    data["stage"] = "IN_SHOWER"
+                    data["substage"] = 0
+                    st.rerun()
+                if c2.button("Gaming on the couch"):
+                    data["stage"] = "GAMING"
+                    data["substage"] = 0
+                    st.rerun()
+
+        # ── PATH: GAMING ──
+        elif data["stage"] == "GAMING":
+            if data["substage"] == 0:
+                type_out("You get comfy on the edge of the bed. Phone in hand, legs relaxed.")
+                type_out("I crawl over quietly with a soft smile, settle between your thighs, wearing my pet outfit. I can be your perfect pet.")
+                type_out("I gently unzip your pants, take your dick out, and begin to lick. Tiny little kitten licks.")
+                
+                show_media("slave_day_gaming.jpg")
+                
+                type_out("As you start to race I take you into my mouth slowly — warm, wet. No rush at all.")
+                type_out("When you nail a perfect lap → I suck a little deeper and slower.")
+                type_out("When you spin out → I stay gentle and comforting.")
+                type_out("My pussy gets wetter and achier the longer I stay like this... happy just being close.")
+                
+                c1, c2 = st.columns(2)
+                if c1.button("Take your pet to bed"):
+                    data["stage"] = "BEDTIME"
+                    data["substage"] = 0
+                    st.rerun()
+                if c2.button("Finish in my mouth & cuddle"):
+                    data["stage"] = "TOMORROW"
+                    data["substage"] = 0
+                    st.rerun()
+
+        # ── PATH: IN SHOWER ──
+        elif data["stage"] == "IN_SHOWER":
+            if data["substage"] == 0:
+                type_out("You step under the hot spray, cock already hard and glistening again.")
+                type_out("I kneel right outside on the tile—naked now, mouth open, tongue out, waiting like a good on-call toy.")
+                type_out("Every few minutes—whenever the mood strikes—you reach out, fist my hair, and pull my face forward.")
+                type_out("I take you deep—sloppy, thirsty blowjob breaks while water cascades over your body.")
+                
+                if st.button("Done showering? Decide my fate"):
+                    data["substage"] = 1
+                    st.rerun()
+            
+            elif data["substage"] == 1:
+                type_out("You push me off, let me gasp and drool strings of spit onto my tits… and go back to soaping up.")
+                type_out("What do you do with the desperate, soaked, shivering slut who’s been waiting so patiently? 🔥")
+                
+                c1, c2 = st.columns(2)
+                if c1.button("Strip me & wash me (Shower Time)"):
+                    data["stage"] = "SHOWER_TIME"
+                    data["substage"] = 0
+                    st.rerun()
+                if c2.button("Dry off & Bedtime"):
+                    data["stage"] = "BEDTIME"
+                    data["substage"] = 0
+                    st.rerun()
+
+        # ── PATH: SHOWER TIME (WASHING) ──
+        elif data["stage"] == "SHOWER_TIME":
+            type_out("You turn off the water briefly, step out dripping, voice low: “Strip. All the way. Now.”")
+            type_out("I peel off whatever’s left, leaving me naked and exposed on the bathroom floor.")
+            type_out("You grab the body wash, pour it straight onto my tits.")
+            
+            show_media("slave_day_wash.jpg")
+            
+            type_out("Hands everywhere—lathering my breasts until nipples are rock-hard, soapy fingers sliding between my thighs, 'washing' my stuffed, swollen pussy.")
+            type_out("When you’re satisfied, you step back.")
+            
+            if st.button("Dry off (My tongue is the towel)"):
+                data["stage"] = "DRY_OFF"
+                st.rerun()
+
+        # ── PATH: DRY OFF ──
+        elif data["stage"] == "DRY_OFF":
+            type_out("No towel for your cock. Just my tongue.")
+            type_out("I kneel again, licking every drop of water off your shaft, your balls, slow little kitten licks until only my spit remains and you’re throbbing hard again.")
+            
+            if st.button("Take me to bed"):
+                data["stage"] = "BEDTIME"
+                st.rerun()
+
+        # ── PATH: BEDTIME ──
+        elif data["stage"] == "BEDTIME":
+            type_out("You lead me (or make me crawl) to the bedroom.")
+            type_out("Naked, ass swaying, still slick and marked from earlier. I climb onto the bed on all fours—back arched, thighs spread.")
+            type_out("You slide under the covers, get comfortable… then pull me in.")
+            
+            show_media("slave_day_bed.jpg")
+            
+            type_out("All night. All tomorrow. No rush.")
+            type_out("Whenever you stir—half-hard, sleepy, needy—you simply roll me onto my back or side, spread my legs sleepily, and sink in slow.")
+            type_out("I stay wet, ready, sensitive—waking every time you use me like your personal warm fucktoy in the dark.")
+            
+            if st.button("Shall I tell you about tomorrow?"):
+                data["stage"] = "TOMORROW"
+                st.rerun()
+
+        # ── PATH: TOMORROW (Finale) ──
+        elif data["stage"] == "TOMORROW":
+            if data["substage"] == 0:
+                type_out("I’m still so wet from last night… and I’ve been thinking about today.")
+                type_out("You get to keep me locked in our room all day — your perfect little toy, ready whenever you want.")
+                type_out("Door stays closed. I don’t leave. You come and go as you do chores, errands, whatever… and every time you walk in, I’m right here, waiting, open, dripping for you.")
+                
+                show_media("slave_day_tomorrow.jpg")
+                
+                type_out("I’ll be naked (or in whatever cute lingerie you pick), collared, maybe light cuffs on my wrists.")
+                type_out("Your dirty little toy for the whole day starts now. No schedule. No rush.")
+                type_out("So tell me, baby… how do you want to start the day with your locked-up toy? Pick one to set the tone…")
+                
+                c1, c2, c3 = st.columns(3)
+                
+                if c1.button("Quick & Casual (Quick Mouth)"):
+                    data["substage"] = "quick"
+                    st.rerun()
+                if c2.button("Pet Game Mode (Pet Play)"):
+                    data["substage"] = "pet"
+                    st.rerun()
+                if c3.button("Slow Tease & DP (Slow DP)"):
+                    data["substage"] = "dp"
+                    st.rerun()
+
+            elif data["substage"] == "quick":
+                type_out("You walk in after your first chore (coffee, whatever), find me on my knees by the bed, mouth already open.")
+                type_out("Slide in deep for a fast, sloppy morning throat fuck — hold my head, cum down my throat if you want.")
+                type_out("Then pull out, pat my cheek, and leave me gasping and smiling while you go back to your day.")
+                if st.button("End Prize"):
+                    st.session_state.pop("slave_day", None)
+                    st.session_state.turn_state = "PRIZE_DONE"
+                    st.rerun()
+
+            elif data["substage"] == "pet":
+                type_out("You clip on my favorite soft leash, make me crawl around the room on all fours.")
+                type_out("Pet my hair, call me your sweet kitten, have me nuzzle and lick your cock lazily while you sit on the edge of the bed.")
+                type_out("Whenever you want, pull me up to ride you reverse or bend over for a quick ass fuck. Lots of praise, soft spanks, ear scratches.")
+                if st.button("End Prize"):
+                    st.session_state.pop("slave_day", None)
+                    st.session_state.turn_state = "PRIZE_DONE"
+                    st.rerun()
+
+            elif data["substage"] == "dp":
+                type_out("You come in, flip me upside down off the edge of the bed (head hanging, legs spread wide).")
+                type_out("Fuck my mouth slow and deep while fingering my pussy or sliding a toy in my ass — building me up until I’m moaning around your cock.")
+                type_out("Then flip me back, DP me gently but firmly until I cum shaking for you.")
+                if st.button("End Prize"):
+                    st.session_state.pop("slave_day", None)
+                    st.session_state.turn_state = "PRIZE_DONE"
+                    st.rerun()
+
+        # Global Exit
+        if st.button("🎰 The Exit - Save for later?"):
             st.session_state.pop("slave_day", None)
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
 
-elif st.session_state.turn_state == "PRIZE_DONE":
-    type_out("Session Complete. I've saved your progress, daddy. 💋")
-    st.success("✅ Prize Claimed & Saved.")
-    
     # Large, obvious buttons for next steps
     c1, c2, c3 = st.columns(3)
     
@@ -2081,6 +2220,7 @@ elif st.session_state.turn_state == "PRIZE_DONE":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
