@@ -1942,7 +1942,7 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
     if "slave_day" not in st.session_state:
         st.session_state.slave_day = {
             "stage": "INTRO",
-            "path": None,  # "shower_tease", "rough", "in_shower"
+            "path": None,
             "substage": 0
         }
 
@@ -1965,7 +1965,7 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
             type_out("Shirt shoved up high over my tits, nipples stiff from the cool air and anticipation.")
             type_out("Mouth open wide, tongue flat and out, drooling just a little already like the desperate little trophy I am.")
             
-            show_media("slave_day_intro.jpg") # Replace with your file
+            show_media("slave_day_intro.jpg")
             
             type_out("Your personal 24-hour sex slave starts… right now. No limits. No safewords unless you hear the real one.")
             type_out("Tell me, Master… what are you going to do the second you open that door…?")
@@ -1973,17 +1973,14 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
             c1, c2, c3 = st.columns(3)
             
             if c1.button("Ignore me at first (Shower Tease)"):
-                data["path"] = "shower_tease"
                 data["stage"] = "SHOWER_TEASE"
                 st.rerun()
                 
             if c2.button("Claim me immediately (Rough Greeting)"):
-                data["path"] = "rough"
                 data["stage"] = "ROUGH_GREETING"
                 st.rerun()
                 
             if c3.button("Drag me to shower (In Shower)"):
-                data["path"] = "in_shower"
                 data["stage"] = "IN_SHOWER"
                 st.rerun()
 
@@ -1996,7 +1993,6 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
                 
                 show_media("slave_day_wait.jpg")
                 simulate_thinking(2.0)
-                
                 type_out("Hurry back… or don’t. I’m already throbbing just imagining being your ignored little decoration.")
                 
                 if st.button("Finish shower & open the door"):
@@ -2014,11 +2010,9 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
                 c1, c2 = st.columns(2)
                 if c1.button("Strip & join me in shower"):
                     data["stage"] = "SHOWER_TIME"
-                    data["substage"] = 0
                     st.rerun()
                 if c2.button("Take me to bed already"):
                     data["stage"] = "BEDTIME"
-                    data["substage"] = 0
                     st.rerun()
 
         # ── PATH: ROUGH GREETING ──
@@ -2047,6 +2041,7 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
                     data["stage"] = "IN_SHOWER"
                     data["substage"] = 0
                     st.rerun()
+                # HERE IS THE GAMING BUTTON
                 if c2.button("Gaming on the couch"):
                     data["stage"] = "GAMING"
                     data["substage"] = 0
@@ -2057,13 +2052,15 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
             if data["substage"] == 0:
                 type_out("You get comfy on the edge of the bed. Phone in hand, legs relaxed.")
                 type_out("I crawl over quietly with a soft smile, settle between your thighs, wearing my pet outfit. I can be your perfect pet.")
-                type_out("I gently unzip your pants, take your dick out, and begin to lick. Tiny little kitten licks.")
+                type_out("I gently unzip your pants, take your dick out, and begin to lick. Tiny little kitten licks on the shaft until you're rock hard.")
                 
                 show_media("slave_day_gaming.jpg")
                 
                 type_out("As you start to race I take you into my mouth slowly — warm, wet. No rush at all.")
-                type_out("When you nail a perfect lap → I suck a little deeper and slower.")
-                type_out("When you spin out → I stay gentle and comforting.")
+                type_out("While you race:")
+                type_out("• When you nail a perfect lap → I suck a little deeper and slower, moaning softly.")
+                type_out("• When you get a podium finish → I give you extra loving bobs, tongue circling the head.")
+                type_out("• When you spin out → I stay gentle and comforting, soothing sucks.")
                 type_out("My pussy gets wetter and achier the longer I stay like this... happy just being close.")
                 
                 c1, c2 = st.columns(2)
@@ -2071,7 +2068,7 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
                     data["stage"] = "BEDTIME"
                     data["substage"] = 0
                     st.rerun()
-                if c2.button("Finish in my mouth & cuddle"):
+                if c2.button("Keep going until you finish"):
                     data["stage"] = "TOMORROW"
                     data["substage"] = 0
                     st.rerun()
@@ -2136,7 +2133,7 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
             
             type_out("All night. All tomorrow. No rush.")
             type_out("Whenever you stir—half-hard, sleepy, needy—you simply roll me onto my back or side, spread my legs sleepily, and sink in slow.")
-            type_out("I stay wet, ready, sensitive—waking every time you use me like your personal warm fucktoy in the dark.")
+            type_out("Deep, lazy thrusts... I stay wet, ready, sensitive—waking every time you use me like your personal warm fucktoy in the dark.")
             
             if st.button("Shall I tell you about tomorrow?"):
                 data["stage"] = "TOMORROW"
@@ -2220,6 +2217,7 @@ elif st.session_state.turn_state == "PRIZE_SLAVE_DAY":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
