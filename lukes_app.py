@@ -1957,322 +1957,275 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
 
         # ── PRE-INTRO: Time Travel Choice ──
         if data["stage"] == "PRE_INTRO":
-            type_out("****SLOW CLAP**** You've won the ultimate prize, the jackpot: “FLASHBACK”. Get comfy because it's gonna take me a minute to explain how this works.")
+            type_out("****SLOW CLAP**** You've won the ultimate prize, the jackpot: “FLASHBACK”.")
             simulate_thinking(3.0)
             
-            type_out("You see… I've been thinking about us. Eight years ago we were wild, broke… (ok we're still pretty broke, just not as broke), and fucking like there was no tomorrow. Speed hits, bong rips, coffee staring at galaxies till sunrise…")
+            type_out("You see… I've been thinking about us. Eight years ago we were wild, broke… Speed hits, bong rips, coffee staring at galaxies till sunrise…")
             
-            show_media(random.choice(["coffee_gallaxy.jfif", "coffee_gallaxy1.jfif", "coffee_gallaxy2.jfif", "coffee_gallaxy3.jfif"]))
+            # COFFEE GALAXY
+            show_media(random.choice([
+                "coffee_gallaxy1.jfif", "coffee_gallaxy2.jfif", "coffee_gallaxy3.jfif", 
+                "coffee_gallaxy4.jfif", "coffee_gallaxy5.jfif"
+            ]))
             
             type_out("What if we time travel back? Just for a bit. Pretend it's then — no drift, no bills, just us.")
             type_out("What do you say? You wanna take a trip back, with me?")
             
-            show_media(random.choice(["flashback_invite.jfif", "flashback_invite1.jfif"]))
+            # INVITE
+            show_media(random.choice([
+                "flashback_invite1.jfif", "flashback_invite2.jfif", "flashback_invite3.jfif"
+            ]))
             
             c1, c2 = st.columns(2)
-            
             if c1.button("Time travel at home in our room — 24 full hours"):
-                data["mode"] = "home_24"
-                data["stage"] = "INTRO"
-                st.rerun()
-                
+                data["mode"] = "home_24"; data["stage"] = "INTRO"; st.rerun()
             if c2.button("Time travel in a hotel — 10 intense hours"):
-                data["mode"] = "hotel_10"
-                data["stage"] = "INTRO"
-                st.rerun()
+                data["mode"] = "hotel_10"; data["stage"] = "INTRO"; st.rerun()
 
         # ── STAGE: INTRO (branches based on mode) ──
         if data["stage"] == "INTRO":
             
             # === HOME MODE ===
             if data["mode"] == "home_24":
-                type_out("Home it is — our room, 24 hours straight. Door locked, world off. We're back eight years ago: broke, horny, and a whole lot of oil.")
-                type_out("Once you say the word, I’ll be waiting like your needy little secret, pussy soaked, ready for the speed hit and all-night mess.")
-                simulate_thinking(2.0)
-                type_out("When you come home and walk into our room, I’ll be right there to greet you. Not with a “hey” or “how was your day?” No. This time… pants down, shirt up, tits out, mouth wide, tongue out, drooling like “come on, claim your girl like old times.”")
+                type_out("Home it is — our room, 24 hours straight. Door locked, world off.")
+                type_out("When you come home, I’ll be right there to greet you… pants down, shirt up, mouth wide, tongue out.")
                 
-                show_media(random.choice(["slave_day_intro1.jfif", "slave_day_intro2.jfif", "slave_day_opening1.jfif"]))
+                # HOME INTRO
+                show_media(random.choice(["slave_day_opening1.jfif", "slave_day_opening2.jfif"]))
                 
                 type_out("So tell me, what would you have done to me 8 years ago?")
-                
                 c1, c2, c3 = st.columns(3)
-                
-                if c1.button("Go take a shower, walk right by me (Shower Tease)"):
-                    data["stage"] = "SHOWER_TEASE"
-                    st.rerun()
-                    
-                if c2.button("Stick your fingers in me, rough hello (Rough Greeting)"):
-                    data["stage"] = "ROUGH_GREETING"
-                    st.rerun()
-                    
-                if c3.button("Tell me to strip, guide to shower (In Shower)"):
-                    data["stage"] = "IN_SHOWER"
-                    st.rerun()
+                if c1.button("Go take a shower (Shower Tease)"):
+                    data["stage"] = "SHOWER_TEASE"; st.rerun()
+                if c2.button("Stick fingers in me (Rough Greeting)"):
+                    data["stage"] = "ROUGH_GREETING"; st.rerun()
+                if c3.button("Guide me to shower (In Shower)"):
+                    data["stage"] = "IN_SHOWER"; st.rerun()
 
             # === HOTEL MODE ===
             else:  
                 # Substage 0: Pick Outfit
                 if data["substage"] == 0:
-                    type_out("Hotel escape — 10 hours in a cheap room, no interruptions, no chores. Just us time-traveled back eight years ago: wild, fresh, fucking till checkout.")
-                    type_out("I'm already in the room, waiting for you to pick me up… but first, you get to dress me up. Pink and pretty, black lace, choker — make your getaway girl look like the slutty princess you always wanted.")
-                    type_out("Pick how you want me dolled up:")
+                    type_out("Hotel escape — 10 hours in a cheap room. I'm waiting for you… but first, you dress me up.")
                     
-                    show_media("dress_me_up1.jfif") 
+                    # DRESS UP TEASER
+                    show_media(random.choice(["dress_me_up1.jfif", "dress_me_up2.jfif"]))
                     
                     c1, c2, c3 = st.columns(3)
-                    
                     if c1.button("Pink and Pretty — mini dress"):
                         data["outfit"] = "pink_dress"
-                        type_out("You pick the pink and pretty — tight mini dress, barely covering my ass, white lace edging the hem and neckline. I slip it on slow, twirl for you, choker snug around my neck.")
-                        type_out("Dress rides up as I bend over the bed, lace teasing skin. 'Like this, babe? Your pretty little hotel slut ready to be wrecked.'")
-                        show_media(random.choice(["flashback_hotel_pink_dress1.jfif", "flashback_hotel_pink_dress2.jfif"]))
-                        data["substage"] = 1
-                        st.rerun()
+                        type_out("You pick the pink and pretty — tight mini dress, barely covering my ass.")
+                        show_media(random.choice([
+                            "flashback_hotel_pink_dress1.jfif", "flashback_hotel_pink_dress2.jfif", 
+                            "flashback_hotel_pink_dress3.jfif", "flashback_hotel_pink_dress4.jfif"
+                        ]))
+                        data["substage"] = 1; st.rerun()
                         
                     if c2.button("Black skirt — school girl style"):
                         data["outfit"] = "black_skirt"
-                        type_out("All black and naughty, easy access skirt, lace bra that barely holds my tits. Choker tight, skirt flipping up as I crawl onto the bed.")
-                        type_out("'Easy to flip up and take what's yours… your naughty schoolgirl waiting.'")
+                        type_out("All black and naughty, easy access skirt. 'Your naughty schoolgirl waiting.'")
                         show_media(random.choice(["flashback_hotel_black_skirt1.jfif", "flashback_hotel_black_skirt2.jfif"]))
-                        data["substage"] = 1
-                        st.rerun()
+                        data["substage"] = 1; st.rerun()
                         
                     if c3.button("Just black lace lingerie + choker"):
                         data["outfit"] = "lace_only"
-                        type_out("Black lace lingerie — sheer bra and panties, choker high on my neck. Garterbelt, thigh highs, lace hugging curves.")
-                        type_out("'No dress, no skirt… just lace and me. Your 8-year side chick ready to be used.'")
-                        show_media(random.choice(["flashback_hotel_lace1.jfif", "flashback_hotel_lace2.jfif"]))
-                        data["substage"] = 1
-                        st.rerun()
+                        type_out("Black lace lingerie — sheer bra and panties. 'Just lace and me.'")
+                        show_media(random.choice([
+                            "flashback_hotel_lace1.jfif", "flashback_hotel_lace2.jfif", 
+                            "flashback_hotel_lace3.jfif", "flashback_hotel_lace4.jfif"
+                        ]))
+                        data["substage"] = 1; st.rerun()
 
                 # Substage 1: The Reveal & Choice
                 elif data["substage"] == 1:
-                    type_out("Dressed up and pretty… I spread on the hotel bed, legs open, mouth parted, eyes begging. 'Door opens? Come claim your dolled-up girl.'")
-                    type_out("High creeping in already — speed hit waiting, bong ready, 10 hours to go wild.")
+                    type_out("Dressed up and pretty… I spread on the hotel bed. 'Door opens? Come claim your dolled-up girl.'")
                     
-                    show_media(random.choice(["flashback_hotel_bed_pose1.jfif", "flashback_hotel_bed_pose2.jfif"]))
+                    # HOTEL BED POSE
+                    show_media(random.choice([
+                        "flashback_hotel_bed_pose1.jfif", "flashback_hotel_bed_pose2.jfif", 
+                        "flashback_hotel_bed_pose3.jfif"
+                    ]))
                     
                     type_out("So tell me, possessive boy… what are you doing the second you walk in?")
-                    
                     c1, c2, c3 = st.columns(3)
-                    
                     if c1.button("Ignore me first (Shower Tease)"):
-                        data["stage"] = "SHOWER_TEASE"
-                        st.rerun()
-                        
+                        data["stage"] = "SHOWER_TEASE"; st.rerun()
                     if c2.button("Claim me now (Rough Greeting)"):
-                        data["stage"] = "ROUGH_GREETING"
-                        st.rerun()
-                        
+                        data["stage"] = "ROUGH_GREETING"; st.rerun()
                     if c3.button("Drag me to shower (In Shower)"):
-                        data["stage"] = "IN_SHOWER"
-                        st.rerun()
+                        data["stage"] = "IN_SHOWER"; st.rerun()
 
         # ── PATH: SHOWER TEASE ──
         elif data["stage"] == "SHOWER_TEASE":
             if data["substage"] == 0:
-                type_out("Oh fuck yes… you're really gonna make your wild girl wait? 😩💦")
-                type_out("Fine — knees on tile, pants tangled, mouth open, tongue out, drooling like I'm already high thinking about you. Stay frozen till you decide I've earned it.")
+                type_out("Oh fuck yes… knees on tile, pants tangled. Stay frozen till you decide I've earned it.")
                 
+                # SHOWER TEASE OUTSIDE
                 show_media(random.choice(["slave_day_outsideshower1.jfif", "slave_day_outsideshower2.jfif"]))
-                simulate_thinking(2.0)
-                type_out("Hurry back… or don't. I'm throbbing imagining you in there, cock hard, knowing I'm out here dripping for you.")
                 
+                simulate_thinking(2.0)
+                type_out("Hurry back… or don't. I'm throbbing imagining you in there.")
                 if st.button("Finish shower & open the door"):
-                    data["substage"] = 1
-                    st.rerun()
+                    data["substage"] = 1; st.rerun()
             
             elif data["substage"] == 1:
                 type_out("Mouth wide, eyes closed. Ready… 'fuck my face when you're done teasing.'")
-                type_out("You walk past slow — cock brushing lips, making me whimper. Second pass: lunge, sloppy sucks. By five I'm begging 'don't be an asshole, just let me have it…'")
-                
                 c1, c2 = st.columns(2)
                 if c1.button("Strip & join me in shower"):
-                    data["stage"] = "SHOWER_TIME"
-                    st.rerun()
+                    data["stage"] = "SHOWER_TIME"; st.rerun()
                 if c2.button("Take me to bed — start the all-nighter"):
-                    data["stage"] = "ALL_NIGHTER"
-                    data["substage"] = 0
-                    st.rerun()
+                    data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
 
         # ── PATH: ROUGH GREETING ──
         elif data["stage"] == "ROUGH_GREETING":
             if data["substage"] == 0:
-                type_out("Fuck yes — straight to owning your girl. 😈💦")
-                type_out("Door flies open. Fingers slam deep in my cunt, hand stuffing my mouth. I suck 'em like cock, drool everywhere.")
+                type_out("Door flies open. Fingers slam deep in my cunt, hand stuffing my mouth.")
                 
-                show_media(random.choice(["slave_day_introfinger5.jfif", "slave_day_intro_plug.jfif"]))
+                # ROUGH FINGERING
+                show_media(random.choice([
+                    "slave_day_introfinger5.jfif", "slave_day_intro_plug.jfif", 
+                    "slave_day_introfinger4.jfif", "slave_day_introfinger2.jfif"
+                ]))
                 
-                type_out("Finger-fuck me stupid — hard, fast, hitting that spot. Muffled 'don't stop… fuck me dead…'")
-                
+                type_out("Finger-fuck me stupid. Muffled 'don't stop… fuck me dead…'")
                 if st.button("Make me cum & clean your fingers"):
-                    data["substage"] = 1
-                    st.rerun()
+                    data["substage"] = 1; st.rerun()
             
             elif data["substage"] == 1:
-                type_out("Pussy twitching, clit throbbing… wrecked already. 😩")
-                type_out("What's next while your girl's dripping? 👅")
-                
+                type_out("Pussy twitching, clit throbbing… wrecked already. What's next?")
                 c1, c2, c3 = st.columns(3)
                 if c1.button("Take me to shower"):
-                    data["stage"] = "IN_SHOWER"
-                    data["substage"] = 0
-                    st.rerun()
+                    data["stage"] = "IN_SHOWER"; data["substage"] = 0; st.rerun()
                 if c2.button("Watch porn on the couch"):
-                    data["stage"] = "PORN_WATCH"
-                    data["substage"] = 0
-                    st.rerun()
+                    data["stage"] = "PORN_WATCH"; data["substage"] = 0; st.rerun()
                 if c3.button("Gaming on the couch"):
-                    data["stage"] = "GAMING"
-                    data["substage"] = 0
-                    st.rerun()
+                    data["stage"] = "GAMING"; data["substage"] = 0; st.rerun()
 
         # ── PATH: PORN_WATCH ──
         elif data["stage"] == "PORN_WATCH":
             if data["substage"] == 0:
-                type_out("You flop on the couch, TV or phone fired up with porn — some filthy scene playing loud, moans filling the room like it's eight years ago.")
-                type_out("I crawl over quiet, soft smile, pet outfit hugging me tight. Settle between your thighs — your wild little kitten ready to make this better.")
+                type_out("You flop on the couch, porn playing loud. I crawl over, pet outfit hugging me tight.")
                 
-                show_media(random.choice(["flashback_porn_couch1.jfif", "flashback_porn_couch2.jfif"]))
+                # PORN COUCH
+                show_media(random.choice([
+                    "flashback_porn_couch1.jfif", "flashback_porn_couch2.jfif", 
+                    "flashback_porn_couch3.jfif", "flashback_porn_couch4.jfif", "flashback_porn_couch5.jfif"
+                ]))
                 
-                type_out("While the porn plays, I mirror the action... deeper sucks, sloppy bobs, tongue swirling.")
-                type_out("Pussy gets wetter and achier the longer… clit throbbing in time with the moans on screen. High from earlier still buzzing…")
-                
+                type_out("I mirror the action... deeper sucks, sloppy bobs, tongue swirling.")
                 c1, c2 = st.columns(2)
                 if c1.button("Take your kitten to bed"):
-                    data["stage"] = "ALL_NIGHTER"
-                    data["substage"] = 0
-                    st.rerun()
+                    data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
                 if c2.button("Keep watching — finish in my mouth"):
-                    type_out("You let the scene play out… I suck harder when the on-screen girl cums, throat working you till you unload down my throat.")
-                    type_out("Swallow every drop, lick you clean, look up smirking 'good porn choice, babe… now what?'")
+                    type_out("You let the scene play out… I suck harder when the on-screen girl cums.")
                     if st.button("Head to all-nighter"):
-                        data["stage"] = "ALL_NIGHTER"
-                        data["substage"] = 0
-                        st.rerun()
+                        data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
 
         # ── PATH: GAMING ──
         elif data["stage"] == "GAMING":
             if data["substage"] == 0:
-                type_out("You flop on the couch, racing game loading, controller in hand, legs spread like it's just another night eight years ago.")
-                type_out("I'm crawling over already, high buzzing. What do you want your wild girl wearing?")
-                
-                show_media("flashback_gaming_choice.jpg")
-                
+                type_out("You flop on the couch, racing game loading. What do you want your wild girl wearing?")
+                # Removed "Choice" image as requested
                 c1, c2 = st.columns(2)
                 if c1.button("Pet outfit — collar, ears, tail plug"):
-                    data["substage"] = "pet_outfit"
-                    st.rerun()
+                    data["substage"] = "pet_outfit"; st.rerun()
                 if c2.button("Nothing at all — completely bare"):
-                    data["substage"] = "nude"
-                    st.rerun()
+                    data["substage"] = "nude"; st.rerun()
 
             elif data["substage"] == "pet_outfit":
-                type_out("Pet outfit it is — collar jingling softly, tail plug snug in my ass. I settle between your thighs, nuzzle your lap, then unzip slow.")
-                show_media(random.choice(["slave_day_gaming_pet1.jfif", "slave_day_gaming_pet2.jfif"]))
-                type_out("Kitten licks up your shaft till you're rock hard, then take you warm and wet into my mouth. Slow, loving sucks while you race.")
-                
+                type_out("Pet outfit it is — collar jingling softly, tail plug snug in my ass.")
+                # GAMING PET
+                show_media(random.choice(["slave_day_gaming_pet1.jfif", "slave_day_gaming_pet2.jfif", "slave_day_gaming_pet3.jfif"]))
+                type_out("Kitten licks up your shaft till you're rock hard, then take you warm and wet into my mouth.")
                 c1, c2 = st.columns(2)
                 if c1.button("Take your kitten to bed"):
-                    data["stage"] = "ALL_NIGHTER"
-                    data["substage"] = 0
-                    st.rerun()
+                    data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
                 if c2.button("Keep playing — finish in my mouth"):
                     type_out("You finish the race… I suck harder on your victory lap, bell jingling.")
                     if st.button("Head to all-nighter"):
-                        data["stage"] = "ALL_NIGHTER"
-                        data["substage"] = 0
-                        st.rerun()
+                        data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
 
             elif data["substage"] == "nude":
-                type_out("Nothing at all — completely bare, skin flushed. Just me, naked and needy, crawling over to settle between your thighs.")
-                show_media(random.choice(["flashback_gaming_nude1.jfif", "flashback_gaming_nude2.jfif"]))
-                type_out("Skin on skin, tits brushing your legs as I unzip slow... taking you warm and wet into my mouth.")
-                
+                type_out("Nothing at all — completely bare. Just me, naked and needy, crawling over.")
+                # GAMING NUDE
+                show_media(random.choice([
+                    "flashback_gaming_nude1.jfif", "flashback_gaming_nude2.jfif", 
+                    "flashback_gaming_nude3.jfif", "flashback_gaming_nude4.jfif"
+                ]))
+                type_out("Skin on skin, tits brushing your legs as I unzip slow...")
                 c1, c2 = st.columns(2)
                 if c1.button("Take your naked girl to bed"):
-                    data["stage"] = "ALL_NIGHTER"
-                    data["substage"] = 0
-                    st.rerun()
+                    data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
                 if c2.button("Keep playing — finish in my mouth"):
-                    type_out("You finish the race… I suck harder on your victory lap, throat working till you unload.")
+                    type_out("You finish the race… I suck harder on your victory lap.")
                     if st.button("Head to all-nighter"):
-                        data["stage"] = "ALL_NIGHTER"
-                        data["substage"] = 0
-                        st.rerun()
+                        data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
 
         # ── PATH: IN_SHOWER ──
         elif data["stage"] == "IN_SHOWER":
             if data["substage"] == 0:
-                type_out("You step under hot water, cock hard again.")
-                type_out("I kneel outside tile — naked, mouth open, waiting like your on-call girl.")
+                type_out("You step under hot water. I kneel outside tile — naked, mouth open.")
                 show_media("slave_day_intro1.jfif")
                 if st.button("Done showering? Decide my fate"):
-                    data["substage"] = 1
-                    st.rerun()
+                    data["substage"] = 1; st.rerun()
             elif data["substage"] == 1:
-                type_out("Push me off, let me drool on my tits… then back to soaping like I'm just your break-time toy. 🔥")
+                type_out("Push me off, let me drool on my tits… then back to soaping.")
                 c1, c2 = st.columns(2)
                 if c1.button("Strip & wash your girl"):
-                    data["stage"] = "SHOWER_TIME"
-                    st.rerun()
+                    data["stage"] = "SHOWER_TIME"; st.rerun()
                 if c2.button("Dry off & Bedtime"):
-                    data["stage"] = "BEDTIME"
-                    st.rerun()
+                    data["stage"] = "BEDTIME"; st.rerun()
 
         # ── PATH: SHOWER_TIME ──
         elif data["stage"] == "SHOWER_TIME":
-            type_out("You turn off the water briefly, step out dripping, voice low: 'Strip. All the way. Now.'")
+            type_out("You turn off the water briefly. 'Strip. All the way. Now.'")
             show_media("slave_day_wash.jfif")
-            type_out("Hands everywhere — lathering my breasts until nipples are rock-hard, soapy fingers sliding between my thighs.")
+            type_out("Hands everywhere — lathering my breasts until nipples are rock-hard.")
             if st.button("Dry off (My tongue is the towel)"):
-                data["stage"] = "DRY_OFF"
-                st.rerun()
+                data["stage"] = "DRY_OFF"; st.rerun()
 
         # ── PATH: DRY_OFF ──
         elif data["stage"] == "DRY_OFF":
             type_out("No towel for your cock. Just my tongue.")
-            type_out("I kneel again, licking every drop of water off your shaft, your balls, until you're throbbing hard again.")
+            show_media("slave_day_sexy_outfit1.jfif")
+            type_out("I kneel again, licking every drop of water off your shaft.")
             if st.button("Take me to bed"):
-                data["stage"] = "BEDTIME"
-                st.rerun()
+                data["stage"] = "BEDTIME"; st.rerun()
 
         # ── PATH: BEDTIME ──
         elif data["stage"] == "BEDTIME":
-            type_out("You lead (or make me crawl) to bedroom. Naked, ass swaying, slick from earlier.")
-            show_media("slave_day_bed.jpg")
-            type_out("Slide under covers, pull me close. All night. Whenever you stir needy — roll me, sink in slow, lazy thrusts.")
-            type_out("Tomorrow? Let's chase the old all-nighter — speed spark, bong rips, coffee universes.")
+            type_out("You lead me to bedroom. Naked, ass swaying.")
+            # Reuse hotel bed pose for consistency if needed, or specific bedtime pic
+            show_media(random.choice(["flashback_hotel_bed_pose1.jfif", "flashback_hotel_bed_pose2.jfif", "flashback_hotel_bed_pose3.jfif"]))
+            type_out("Slide under covers, pull me close. All night. Whenever you stir needy.")
             if st.button("Tell me about tomorrow"):
-                data["stage"] = "ALL_NIGHTER"
-                data["substage"] = 0
-                st.rerun()
+                data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
 
         # ── PATH: ALL_NIGHTER ──
         elif data["stage"] == "ALL_NIGHTER":
             if data["substage"] == 0:
-                type_out("We're back — eight years ago. Speed hit done, buzz sparking. Bong on nightstand, coffee ready.")
-                type_out("First round… buzz hitting… what do you do with your wild girl?")
-                show_media(random.choice(["flashback_all_nighter.jpg", "flashback_hotel_bed_pose1.jfif"]))
+                type_out("We're back — eight years ago. Speed hit done, buzz sparking.")
+                
+                # ALL NIGHTER / BED POSE
+                show_media(random.choice([
+                    "flashback_hotel_bed_pose1.jfif", "flashback_hotel_bed_pose2.jfif", 
+                    "flashback_hotel_bed_pose3.jfif"
+                ]))
                 
                 c1, c2, c3, c4 = st.columns(4)
-                if c1.button("Bong Rip"):
-                    data["substage"] = "bong"; st.rerun()
-                if c2.button("Coffee Universe"):
-                    data["substage"] = "coffee"; st.rerun()
-                if c3.button("Fuck my face"):
-                    data["substage"] = "quick"; st.rerun()
-                if c4.button("Plastic Sheets (Oil Mess)"):
-                    data["stage"] = "PLASTIC_SHEETS"; data["substage"] = 0; st.rerun()
+                if c1.button("Bong Rip"): data["substage"] = "bong"; st.rerun()
+                if c2.button("Coffee Universe"): data["substage"] = "coffee"; st.rerun()
+                if c3.button("Fuck my face"): data["substage"] = "quick"; st.rerun()
+                if c4.button("Plastic Sheets"): data["stage"] = "PLASTIC_SHEETS"; data["substage"] = 0; st.rerun()
 
             elif data["substage"] == "bong":
-                type_out("Pack it, hand it over. I rip deep, hold, exhale slow. 'Look… another universe where we're rich.'")
+                type_out("Pack it, hand it over. I rip deep, hold, exhale slow.")
                 c1, c2 = st.columns(2)
                 if c1.button("Coffee Universe"): data["substage"] = "coffee"; st.rerun()
                 if c2.button("Use me now"): data["substage"] = "play_menu"; st.rerun()
 
             elif data["substage"] == "coffee":
-                type_out("Mugs in hand — coffee hot, cream swirling. We sit tangled, high, staring like fools.")
+                type_out("Mugs in hand — coffee hot, cream swirling.")
                 c1, c2 = st.columns(2)
                 if c1.button("Bong to keep rolling"): data["substage"] = "bong"; st.rerun()
                 if c2.button("Use your girl now"): data["substage"] = "play_menu"; st.rerun()
@@ -2285,39 +2238,47 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
                 if c3.button("DP"): data["substage"] = "dp"; st.rerun()
 
             elif data["substage"] == "quick":
-                type_out("Knees already, mouth wide — 'fuck my face, babe… hard, sloppy, like old times.'")
-                type_out("Grip hair, pound throat deep. 'Cum down my throat, possessive fuck… mark your girl.'")
+                type_out("Knees already, mouth wide — 'fuck my face, babe…'")
+                show_media("flash_fingers_mouth1.jfif") # QUICK MOUTH
+                type_out("Grip hair, pound throat deep.")
                 if st.button("Back to choices"): data["substage"] = 0; st.rerun()
                 if st.button("End Flashback"): st.session_state.pop("flashback", None); st.session_state.turn_state="PRIZE_DONE"; st.rerun()
 
             elif data["substage"] == "pet":
-                type_out("Leash clips, tug — crawling with high-tingle sass. 'Your wired kitten's back.'")
+                type_out("Leash clips, tug — crawling with high-tingle sass.")
                 if st.button("Back to choices"): data["substage"] = 0; st.rerun()
                 if st.button("End Flashback"): st.session_state.pop("flashback", None); st.session_state.turn_state="PRIZE_DONE"; st.rerun()
 
             elif data["substage"] == "dp":
-                type_out("Upside-down off bed. 'Fuck my face slow first… then wreck me.' Flip, DP deep — cock pounding one, toy in other.")
+                type_out("Upside-down off bed. 'Fuck my face slow first… then wreck me.'")
+                # SLOW DP
+                show_media(random.choice(["slave_day_fuck_toys1.jfif", "flash_toys1.jfif", "flash_fuck1.jfif"]))
                 if st.button("Back to choices"): data["substage"] = 0; st.rerun()
                 if st.button("End Flashback"): st.session_state.pop("flashback", None); st.session_state.turn_state="PRIZE_DONE"; st.rerun()
 
         # ── PLASTIC SHEETS ──
         elif data["stage"] == "PLASTIC_SHEETS":
             if data["substage"] == 0:
-                type_out("Oh fuck yes — plastic sheets time. Dollar-store special. Bottle after bottle of baby oil poured everywhere.")
-                type_out("I strip slow, crawl onto the glossy mess, body already shining. 'Come on, babe… fuck me dead on this slick shit.'")
-                show_media(random.choice(["flashback_plastic_oil7.jfif", "flashback_plastic_oil9.jfif"]))
+                type_out("Oh fuck yes — plastic sheets time. Dollar-store special.")
+                show_media(random.choice(["flashback_plastic_oil7.jfif", "flashback_plastic_oil9.jfif", "flashback_plastic_oil11.jfif"]))
                 
                 c1, c2, c3 = st.columns(3)
                 if c1.button("Fuck my face (Oil dripping)"):
-                    type_out("You straddle my chest — oil slick on my tits, cock sliding into my mouth. 'Deeper… make me choke while we slide around.'")
+                    type_out("You straddle my chest — oil slick on my tits.")
                     if st.button("Finish & Loop"): data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
                 if c2.button("DP me slippery"):
-                    type_out("You bend me over — plastic crinkling. Cock in pussy, toy in ass — slippery and full. 'Harder… make me cum on this mess.'")
+                    type_out("You bend me over — plastic crinkling.")
                     if st.button("Finish & Loop"): data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
-                if c3.button("Pet slide (Kitten on plastic)"):
-                    type_out("Leash clips — I crawl slippery on plastic. 'Your oiled kitten's here.' We roll around, bodies sliding, laughing 'this is so stupid and hot.'")
+                if c3.button("Pet slide"):
+                    type_out("Leash clips — I crawl slippery on plastic.")
                     if st.button("Finish & Loop"): data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
 
+        # Global Exit
+        if st.button("🎰 End Flashback - Save for later?"):
+            st.session_state.pop("flashback", None)
+            st.session_state.turn_state = "PRIZE_DONE"
+            st.rerun()
+            
         # Global Exit
         if st.button("🎰 End Flashback - Save for later?"):
             st.session_state.pop("flashback", None)
@@ -2349,6 +2310,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
