@@ -718,7 +718,7 @@ elif st.session_state.turn_state == "SPIN_SILVER":
 elif st.session_state.turn_state == "SPIN_GOLD":
     if st.session_state.data["tickets"] >= 100:
         st.session_state.data["tickets"] -= 100; save_data(st.session_state.data)
-        prizes = ["All 3 Holes", "Upside Down Throat Fuck", "Slave Day", "Anal Fuck", "Doggy Style Ready"]
+        prizes = ["All 3 Holes", "Upside Down Throat Fuck", "Flashback", "Anal Fuck", "Doggy Style Ready"]
         win = spin_animation("Gold", prizes)
         type_out(f"👑 JACKPOT: **{win}**")
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
@@ -2349,6 +2349,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
