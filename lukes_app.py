@@ -347,12 +347,24 @@ def spend_waterfall(amount, category):
                 return f"💀 BROKE. House Fund gone. Deducted ${remaining_cost:.2f} from **Blackout/Bills**. We are in trouble."
                 
 # ==========================================
-# ==========================================
 #       PART 5: SIDEBAR (THE STRIP-TEASE BANK)
 # ==========================================
+import os 
+
 with st.sidebar:
-    # --- 1. THE BANNER ---
-    st.image("my_banner2.jpg", use_container_width=True)
+    # --- 1. THE BANNER (SAFE LOAD) ---
+    # UPDATED to uppercase .JPG
+    banner_file = "my_banner2.JPG" 
+    
+    if os.path.exists(banner_file):
+        st.image(banner_file, use_container_width=True)
+    elif os.path.exists("my_banner2.jpg"): # Check lowercase just in case
+        st.image("my_banner2.jpg", use_container_width=True)
+    else:
+        # Fallback if image is missing so app doesn't crash
+        st.warning(f"⚠️ Missing: {banner_file}")
+        st.caption("Upload image to app folder")
+
     st.header("🏦 The Bank of Paige")
     
     # --- 2. THE STRIP-TEASE GOAL ---
@@ -423,7 +435,7 @@ with st.sidebar:
         st.session_state.history = []
         st.session_state.turn_state = "WALLET_CHECK"
         st.rerun()
-
+        
 # ==========================================
 #       PART 6: MAIN CHAT INTERFACE
 # ==========================================
@@ -2330,6 +2342,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
