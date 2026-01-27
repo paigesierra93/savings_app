@@ -347,47 +347,77 @@ def spend_waterfall(amount, category):
                 return f"💀 BROKE. House Fund gone. Deducted ${remaining_cost:.2f} from **Blackout/Bills**. We are in trouble."
                 
 # ==========================================
-#       PART 5: SIDEBAR
+# ==========================================
+#       PART 5: SIDEBAR (THE STRIP-TEASE BANK)
 # ==========================================
 with st.sidebar:
+    # --- 1. THE BANNER ---
+    st.image("my_banner2.jpg", use_container_width=True)
     st.header("🏦 The Bank of Paige")
+    
+    # --- 2. THE STRIP-TEASE GOAL ---
     current_savings = st.session_state.data['house_fund'] + st.session_state.data['tank_balance']
+    # You can change this goal amount
     goal = 10000.0 
+    
+    # Calculate Percentage (0.0 to 1.0)
     percent = min(current_savings / goal, 1.0)
     
-    if percent < 0.10: status = "🧥 Status: Fully Clothed"; note = "Im poor. Help me."
-    elif percent < 0.25: status = "👚 Status: Coat's off..."; note = "Okay, I see you making moves."
-    elif percent < 0.40: status = "👗 Status: Sweater on the floor."; note = "Getting a little hot in here..."
-    elif percent < 0.60: status = "🍑 Status: Just panties left."; note = "Do you like this view? Save more."
-    elif percent < 0.80: status = "👙 Status: Bra unclasped..."; note = "I'm trembling... almost there daddy."
-    elif percent < 1.0: status = "🔥 Status: TOTALLY NAKED."; note = "Take me. Anywhere."
-    else: status = "👑 Status: WIFE MATERIAL."; note = "We own the house. I own your cock."
+    # Determine "Clothing Status" based on savings
+    if percent < 0.10:
+        status = "🧥 Status: Fully Clothed (Winter Coat)"
+        note = "I'm cold and broke. Warm me up with cash."
+    elif percent < 0.25:
+        status = "👚 Status: Coat's off... tight sweater on."
+        note = "Okay, I see you making moves."
+    elif percent < 0.40:
+        status = "👗 Status: Sweater on the floor. Tank top time."
+        note = "Getting a little hot in here..."
+    elif percent < 0.60:
+        status = "🍑 Status: Pants are gone. Just panties left."
+        note = "Do you like this view? Save more to see the rest."
+    elif percent < 0.80:
+        status = "👙 Status: Bra is unclasped... holding it up."
+        note = "I'm trembling... almost there daddy."
+    elif percent < 1.0:
+        status = "🔥 Status: TOTALLY NAKED."
+        note = "Take me. Anywhere. We're free."
+    else:
+        status = "👑 Status: WIFE MATERIAL."
+        note = "We own the house. I own your cock."
 
     st.write(f"🚀 **EXIT PROGRESS:** {int(percent*100)}%")
     st.progress(percent)
     st.write(f"**{status}**")
     st.caption(f"*{note}*")
+    
     st.divider()
+
+    # --- 3. METRICS ---
     st.metric("🎟️ TICKETS", st.session_state.data["tickets"])
     st.metric("🏠 HOUSE FUND", f"${st.session_state.data.get('house_fund', 0.0):,.2f}")
     st.metric("🛡️ HOLDING TANK", f"${st.session_state.data['tank_balance']:,.2f}")
     st.metric("🌑 BLACKOUT FUND", f"${st.session_state.data.get('bridge_fund', 0.0):,.2f}")
+    
     st.divider()
-    st.metric("💵 SAFE TO SPEND", f"${st.session_state.data.get('wallet_balance', 0.0):,.2f}")
-    st.divider()
+    
+    # --- 4. INVENTORY & ADMIN ---
     st.subheader("🎒 Prize Inventory")
     inventory = st.session_state.data.get("inventory", [])
     if inventory:
-        for item in inventory: st.write(f"🔹 **{item}**")
-        if st.button("Use a Saved Prize"): st.info("Tell Paige which prize you want to redeem in the chat!")
-    else: st.caption("No prizes saved yet.")
+        for item in inventory:
+            st.write(f"🔹 **{item}**")
+        if st.button("Use a Saved Prize"):
+            st.info("Tell Paige which prize you want to redeem in the chat!")
+    else:
+        st.caption("No prizes saved yet.")
+
     st.divider()
     admin_code = st.text_input("Admin Override", type="password", placeholder="Secret Code")
     if st.button("Reset Bank (Debug)"):
         st.session_state.data = {
             "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, "house_fund": 0.0, 
-            "wallet_balance": 0.0, "bridge_fund": 0.0, "inventory": [], "history_log": [], "ledger": [],
-            "streak": 0, "last_login": ""
+            "wallet_balance": 0.0, "bridge_fund": 0.0, "inventory": [], "history_log": [], "ledger": []
         }
         save_data(st.session_state.data)
         st.session_state.history = []
@@ -1965,7 +1995,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             # COFFEE GALAXY
             show_media(random.choice([
                 "coffee_gallaxy1.jfif", "coffee_gallaxy2.jfif", "coffee_gallaxy3.jfif", 
-                "coffee_gallaxy4.jfif", "coffee_gallaxy5.jfif"
+                "coffee_gallaxy4.jfif", "coffee_gallaxy5.jpg"
             ]))
             
             type_out("What if we time travel back? Just for a bit. Pretend it's then — no drift, no bills, just us.")
@@ -2273,23 +2303,13 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
                     type_out("Leash clips — I crawl slippery on plastic.")
                     if st.button("Finish & Loop"): data["stage"] = "ALL_NIGHTER"; data["substage"] = 0; st.rerun()
 
+     
         # Global Exit
-        if st.button("🎰 End Flashback - Save for later?"):
+        if st.button("🎰 End Flashback - Save for later?", key="flashback_save_exit_btn"):
             st.session_state.pop("flashback", None)
             st.session_state.turn_state = "PRIZE_DONE"
             st.rerun()
             
-        # Global Exit
-        if st.button("🎰 End Flashback - Save for later?"):
-            st.session_state.pop("flashback", None)
-            st.session_state.turn_state = "PRIZE_DONE"
-            st.rerun()
-        # Global Exit
-        if st.button("🎰 The Exit - Save for later?"):
-            st.session_state.pop("slave_day", None)
-            st.session_state.turn_state = "PRIZE_DONE"
-            st.rerun()
-
     # Large, obvious buttons for next steps
     c1, c2, c3 = st.columns(3)
     
@@ -2310,6 +2330,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
