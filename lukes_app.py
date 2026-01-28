@@ -4,23 +4,97 @@ import random
 import time
 import datetime
 import streamlit as st
+import base64
 
 # ==========================================
-#       PART 1: SETUP & STYLING
+#       PART 0: CONFIG & STYLING
 # ==========================================
-st.set_page_config(page_title="Exit Plan", page_icon="🎰", layout="wide")
+# 1. PAGE CONFIG (MUST BE FIRST)
+st.set_page_config(
+    page_title="The Bank",
+    page_icon="💋",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
+# 2. GLOBAL CSS
 st.markdown("""
-    <style>
+<style>
+    /* IMPORT FONTS */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    /* APP BACKGROUND */
     .stApp { 
         background-color: #000000;
         background-image: linear-gradient(147deg, #000000 0%, #1a1a1a 74%);
         color: #ffffff;
     }
+
+    /* SIDEBAR STYLING */
     section[data-testid="stSidebar"] {
-        background-color: #0a0a0a;
-        border-right: 1px solid #333;
+        background-color: #3B4432; /* Olive Green */
+        border-right: 2px solid #282f22;
     }
+
+    /* SIDEBAR METRICS (Black & Gold) */
+    [data-testid="stSidebar"] [data-testid="stMetric"] {
+        background-color: #000000;
+        border: 2px solid #F2C94C;
+        border-radius: 20px;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    [data-testid="stSidebar"] [data-testid="stMetricLabel"] {
+        color: #FFFFFF !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+    }
+    [data-testid="stSidebar"] [data-testid="stMetricValue"] {
+        color: #FFFFFF !important;
+        font-size: 1.2rem !important;
+        font-weight: 800 !important;
+    }
+
+    /* MAIN BUTTON STYLING (Chunky) */
+    div.stButton > button {
+        width: 100%;
+        height: 120px;
+        border-radius: 25px;
+        border: 3px solid #222;
+        font-size: 18px;
+        font-weight: 800;
+        color: #333;
+        box-shadow: 0 4px 0 #222;
+        transition: all 0.1s;
+        text-transform: uppercase;
+        background: linear-gradient(45deg, #FF4B4B, #FF9068); /* Default fallback */
+        color: white;
+    }
+    div.stButton > button:active {
+        transform: translateY(4px);
+        box-shadow: none;
+    }
+
+    /* GRID BUTTON COLORS (From your design) */
+    /* Column 1 */
+    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(1) button { background-color: #4F5D53; color: white; } /* Paycheck */
+    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(2) button { background-color: #4A9CA6; color: white; } /* Store */
+    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(3) button { background-color: #F4A6A6; color: black; } /* Quicky */
+    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(4) button { background-color: #965A3E; color: white; } /* Tank */
+
+    /* Column 2 */
+    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(1) button { background-color: #A8D1A8; color: black; } /* Side Hustle */
+    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(2) button { background-color: #C27E68; color: white; } /* Ledger */
+    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(3) button { background-color: #FACC6B; color: black; } /* Dayforce */
+    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(4) button { background-color: #6B5B65; color: white; } /* Vault */
+
+    /* CHAT STYLING */
     .chat-container {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
@@ -35,30 +109,14 @@ st.markdown("""
         border-radius: 15px;
         padding: 12px 16px;
     }
-    div[data-testid="stChatMessage"] p { color: #FFFFFF !important; font-weight: 400; }
-    .narrator {
-        text-align: center; color: #ccc;
-        font-style: italic; font-size: 14px;
-        margin: 15px 0; border-top: 1px solid #444; border-bottom: 1px solid #444; padding: 5px;
-    }
-    .stButton button { 
-        width: 100%; border-radius: 25px; font-weight: 600; min-height: 45px;
-        background: linear-gradient(45deg, #FF4B4B, #FF9068);
-        color: white; border: none;
-        box-shadow: 0 4px 15px rgba(255, 75, 75, 0.4);
-    }
-    .stButton button:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(255, 75, 75, 0.6); }
-    div[data-testid="stMetric"] {
-        background-color: rgba(30,30,30,0.8);
-        border: 1px solid #555;
-        padding: 10px;
-        border-radius: 10px;
-    }
-    div[data-testid="stMetric"] label { color: #ffffff !important; }
-    div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #00FF00; }
-    label, .stMarkdown p { color: #ffffff !important; }
-    </style>
-    """, unsafe_allow_html=True)
+    div[data-testid="stChatMessage"] p { color: #FFFFFF !important; }
+    
+    /* HIDE STREAMLIT UI */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
 
 # ==========================================
 #       PART 2: DATA ENGINE
@@ -103,63 +161,35 @@ if "history" not in st.session_state:
 if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_CHECK"
 
 # ==========================================
-#       PART 3: HELPER FUNCTIONS (ALL-IN-ONE)
+#       PART 3: HELPER FUNCTIONS
 # ==========================================
-import random 
-import time
 
 # --- HISTORY MANAGERS ---
 def add_chat(role, content):
-    """Adds to history immediately."""
-    if "history" not in st.session_state:
-        st.session_state.history = []
+    if "history" not in st.session_state: st.session_state.history = []
     st.session_state.history.append({"type": "chat", "role": role, "content": content})
 
 def add_narrator(content):
     st.session_state.history.append({"type": "narrator", "content": content})
 
 def add_media(filepath):
-    if filepath.lower().endswith(('.mp4', '.mov', '.webm')):
-        media_type = "video"
-    else:
-        media_type = "image"
-    st.session_state.history.append({"type": "media", "path": filepath, "kind": media_type})
-
-def add_dual_media(path1, path2):
-    st.session_state.history.append({"type": "dual_media", "path1": path1, "path2": path2})
+    kind = "video" if filepath.lower().endswith(('.mp4', '.mov', '.webm')) else "image"
+    st.session_state.history.append({"type": "media", "path": filepath, "kind": kind})
 
 # --- ANIMATION HELPERS ---
 def simulate_thinking(seconds=None):
-    if seconds is None:
-        seconds = random.uniform(1.0, 2.5) 
+    if seconds is None: seconds = random.uniform(1.0, 2.5) 
     with st.chat_message("assistant", avatar="paige.png"):
-        with st.spinner("Paige is typing..."):
-            time.sleep(seconds)
+        with st.spinner("Paige is typing..."): time.sleep(seconds)
 
 def type_out(*args, min_delay=0.03, max_delay=0.08):
-    """
-    Hardened Typewriter with Trimmed Duplicate Shield.
-    """
     if len(args) == 1: text = args[0]
     elif len(args) == 2: text = args[1]
     else: return
 
-    # --- HARDENED DUPLICATE SHIELD ---
     if st.session_state.history:
-        # Check the very last message specifically
-        last_msg = st.session_state.history[-1]
-        last_content = last_msg.get('content', '').strip()
-        
-        # If the last message is identical (ignoring extra spaces), STOP.
-        if last_content == text.strip():
-            return 
+        if st.session_state.history[-1].get('content', '').strip() == text.strip(): return 
 
-        # Also check last 10 messages just in case
-        recent_content = [m.get('content', '').strip() for m in st.session_state.history[-10:]]
-        if text.strip() in recent_content:
-            return
-
-    # If safe, type it out
     with st.chat_message("assistant", avatar="paige.png"):
         placeholder = st.empty()
         full_response = ""
@@ -169,18 +199,15 @@ def type_out(*args, min_delay=0.03, max_delay=0.08):
             if i < len(words) - 1: placeholder.markdown(full_response + "▌")
             else: placeholder.markdown(full_response)
             time.sleep(random.uniform(min_delay, max_delay))
-            
     add_chat("assistant", text)
 
 def show_media(path, delay=1.5):
     if st.session_state.history:
-        last_item = st.session_state.history[-1]
-        if last_item.get("type") == "media" and last_item.get("path") == path:
-            return
+        last = st.session_state.history[-1]
+        if last.get("type") == "media" and last.get("path") == path: return
 
     with st.chat_message("assistant", avatar="paige.png"):
-        with st.spinner("Sending media..."):
-            time.sleep(delay)
+        with st.spinner("Sending media..."): time.sleep(delay)
         if os.path.exists(path):
             if path.lower().endswith(('.mp4', '.mov', '.webm')): st.video(path)
             else: st.image(path, width=300)
@@ -191,21 +218,14 @@ def show_media(path, delay=1.5):
 def spin_animation(tier, prizes):
     placeholder = st.empty()
     for _ in range(8):
-        placeholder.markdown(f"<h3 style='text-align: center; color: #555;'>🎰 {random.choice(prizes)}...</h3>", unsafe_allow_html=True)
-        time.sleep(0.1)
+        placeholder.markdown(f"<h3 style='text-align: center; color: #555;'>🎰 {random.choice(prizes)}...</h3>", unsafe_allow_html=True); time.sleep(0.1)
     for _ in range(5):
-        placeholder.markdown(f"<h3 style='text-align: center; color: #888;'>🎰 {random.choice(prizes)}...</h3>", unsafe_allow_html=True)
-        time.sleep(0.3)
+        placeholder.markdown(f"<h3 style='text-align: center; color: #888;'>🎰 {random.choice(prizes)}...</h3>", unsafe_allow_html=True); time.sleep(0.3)
     winner = random.choice(prizes)
     placeholder.markdown(f"<h3 style='text-align: center; color: #FF4B4B;'>🎉 {winner} 🎉</h3>", unsafe_allow_html=True)
     time.sleep(2.0)
     placeholder.empty()
     return winner
-
-def enter_state(state_name, role, content):
-    if st.session_state.get("last_state") != state_name:
-        add_chat(role, content)
-        st.session_state.last_state = state_name
 
 def get_ticket_save_response():
     return random.choice([
@@ -245,18 +265,12 @@ def check_decision(key, prize_name):
     return False
 
 def log_money(amount, note, category="income"):
-    if "ledger" not in st.session_state.data:
-        st.session_state.data["ledger"] = []
-    entry = {
-        "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "amount": amount,
-        "note": note,
-        "category": category
-    }
+    if "ledger" not in st.session_state.data: st.session_state.data["ledger"] = []
+    entry = {"date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), "amount": amount, "note": note, "category": category}
     st.session_state.data["ledger"].insert(0, entry)
     save_data(st.session_state.data)
 
-# --- PAIGE'S BRAIN (The Persona Lines) ---
+# --- PAIGE'S BRAIN ---
 def get_paige_line(mood):
     sexy_praise = [
         "Good boy, Do you want a sloppy blow job in the kitchen? I want to give it to you.",
@@ -276,7 +290,6 @@ def get_paige_line(mood):
         "Good boy, one step closer to filling up all my holes at 1:00pm on a Sunday if you so felt like it.",
         "Daddy is being so good, I cant wait to be SO good for Daddy.",
     ]
-
     roasts = [
         "You spent it? Wow. Nothing dries me up faster than being broke.",
         "Soft. Totally soft. Just like you're gonna be tonight since you spent our money.",
@@ -287,155 +300,82 @@ def get_paige_line(mood):
         "and here I thought you actually wanted to fuck my ass, on a Sunday at 1:00pm.",
         "****EYE ROLL**** Well, I wanted to suck your dick, but now I don't.",
     ]
-
     payday_celebration = [
         "💰 **PAYDAY:** Bills paid. Bridge funded. You're handling business like a man. Come claim your reward.",
         "💰 **PAYDAY:** We survived another 2 weeks. I'm so proud of you. Now let's put the rest in the house fund.",
         "💰 **PAYDAY:** Money in the bank, roof over our head (for now). Let's get out of here."
     ]
-
     if mood == "sexy": return random.choice(sexy_praise)
     if mood == "mean": return random.choice(roasts)
     if mood == "payday": return random.choice(payday_celebration)
     return "You broke even. I'm keeping my clothes on."
 
 def spend_waterfall(amount, category):
-    """
-    Deducts money in this order: Wallet -> Tank -> House -> Bridge.
-    Returns a text summary of what happened for Paige to say.
-    """
     if amount <= 0: return "You spent... nothing? Okay."
-    
-    # 1. Try Wallet (Safe to Spend)
     remaining_cost = amount
     
+    # 1. Wallet
     if st.session_state.data['wallet_balance'] >= remaining_cost:
         st.session_state.data['wallet_balance'] -= remaining_cost
         log_money(amount, category, "expense")
         return f"💸 Paid ${amount:.2f} for {category} from your Allowance."
     else:
-        # Empty Wallet
         paid_so_far = st.session_state.data['wallet_balance']
         remaining_cost -= paid_so_far
         st.session_state.data['wallet_balance'] = 0.0
         
-        # 2. Try Tank
+        # 2. Tank
         if st.session_state.data['tank_balance'] >= remaining_cost:
             st.session_state.data['tank_balance'] -= remaining_cost
             log_money(amount, category, "expense")
             return f"⚠️ Allowance empty. Took ${remaining_cost:.2f} from the **Tank** to cover {category}."
         else:
-            # Empty Tank
             paid_tank = st.session_state.data['tank_balance']
             remaining_cost -= paid_tank
             st.session_state.data['tank_balance'] = 0.0
             
-            # 3. Try House Fund (Danger Zone)
+            # 3. House Fund
             if st.session_state.data['house_fund'] >= remaining_cost:
                 st.session_state.data['house_fund'] -= remaining_cost
                 log_money(amount, category, "expense")
                 return f"🛑 TANK EMPTY. You just dipped into the **HOUSE FUND** for ${remaining_cost:.2f}. We are moving backwards."
             else:
-                # Empty House Fund
                 paid_house = st.session_state.data['house_fund']
                 remaining_cost -= paid_house
                 st.session_state.data['house_fund'] = 0.0
                 
-                # 4. Blackout Fund (Emergency)
+                # 4. Bridge Fund
                 st.session_state.data['bridge_fund'] -= remaining_cost
                 log_money(amount, category, "expense")
                 return f"💀 BROKE. House Fund gone. Deducted ${remaining_cost:.2f} from **Blackout/Bills**. We are in trouble."
-                
-# ==========================================
-#       PART 5: SIDEBAR (THE STRIP-TEASE BANK)
-# ==========================================
-import os 
 
+# ==========================================
+#       PART 5: SIDEBAR (THE BANK)
+# ==========================================
 with st.sidebar:
-    # --- 1. THE BANNER (SAFE LOAD) ---
-    # UPDATED to uppercase .JPG
-    banner_file = "my_banner2.JPG" 
-    
-    if os.path.exists(banner_file):
-        st.image(banner_file, use_container_width=True)
-    elif os.path.exists("my_banner2.jpg"): # Check lowercase just in case
-        st.image("my_banner2.jpg", use_container_width=True)
-    else:
-        # Fallback if image is missing so app doesn't crash
-        st.warning(f"⚠️ Missing: {banner_file}")
-        st.caption("Upload image to app folder")
+    if os.path.exists("my_banner2.JPG"): st.image("my_banner2.JPG", use_container_width=True)
+    elif os.path.exists("my_banner2.jpg"): st.image("my_banner2.jpg", use_container_width=True)
+    else: st.header("💋 THE BANK")
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    st.header("🏦 The Bank of Paige")
-    
-    # --- 2. THE STRIP-TEASE GOAL ---
-    current_savings = st.session_state.data['house_fund'] + st.session_state.data['tank_balance']
-    # You can change this goal amount
-    goal = 10000.0 
-    
-    # Calculate Percentage (0.0 to 1.0)
-    percent = min(current_savings / goal, 1.0)
-    
-    # Determine "Clothing Status" based on savings
-    if percent < 0.10:
-        status = "🧥 Status: Fully Clothed (Winter Coat)"
-        note = "I'm cold and broke. Warm me up with cash."
-    elif percent < 0.25:
-        status = "👚 Status: Coat's off... tight sweater on."
-        note = "Okay, I see you making moves."
-    elif percent < 0.40:
-        status = "👗 Status: Sweater on the floor. Tank top time."
-        note = "Getting a little hot in here..."
-    elif percent < 0.60:
-        status = "🍑 Status: Pants are gone. Just panties left."
-        note = "Do you like this view? Save more to see the rest."
-    elif percent < 0.80:
-        status = "👙 Status: Bra is unclasped... holding it up."
-        note = "I'm trembling... almost there daddy."
-    elif percent < 1.0:
-        status = "🔥 Status: TOTALLY NAKED."
-        note = "Take me. Anywhere. We're free."
-    else:
-        status = "👑 Status: WIFE MATERIAL."
-        note = "We own the house. I own your cock."
+    safe_spend = st.session_state.data.get("wallet_balance", 0.0)
+    st.metric("SAFE TO SPEND", f"${safe_spend:,.2f}")
 
-    st.write(f"🚀 **EXIT PROGRESS:** {int(percent*100)}%")
-    st.progress(percent)
-    st.write(f"**{status}**")
-    st.caption(f"*{note}*")
-    
-    st.divider()
+    wallet = st.session_state.data.get("wallet_balance", 0.0)
+    st.metric("WALLET", f"${wallet:,.2f}")
 
-    # --- 3. METRICS ---
-    st.metric("🎟️ TICKETS", st.session_state.data["tickets"])
-    st.metric("🏠 HOUSE FUND", f"${st.session_state.data.get('house_fund', 0.0):,.2f}")
-    st.metric("🛡️ HOLDING TANK", f"${st.session_state.data['tank_balance']:,.2f}")
-    st.metric("🌑 BLACKOUT FUND", f"${st.session_state.data.get('bridge_fund', 0.0):,.2f}")
-    
-    st.divider()
-    
-    # --- 4. INVENTORY & ADMIN ---
-    st.subheader("🎒 Prize Inventory")
-    inventory = st.session_state.data.get("inventory", [])
-    if inventory:
-        for item in inventory:
-            st.write(f"🔹 **{item}**")
-        if st.button("Use a Saved Prize"):
-            st.info("Tell Paige which prize you want to redeem in the chat!")
-    else:
-        st.caption("No prizes saved yet.")
+    house = st.session_state.data.get("house_fund", 0.0)
+    st.metric("HOUSE FUND", f"${house:,.2f}")
 
-    st.divider()
-    admin_code = st.text_input("Admin Override", type="password", placeholder="Secret Code")
-    if st.button("Reset Bank (Debug)"):
-        st.session_state.data = {
-            "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, "house_fund": 0.0, 
-            "wallet_balance": 0.0, "bridge_fund": 0.0, "inventory": [], "history_log": [], "ledger": []
-        }
-        save_data(st.session_state.data)
-        st.session_state.history = []
-        st.session_state.turn_state = "WALLET_CHECK"
-        st.rerun()
-        
+    inv_count = len(st.session_state.data.get("inventory", []))
+    st.metric("BANKED PRIZES", f"{inv_count} Items")
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.caption("ADMIN ACCESS")
+    admin_code = st.text_input("Admin Code", type="password", label_visibility="collapsed")
+    if admin_code == "1234": 
+        if st.button("RESET"): pass
+
 # ==========================================
 #       PART 6: MAIN CHAT INTERFACE
 # ==========================================
@@ -470,91 +410,72 @@ st.markdown("---")
 #       PART 7: THE BRAIN (LOGIC)
 # ==========================================
 
-# --- 1. START SCREEN ---
-if st.session_state.turn_state == "WALLET_CHECK":
-    if st.session_state.data["tickets"] > 0:
-        st.info(f"🎟️ You have {st.session_state.data['tickets']} tickets banked.")
-        if st.button("🎰 ENTER CASINO FLOOR (Skip Income)"):
-            st.session_state.turn_state = "CHOOSE_TIER"
-            st.rerun()
-        st.markdown("---")
-    
-    # Updated to 4 columns per row for better layout
-    c1, c2, c3, c4 = st.columns(4)
-    c5, c6, c7, c8 = st.columns(4)
-    
-    is_open, lock_msg = check_payday_window(admin_code) 
-    
-    # Row 1
-    if is_open:
-        if c1.button("💰 Paycheck"): st.session_state.turn_state = "INPUT_PAYCHECK"; st.rerun()
-    else: 
-        c1.warning(lock_msg)
-        
-    if c2.button("📱 Dayforce"): st.session_state.turn_state = "INPUT_DAILY"; st.rerun()
-    if c3.button("💸 Side Job"): st.session_state.turn_state = "INPUT_SIDE_HUSTLE"; st.rerun()
-    if c4.button("🏦 The Tank"): st.session_state.turn_state = "MANAGE_FUNDS"; st.rerun()
-    
-    # Row 2
-    if c5.button("📜 Ledger"): st.session_state.turn_state = "VIEW_LEDGER"; st.rerun()
-    if c6.button("💋 Quickie"): st.session_state.turn_state = "THE_QUICKIE"; st.rerun()
-    if c7.button("🔐 The Vault"): st.session_state.turn_state = "THE_VAULT"; st.rerun()
-    # NEW STORE BUTTON
-    if c8.button("🛍️ Store"): st.session_state.turn_state = "THE_STORE"; st.rerun()
+# --- 1. START SCREEN (THE GRID) ---
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
-# --- THE STORE (Daily Transactions) ---
+if st.session_state.turn_state == "WALLET_CHECK":
+    if os.path.exists("top_banner_blank.jpg"):
+        img_base64 = get_base64_of_bin_file("top_banner_blank.jpg")
+        real_tickets = st.session_state.data["tickets"]
+        banner_html = f"""
+        <div style="position: relative; width: 100%; margin-bottom: 20px;">
+            <img src="data:image/jpeg;base64,{img_base64}" style="width:100%; border-radius: 20px; border: 3px solid #000; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+            <div style="position: absolute; top: 25%; right: 25%; transform: translate(50%, -50%); font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 5vw; color: #000000;">
+                🎟️ {real_tickets}
+            </div>
+            <div style="position: absolute; bottom: 15%; right: 10%; background: #FF3B3B; color: white; padding: 5px 15px; border-radius: 10px; font-weight: bold; border: 2px solid white;">SPIN</div>
+        </div>
+        """
+        st.markdown(banner_html, unsafe_allow_html=True)
+    else: st.info(f"🎟️ TICKETS: {st.session_state.data['tickets']}")
+
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("💵\nPAYCHECK"): st.session_state.turn_state = "INPUT_PAYCHECK"; st.rerun()
+        if st.button("🏪\nTHE STORE"): st.session_state.turn_state = "THE_STORE"; st.rerun()
+        if st.button("💋\nQUICKY"): st.session_state.turn_state = "THE_QUICKIE"; st.rerun()
+        if st.button("🛡️\nTHE TANK"): st.session_state.turn_state = "MANAGE_FUNDS"; st.rerun()
+    with c2:
+        if st.button("💰\nSIDE HUSTLE"): st.session_state.turn_state = "INPUT_SIDE_HUSTLE"; st.rerun()
+        if st.button("📜\nLEDGER"): st.session_state.turn_state = "VIEW_LEDGER"; st.rerun()
+        if st.button("🕒\nDAYFORCE"): st.session_state.turn_state = "INPUT_DAILY"; st.rerun()
+        if st.button("🔐\nTHE VAULT"): st.session_state.turn_state = "THE_VAULT"; st.rerun()
+
+    if st.button("🎰 GO TO CASINO FLOOR (SPIN)", key="main_spin_btn"): 
+        st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
+
+# --- THE STORE ---
 elif st.session_state.turn_state == "THE_STORE":
     st.subheader("🛍️ Paige's Store")
     st.caption("Track your spending. It comes out of your Allowance first, then the Tank, then the House.")
-    
     cost = st.number_input("Cost ($):", min_value=0.0, step=1.0)
-    
     st.write("Quick Categories:")
     c1, c2, c3 = st.columns(3)
-    
     if c1.button("🍔 Food / Lunch"):
         if cost > 0:
-            msg = spend_waterfall(cost, "Food")
-            save_data(st.session_state.data)
-            type_out(msg)
-            # Paige Roast for food
+            msg = spend_waterfall(cost, "Food"); save_data(st.session_state.data); type_out(msg)
             if cost > 15: type_out(get_paige_line("mean")) 
             st.rerun()
         else: st.error("Enter a cost first.")
-
     if c2.button("⛽ Gas / Transport"):
         if cost > 0:
-            msg = spend_waterfall(cost, "Gas")
-            save_data(st.session_state.data)
-            type_out(msg)
-            st.rerun()
+            msg = spend_waterfall(cost, "Gas"); save_data(st.session_state.data); type_out(msg); st.rerun()
         else: st.error("Enter a cost first.")
-
     if c3.button("💡 Bill / Utility"):
         if cost > 0:
-            msg = spend_waterfall(cost, "Bill")
-            save_data(st.session_state.data)
-            type_out(msg)
-            st.rerun()
+            msg = spend_waterfall(cost, "Bill"); save_data(st.session_state.data); type_out(msg); st.rerun()
         else: st.error("Enter a cost first.")
-        
     st.markdown("---")
-    st.write("Other Purchase:")
     custom_item = st.text_input("Item Name (e.g. ' Vape', 'Game'):")
     if st.button("Buy Custom Item"):
         if cost > 0 and custom_item:
-            msg = spend_waterfall(cost, custom_item)
-            save_data(st.session_state.data)
-            type_out(msg)
-            # General Roast
-            type_out(get_paige_line("mean"))
-            st.rerun()
-        else:
-            st.error("Enter cost and name.")
-
-    if st.button("Back to Bank"):
-        st.session_state.turn_state = "WALLET_CHECK"
-        st.rerun()
+            msg = spend_waterfall(cost, custom_item); save_data(st.session_state.data); type_out(msg)
+            type_out(get_paige_line("mean")); st.rerun()
+        else: st.error("Enter cost and name.")
+    if st.button("Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 # --- VIEW LEDGER ---
 elif st.session_state.turn_state == "VIEW_LEDGER":
@@ -573,12 +494,9 @@ elif st.session_state.turn_state == "THE_QUICKIE":
     if "last_quickie" not in st.session_state: st.session_state.last_quickie = 0
     current_time = time.time()
     if current_time - st.session_state.last_quickie > 60:
-        bonus = 5
-        st.session_state.data["tickets"] += bonus
-        save_data(st.session_state.data)
+        st.session_state.data["tickets"] += 5; save_data(st.session_state.data)
         st.session_state.last_quickie = current_time
-        line = random.choice(quickie_lines)
-        type_out(f"{line}\n\n🎟️ **+5 TICKETS**")
+        type_out(f"{random.choice(quickie_lines)}\n\n🎟️ **+5 TICKETS**")
         st.balloons()
     else: type_out("Whoa there, tiger. I need a minute to recover. Come back later.")
     if st.button("Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
@@ -588,8 +506,8 @@ elif st.session_state.turn_state == "THE_VAULT":
     st.subheader("🔐 The Vault")
     st.info("Save money in the **House Fund** to unlock permanent access to these rewards.")
     savings = st.session_state.data['house_fund']
-    st.metric("Current House Fund", f"${savings:,.2f}")
-    st.divider()
+    st.metric("Current House Fund", f"${savings:,.2f}"); st.divider()
+    
     c1, c2 = st.columns([1, 3])
     with c1: st.write("### Level 1"); st.caption("Goal: $500")
     with c2:
@@ -598,6 +516,7 @@ elif st.session_state.turn_state == "THE_VAULT":
             if st.button("View: The Morning Collection"): show_media("morning_tease.jpg"); type_out("Good morning, daddy. Keep saving and I'll keep showing.")
         else: st.error(f"🔒 LOCKED (Need ${500 - savings:.2f} more)"); st.progress(min(savings/500, 1.0))
     st.divider()
+    
     c1, c2 = st.columns([1, 3])
     with c1: st.write("### Level 2"); st.caption("Goal: $1,000")
     with c2:
@@ -616,20 +535,20 @@ elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
         add_chat("user", f"Side Hustle: ${side_amount}")
         log_money(side_amount, "Side Hustle", "income")
         split = side_amount / 2
-        st.session_state.data["tank_balance"] += split
-        st.session_state.data["wallet_balance"] += split
+        st.session_state.data["tank_balance"] += split; st.session_state.data["wallet_balance"] += split
+        
         if side_amount >= 150: tickets = 125
         elif side_amount >= 110: tickets = 60
         elif side_amount >= 70: tickets = 35
         elif side_amount >= 40: tickets = 15
         else: tickets = 0
-        st.session_state.data["tickets"] += tickets
-        save_data(st.session_state.data)
+        st.session_state.data["tickets"] += tickets; save_data(st.session_state.data)
+        
         if side_amount >= 40: paige_says = get_paige_line("sexy")
         elif side_amount > 0: paige_says = "Every little bit helps, I guess."
         else: paige_says = get_paige_line("mean")
-        msg = f"{paige_says}\n\n**Side Hustle:** ${side_amount:.2f}\n🛡️ Tank: ${split:.2f}\n💰 Wallet: ${split:.2f}\n🎟️ **TICKETS:** {tickets}"
-        type_out(msg)
+        
+        type_out(f"{paige_says}\n\n**Side Hustle:** ${side_amount:.2f}\n🛡️ Tank: ${split:.2f}\n💰 Wallet: ${split:.2f}\n🎟️ **TICKETS:** {tickets}")
         st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
 
 elif st.session_state.turn_state == "INPUT_PAYCHECK":
@@ -641,14 +560,16 @@ elif st.session_state.turn_state == "INPUT_PAYCHECK":
         safe_spend = check_amount - (200.0 + 80.0 + 100.0 + 50.0)
         st.session_state.data["bridge_fund"] += 50.0
         st.session_state.data["wallet_balance"] = safe_spend
+        
         if check_amount >= 601: tickets = 100
         elif check_amount >= 501: tickets = 50
         elif check_amount >= 450: tickets = 25
         else: tickets = 0
-        st.session_state.data["tickets"] += tickets
-        save_data(st.session_state.data)
+        st.session_state.data["tickets"] += tickets; save_data(st.session_state.data)
+        
         if safe_spend < 0: type_out(f"⚠️ **SHORTAGE:** -${abs(safe_spend):.2f}. We are in the hole, babe.")
-        else: paige_says = get_paige_line("payday"); type_out(f"{paige_says}\n\n✅ **PROCESSED**\n💰 **SAFE TO SPEND:** ${safe_spend:.2f}\n🎟️ **TICKETS:** {tickets}")
+        else: type_out(f"{get_paige_line('payday')}\n\n✅ **PROCESSED**\n💰 **SAFE TO SPEND:** ${safe_spend:.2f}\n🎟️ **TICKETS:** {tickets}")
+        
         if tickets > 0: st.session_state.turn_state = "CHOOSE_TIER"
         else: st.session_state.turn_state = "CHECK_FAIL"
         st.rerun()
@@ -667,19 +588,19 @@ elif st.session_state.turn_state == "INPUT_DAILY":
             if last_login == yesterday: st.session_state.data["streak"] += 1
             else: st.session_state.data["streak"] = 1
             st.session_state.data["last_login"] = today_str
+            
         if daily_amount < 40.0: type_out(f"⚠️ **Warning:** Not enough for Gas & House. Stay home.")
         else:
             log_money(daily_amount, "Dayforce Daily", "income")
             safe_spend = daily_amount - 10.0 - 30.0
             st.session_state.data["tank_balance"] += 30.0
             st.session_state.data["wallet_balance"] += safe_spend
-            streak_bonus = 0
-            if st.session_state.data["streak"] >= 3:
-                streak_bonus = 10
-                st.session_state.data["tickets"] += streak_bonus
+            
+            streak_bonus = 10 if st.session_state.data["streak"] >= 3 else 0
+            st.session_state.data["tickets"] += streak_bonus
             save_data(st.session_state.data)
-            if safe_spend > 20: paige_says = get_paige_line("sexy")
-            else: paige_says = "Better than nothing."
+            
+            paige_says = get_paige_line("sexy") if safe_spend > 20 else "Better than nothing."
             msg = f"{paige_says}\n\n**Strategy:**\nShielded $30 (House) + $10 (Gas).\n🍔 **SAFE TO SPEND:** ${safe_spend:.2f}"
             if streak_bonus > 0: msg += f"\n\n🔥 **STREAK BONUS:** +{streak_bonus} Tickets!"
             type_out(msg)
@@ -697,9 +618,7 @@ elif st.session_state.turn_state == "MANAGE_FUNDS":
             st.session_state.data['tank_balance'] -= move_amount
             st.session_state.data['wallet_balance'] += move_amount
             save_data(st.session_state.data)
-            roast = get_paige_line("mean")
-            type_out(f"{roast}\n\n💸 Moved ${move_amount} to Wallet (Spent).")
-            st.rerun()
+            type_out(f"{get_paige_line('mean')}\n\n💸 Moved ${move_amount} to Wallet (Spent)."); st.rerun()
     if c2.button("🏠 Lock to House"):
         if move_amount > st.session_state.data['tank_balance']: st.error("Not enough.")
         else:
@@ -707,9 +626,7 @@ elif st.session_state.turn_state == "MANAGE_FUNDS":
             st.session_state.data['tank_balance'] -= move_amount
             st.session_state.data['house_fund'] += move_amount
             save_data(st.session_state.data)
-            praise = get_paige_line("sexy")
-            type_out(f"{praise}\n\n🏠 Locked ${move_amount} into House Fund.")
-            st.rerun()
+            type_out(f"{get_paige_line('sexy')}\n\n🏠 Locked ${move_amount} into House Fund."); st.rerun()
     if c3.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 # --- CASINO ---
@@ -730,8 +647,7 @@ elif st.session_state.turn_state == "CHOOSE_TIER":
     if st.button("Save Tickets & Exit"):
         save_data(st.session_state.data)
         type_out(f"Walking away? {get_ticket_save_response()}")
-        st.session_state.turn_state = "WALLET_CHECK"
-        st.rerun()
+        st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 elif st.session_state.turn_state == "CHECK_FAIL":
     type_out("Check too low. Try harder.")
@@ -766,7 +682,7 @@ elif st.session_state.turn_state == "SPIN_GOLD":
         st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
         st.rerun()
     else: st.error("Not enough tickets"); st.session_state.turn_state="CHOOSE_TIER"; st.rerun()
-        
+
 # ==========================================
 #       PRIZE SCRIPTS 
 # ======================================
@@ -2342,6 +2258,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
