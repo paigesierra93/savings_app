@@ -635,59 +635,114 @@ elif st.session_state.turn_state == "MANAGE_FUNDS":
             type_out(f"{get_paige_line('sexy')}\n\n🏠 Locked ${move_amount} into House Fund."); st.rerun()
     if c3.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
+
 # --- CASINO ---
 elif st.session_state.turn_state == "CHOOSE_TIER":
     tix = st.session_state.data["tickets"]
     st.subheader(f"🎰 Casino Floor (Balance: {tix} Tickets)")
     c1, c2, c3 = st.columns(3)
+    
+    # BRONZE (25 Tix)
     if tix >= 25:
-        if c1.button("🥉 Spin Bronze (25)"): st.session_state.turn_state="SPIN_BRONZE"; st.rerun()
+        if c1.button("🥉 Spin Bronze (25)"): 
+            st.session_state.data["tickets"] -= 25
+            save_data(st.session_state.data)
+            st.session_state.turn_state="SPIN_BRONZE"
+            st.rerun()
     else: c1.warning("🥉 Bronze: Need 25")
+
+    # SILVER (50 Tix)
     if tix >= 50:
-        if c2.button("🥈 Spin Silver (50)"): st.session_state.turn_state="SPIN_SILVER"; st.rerun()
+        if c2.button("🥈 Spin Silver (50)"): 
+            st.session_state.data["tickets"] -= 50
+            save_data(st.session_state.data)
+            st.session_state.turn_state="SPIN_SILVER"
+            st.rerun()
     else: c2.warning("🥈 Silver: Need 50")
+
+    # GOLD (100 Tix)
     if tix >= 100:
-        if c3.button("👑 Spin Gold (100)"): st.session_state.turn_state="SPIN_GOLD"; st.rerun()
+        if c3.button("👑 Spin Gold (100)"): 
+            st.session_state.data["tickets"] -= 100
+            save_data(st.session_state.data)
+            st.session_state.turn_state="SPIN_GOLD"
+            st.rerun()
     else: c3.warning("👑 Gold: Need 100")
+
     st.divider()
     if st.button("Save Tickets & Exit"):
         save_data(st.session_state.data)
         type_out(f"Walking away? {get_ticket_save_response()}")
-        st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+        st.session_state.turn_state = "WALLET_CHECK"
+        st.rerun()
 
-elif st.session_state.turn_state == "CHECK_FAIL":
-    type_out("Check too low. Try harder.")
-    if st.button("Return"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
-
+# --- BRONZE SPIN ---
 elif st.session_state.turn_state == "SPIN_BRONZE":
-    if st.session_state.data["tickets"] >= 25:
-        st.session_state.data["tickets"] -= 25; save_data(st.session_state.data)
-        prizes = ["Bend Over", "Flash Me", "Jackoff Pass", "Shower Show"]
-        win = spin_animation("Bronze", prizes)
-        type_out(f"🥉 WINNER: **{win}**")
-        st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
-        st.rerun()
-    else: st.error("Not enough tickets"); st.session_state.turn_state="CHOOSE_TIER"; st.rerun()
+    st.subheader("🥉 Bronze Wheel")
+    import streamlit.components.v1 as components
+    # YOUR BRONZE LINK
+    components.iframe("https://spinthewheel.app/tmDneZ0rCW", width=500, height=500)
+    
+    st.info("👆 Spin above! Then click the matching prize below to claim it.")
+    
+    c1, c2, c3, c4 = st.columns(4)
+    if c1.button("Bend Over"): 
+        type_out("🥉 WINNER: **Bend Over**"); st.session_state.turn_state = "PRIZE_BEND_OVER"; st.rerun()
+    if c2.button("Flash Me"): 
+        type_out("🥉 WINNER: **Flash Me**"); st.session_state.turn_state = "PRIZE_FLASH_ME"; st.rerun()
+    if c3.button("Jackoff Pass"): 
+        type_out("🥉 WINNER: **Jackoff Pass**"); st.session_state.turn_state = "PRIZE_JACKOFF_PASS"; st.rerun()
+    if c4.button("Shower Show"): 
+        type_out("🥉 WINNER: **Shower Show**"); st.session_state.turn_state = "PRIZE_SHOWER_SHOW"; st.rerun()
 
+# --- SILVER SPIN ---
 elif st.session_state.turn_state == "SPIN_SILVER":
-    if st.session_state.data["tickets"] >= 50:
-        st.session_state.data["tickets"] -= 50; save_data(st.session_state.data)
-        prizes = ["Toy Pic", "Lick Pussy", "Nude Pic", "Tongue Tease", "Road Head", "Plug Tease"]
-        win = spin_animation("Silver", prizes)
-        type_out(f"🥈 WINNER: **{win}**")
-        st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
-        st.rerun()
-    else: st.error("Not enough tickets"); st.session_state.turn_state="CHOOSE_TIER"; st.rerun()
+    st.subheader("🥈 Silver Wheel")
+    import streamlit.components.v1 as components
+    # YOUR SILVER LINK
+    components.iframe("https://spinthewheel.app/1RLMB3g88K", width=500, height=500)
+    
+    st.info("👆 Spin above! Then click the matching prize below to claim it.")
+    
+    c1, c2, c3 = st.columns(3)
+    if c1.button("Toy Pic"): 
+        type_out("🥈 WINNER: **Toy Pic**"); st.session_state.turn_state = "PRIZE_TOY_PIC"; st.rerun()
+    if c2.button("Lick Pussy"): 
+        type_out("🥈 WINNER: **Lick Pussy**"); st.session_state.turn_state = "PRIZE_LICK_PUSSY"; st.rerun()
+    if c3.button("Nude Pic"): 
+        type_out("🥈 WINNER: **Nude Pic**"); st.session_state.turn_state = "PRIZE_NUDE_PIC"; st.rerun()
+        
+    c4, c5, c6 = st.columns(3)
+    if c4.button("Tongue Tease"): 
+        type_out("🥈 WINNER: **Tongue Tease**"); st.session_state.turn_state = "PRIZE_TONGUE_TEASE"; st.rerun()
+    if c5.button("Road Head"): 
+        type_out("🥈 WINNER: **Road Head**"); st.session_state.turn_state = "PRIZE_ROAD_HEAD"; st.rerun()
+    if c6.button("Plug Tease"): 
+        type_out("🥈 WINNER: **Plug Tease**"); st.session_state.turn_state = "PRIZE_PLUG_TEASE"; st.rerun()
 
+# --- GOLD SPIN ---
 elif st.session_state.turn_state == "SPIN_GOLD":
-    if st.session_state.data["tickets"] >= 100:
-        st.session_state.data["tickets"] -= 100; save_data(st.session_state.data)
-        prizes = ["All 3 Holes", "Upside Down Throat Fuck", "Flashback", "Anal Fuck", "Doggy Style Ready"]
-        win = spin_animation("Gold", prizes)
-        type_out(f"👑 JACKPOT: **{win}**")
-        st.session_state.turn_state = f"PRIZE_{win.replace(' ','_').upper()}"
-        st.rerun()
-    else: st.error("Not enough tickets"); st.session_state.turn_state="CHOOSE_TIER"; st.rerun()
+    st.subheader("👑 Gold Wheel")
+    import streamlit.components.v1 as components
+    # YOUR GOLD LINK
+    components.iframe("https://spinthewheel.app/JIRFjfR66x", width=500, height=500)
+    
+    st.info("👆 Spin above! Then click the matching prize below to claim it.")
+    
+    c1, c2, c3 = st.columns(3)
+    if c1.button("All 3 Holes"): 
+        type_out("👑 WINNER: **All 3 Holes**"); st.session_state.turn_state = "PRIZE_ALL_3_HOLES"; st.rerun()
+    if c2.button("Upside Down Throat"): 
+        type_out("👑 WINNER: **Upside Down Throat Fuck**"); st.session_state.turn_state = "PRIZE_UPSIDE_DOWN_THROAT_FUCK"; st.rerun()
+    if c3.button("Flashback (Time Travel)"): 
+        type_out("👑 WINNER: **Flashback**"); st.session_state.turn_state = "PRIZE_FLASHBACK"; st.rerun()
+        
+    c4, c5 = st.columns(2)
+    if c4.button("Anal Fuck"): 
+        type_out("👑 WINNER: **Anal Fuck**"); st.session_state.turn_state = "PRIZE_ANAL_FUCK"; st.rerun()
+    if c5.button("Doggy Style Ready"): 
+        type_out("👑 WINNER: **Doggy Style Ready**"); st.session_state.turn_state = "PRIZE_DOGGY_STYLE_READY"; st.rerun()
+
 
 # ==========================================
 #       PRIZE SCRIPTS 
@@ -2264,6 +2319,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
