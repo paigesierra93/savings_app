@@ -9,7 +9,7 @@ import base64
 # ==========================================
 #       PART 0: CONFIG & STYLING
 # ==========================================
-# 1. PAGE CONFIG (MUST BE FIRST)
+# 1. PAGE CONFIG
 st.set_page_config(
     page_title="The Bank",
     page_icon="💋",
@@ -40,7 +40,7 @@ st.markdown("""
         border-right: 2px solid #282f22;
     }
 
-    /* SIDEBAR METRICS (Black & Gold) */
+    /* SIDEBAR METRICS */
     [data-testid="stSidebar"] [data-testid="stMetric"] {
         background-color: #000000;
         border: 2px solid #F2C94C;
@@ -61,7 +61,7 @@ st.markdown("""
         font-weight: 800 !important;
     }
 
-    /* MAIN BUTTON STYLING (Chunky) */
+    /* MAIN BUTTON STYLING */
     div.stButton > button {
         width: 100%;
         height: 120px;
@@ -73,48 +73,41 @@ st.markdown("""
         box-shadow: 0 4px 0 #222;
         transition: all 0.1s;
         text-transform: uppercase;
-        background: linear-gradient(45deg, #FF4B4B, #FF9068); /* Default fallback */
-        color: white;
+        background-color: #ffffff; /* Default */
     }
     div.stButton > button:active {
         transform: translateY(4px);
         box-shadow: none;
     }
 
-    /* GRID BUTTON COLORS (From your design) */
-    /* Column 1 */
-    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(1) button { background-color: #4F5D53; color: white; } /* Paycheck */
-    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(2) button { background-color: #4A9CA6; color: white; } /* Store */
-    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(3) button { background-color: #F4A6A6; color: black; } /* Quicky */
-    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(4) button { background-color: #965A3E; color: white; } /* Tank */
+    /* --- FORCED BUTTON COLORS (Using !important) --- */
+    
+    /* Column 1 Buttons */
+    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(1) button { background-color: #4F5D53 !important; color: white !important; } /* Paycheck */
+    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(2) button { background-color: #4A9CA6 !important; color: white !important; } /* Store */
+    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(3) button { background-color: #F4A6A6 !important; color: black !important; } /* Quicky */
+    div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(4) button { background-color: #965A3E !important; color: white !important; } /* Tank */
 
-    /* Column 2 */
-    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(1) button { background-color: #A8D1A8; color: black; } /* Side Hustle */
-    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(2) button { background-color: #C27E68; color: white; } /* Ledger */
-    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(3) button { background-color: #FACC6B; color: black; } /* Dayforce */
-    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(4) button { background-color: #6B5B65; color: white; } /* Vault */
+    /* Column 2 Buttons */
+    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(1) button { background-color: #A8D1A8 !important; color: black !important; } /* Side Hustle */
+    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(2) button { background-color: #C27E68 !important; color: white !important; } /* Ledger */
+    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(3) button { background-color: #FACC6B !important; color: black !important; } /* Dayforce */
+    div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(4) button { background-color: #6B5B65 !important; color: white !important; } /* Vault */
 
     /* CHAT STYLING */
     .chat-container {
         background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
         border-radius: 20px;
         padding: 20px;
         border: 1px solid rgba(255, 255, 255, 0.1);
         margin-bottom: 20px;
     }
-    div[data-testid="stChatMessage"] {
-        background-color: rgba(40, 40, 40, 0.9);
-        border: 1px solid #555;
-        border-radius: 15px;
-        padding: 12px 16px;
-    }
-    div[data-testid="stChatMessage"] p { color: #FFFFFF !important; }
     
-    /* HIDE STREAMLIT UI */
+    /* HIDE DEFAULT TITLE & HEADER */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    .stApp > header {display: none;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -379,7 +372,8 @@ with st.sidebar:
 # ==========================================
 #       PART 6: MAIN CHAT INTERFACE
 # ==========================================
-st.title("🎰 The Exit Plan")
+# st.title("🎰 The Exit Plan") <-- REMOVED THIS so the banner is the top element
+
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 for item in st.session_state.history:
     if item["type"] == "chat":
@@ -405,7 +399,6 @@ if user_msg:
     add_chat("user", user_msg) 
     st.rerun()
 st.markdown("---")
-
 # ==========================================
 #       PART 7: THE BRAIN (LOGIC)
 # ==========================================
@@ -420,17 +413,29 @@ if st.session_state.turn_state == "WALLET_CHECK":
     if os.path.exists("top_banner_blank.jpg"):
         img_base64 = get_base64_of_bin_file("top_banner_blank.jpg")
         real_tickets = st.session_state.data["tickets"]
+        
+        # FIX: Changed color to #FFFFFF (White) and added Text Shadow
         banner_html = f"""
         <div style="position: relative; width: 100%; margin-bottom: 20px;">
             <img src="data:image/jpeg;base64,{img_base64}" style="width:100%; border-radius: 20px; border: 3px solid #000; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            <div style="position: absolute; top: 25%; right: 25%; transform: translate(50%, -50%); font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 5vw; color: #000000;">
+            <div style="
+                position: absolute; 
+                top: 28%; 
+                right: 25%; 
+                transform: translate(50%, -50%); 
+                font-family: 'Montserrat', sans-serif; 
+                font-weight: 800; 
+                font-size: 5vw; 
+                color: #FFFFFF; 
+                text-shadow: 2px 2px 4px #000000;
+            ">
                 🎟️ {real_tickets}
             </div>
-            <div style="position: absolute; bottom: 15%; right: 10%; background: #FF3B3B; color: white; padding: 5px 15px; border-radius: 10px; font-weight: bold; border: 2px solid white;">SPIN</div>
         </div>
         """
         st.markdown(banner_html, unsafe_allow_html=True)
-    else: st.info(f"🎟️ TICKETS: {st.session_state.data['tickets']}")
+    else: 
+        st.info(f"🎟️ TICKETS: {st.session_state.data['tickets']}")
 
     c1, c2 = st.columns(2)
     with c1:
@@ -444,9 +449,10 @@ if st.session_state.turn_state == "WALLET_CHECK":
         if st.button("🕒\nDAYFORCE"): st.session_state.turn_state = "INPUT_DAILY"; st.rerun()
         if st.button("🔐\nTHE VAULT"): st.session_state.turn_state = "THE_VAULT"; st.rerun()
 
+    # Invisible spin button helper
     if st.button("🎰 GO TO CASINO FLOOR (SPIN)", key="main_spin_btn"): 
         st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
-
+        
 # --- THE STORE ---
 elif st.session_state.turn_state == "THE_STORE":
     st.subheader("🛍️ Paige's Store")
@@ -2258,6 +2264,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
