@@ -5,6 +5,7 @@ import time
 import datetime
 import streamlit as st
 import base64
+import re
 import streamlit.components.v1 as components
 
 # ==========================================
@@ -19,26 +20,28 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    /* FORCE LIGHT BACKGROUND */
+    /* 1. FORCE LIGHT BACKGROUND */
     .stApp { background-color: #E5E5E5 !important; color: #000000 !important; }
     
-    /* SIDEBAR */
+    /* 2. SIDEBAR STYLING */
     section[data-testid="stSidebar"] { background-color: #3B4432 !important; color: #FFFFFF !important; }
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label { color: #FFFFFF !important; }
 
-    /* CHAT BUBBLES (DARK RED) */
+    /* 3. CHAT BUBBLES (DARK RED CONTAINER) */
     .chat-container {
-        background-color: #4A0404; 
+        background-color: #4A0404; /* DARK RED */
         border-radius: 12px;
         padding: 15px;
         margin-bottom: 20px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         border: 2px solid #220000;
     }
+    
+    /* User/Paige Message Styling */
     [data-testid="stChatMessage"] { background-color: #2D2D2D !important; border: 1px solid #444; padding: 10px; border-radius: 10px; }
     [data-testid="stChatMessage"] p { color: #FFFFFF !important; }
 
-    /* BUTTONS */
+    /* 4. BUTTONS (Standard Size) */
     div.stButton > button {
         width: 100%; height: 55px !important; min-height: 55px !important;
         border-radius: 8px; border: 1px solid #ccc; font-weight: 600; font-size: 16px;
@@ -46,11 +49,11 @@ st.markdown("""
     }
     div.stButton > button:hover { border-color: #FF4B4B; color: #FF4B4B; }
 
-    /* BANNER */
+    /* 5. BANNER SIZING */
     .banner-container { width: 100%; max-height: 180px; overflow: hidden; border-radius: 12px; border: 2px solid #333; position: relative; margin-bottom: 15px; }
     .banner-container img { width: 100%; height: 100%; object-fit: cover; }
 
-    /* MOBILE FIXES */
+    /* 6. MOBILE FIXES */
     [data-testid="stHeader"] { background: transparent !important; visibility: visible !important; }
     [data-testid="collapsedControl"] { color: #000000 !important; display: block !important; }
     .stAppDeployButton, [data-testid="stDecoration"] { display: none; }
@@ -69,7 +72,7 @@ def load_data():
         "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, 
         "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0,
         "inventory": [], "history_log": [], "ledger": [],
-        "admin_log": [], # NEW CLEAN LOG FOR YOU
+        "chat_log": [], 
         "streak": 0, "last_login": ""
     }
     if not os.path.exists(DATA_FILE): return default_data
@@ -90,18 +93,15 @@ if "history" not in st.session_state:
 if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_CHECK"
 
 # ==========================================
-#       PART 3: HELPER FUNCTIONS (LOGGING FIXED)
+#       PART 3: HELPER FUNCTIONS
 # ==========================================
 def add_chat(role, content):
-    # Only updates UI, DOES NOT SAVE TO LOG
     if "history" not in st.session_state: st.session_state.history = []
     st.session_state.history.append({"type": "chat", "role": role, "content": content})
-
-def log_event(text):
-    # SAVES TO YOUR ADMIN LOG
+    # Spy Mode Log
     ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    if "admin_log" not in st.session_state.data: st.session_state.data["admin_log"] = []
-    st.session_state.data["admin_log"].append(f"[{ts}] {text}")
+    if "chat_log" not in st.session_state.data: st.session_state.data["chat_log"] = []
+    st.session_state.data["chat_log"].append(f"[{ts}] {role.upper()}: {content}")
     save_data(st.session_state.data)
 
 def type_out(text):
@@ -112,7 +112,7 @@ def type_out(text):
 def simulate_thinking(seconds=None):
     if seconds is None: seconds = random.uniform(1.0, 2.0)
     with st.chat_message("assistant", avatar="paige.png"):
-        with st.spinner("..."): time.sleep(seconds)
+        with st.spinner("Paige is thinking..."): time.sleep(seconds)
 
 def show_media(path, delay=1.0):
     if st.session_state.history and st.session_state.history[-1].get("path") == path: return
@@ -124,99 +124,18 @@ def show_media(path, delay=1.0):
     if os.path.exists(path):
         st.session_state.history.append({"type": "media", "role": "assistant", "path": path, "kind": "image"})
 
+def log_event(text):
+    ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    if "chat_log" not in st.session_state.data: st.session_state.data["chat_log"] = []
+    st.session_state.data["chat_log"].append(f"[{ts}] ACTION: {text}")
+    save_data(st.session_state.data)
+
 def log_money(amount, note, category="income"):
     if "ledger" not in st.session_state.data: st.session_state.data["ledger"] = []
     entry = {"date": datetime.datetime.now().strftime("%Y-%m-%d"), "amount": amount, "note": note, "category": category}
     st.session_state.data["ledger"].insert(0, entry)
-    # Also save to Spy Log
     log_event(f"MONEY: {note} (${amount})")
     save_data(st.session_state.data)
-    # --- SMART BANKER BRAIN (SEXY/BOSSY VERSION) ---
-def smart_banker(text):
-    text = text.lower()
-    amount = 0.0
-    
-    # 1. Find the money number using Regex
-    import re
-    match = re.search(r'\$?(\d+(\.\d{2})?)', text)
-    if match:
-        amount = float(match.group(1))
-    
-    # If no number is found, scold him
-    if amount == 0 and any(x in text for x in ["spent", "add", "transfer", "move"]):
-        return "I need a number, pet. 'Spent 20', 'Added 50'. Focus."
-
-    # 2. DECIDE THE ACTION
-    
-    # --- SPENDING (Deducts from Wallet) ---
-    if any(x in text for x in ["spent", "bought", "cost", "paid", "expense", "lost"]):
-        if st.session_state.data['wallet_balance'] >= amount:
-            st.session_state.data['wallet_balance'] -= amount
-            log_money(amount, f"Quick Spend: {text}", "expense")
-            save_data(st.session_state.data)
-            return f"💸 **-${amount:.2f}** deducted. You better have bought something for me, or you're being a bad boy."
-        else:
-            # Overdraft Logic
-            remaining = amount - st.session_state.data['wallet_balance']
-            st.session_state.data['wallet_balance'] = 0
-            if st.session_state.data['tank_balance'] >= remaining:
-                st.session_state.data['tank_balance'] -= remaining
-                log_money(amount, f"Overdraft: {text}", "expense")
-                save_data(st.session_state.data)
-                return f"⚠️ Wallet empty. I had to take **${remaining:.2f}** from the Tank. Stop spending money we don't have."
-            else:
-                return "❌ You're broke. Access denied."
-
-    # --- INCOME (Adds to Wallet) ---
-    elif any(x in text for x in ["side hustle", "tips", "found", "sold", "gift", "won", "add"]):
-        st.session_state.data['wallet_balance'] += amount
-        log_money(amount, "Quick Income", "income")
-        
-        # Add Tickets for earning
-        tix = 10 if amount > 20 else 0
-        st.session_state.data["tickets"] += tix
-        save_data(st.session_state.data)
-        
-        return f"💰 **+${amount:.2f}** added. Good boy. Keep stacking cash for me and I might let you touch later."
-
-    # --- PAYCHECK (Trigger full logic) ---
-    elif "paycheck" in text:
-        # Simple math for quick chat
-        bills = 350 + 50 + 100 
-        safe = amount - bills
-        if safe < 0: return "That check is too small to cover bills. Work harder."
-        
-        st.session_state.data["wallet_balance"] += safe
-        st.session_state.data["house_fund"] += 100
-        st.session_state.data["bridge_fund"] += 50
-        log_money(amount, "Paycheck (Chat)", "income")
-        
-        tix = 100 if amount >= 600 else 25
-        st.session_state.data["tickets"] += tix
-        save_data(st.session_state.data)
-        
-        return f"💰 Paycheck processed. I took my cut for bills & savings. You have **${safe:.2f}** allowed for yourself."
-
-    # --- MOVING MONEY (Tank Logic) ---
-    elif "tank" in text:
-        if "to" in text and "wallet" in text:
-            # Move Tank -> Wallet
-            if st.session_state.data["tank_balance"] >= amount:
-                st.session_state.data["tank_balance"] -= amount
-                st.session_state.data["wallet_balance"] += amount
-                log_money(amount, "Tank -> Wallet", "transfer")
-                save_data(st.session_state.data)
-                return f"🛡️ Moved **${amount:.2f}** to Wallet. Don't waste it."
-            else: return "You don't have that much in the Tank, dummy."
-        elif "add" in text or "put" in text or "fill" in text:
-            # Add to Tank (Dayforce)
-            st.session_state.data["tank_balance"] += amount
-            log_money(amount, "Added to Tank", "income")
-            save_data(st.session_state.data)
-            return f"🛡️ Locked **${amount:.2f}** into the Tank. Safe from your sticky fingers."
-
-    return "I didn't catch that. Say 'Spent 20', 'Added 50', or 'Tank to Wallet 10'."
-    
 
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f: data = f.read()
@@ -236,6 +155,8 @@ def spend_waterfall(amount, category):
         st.session_state.data['tank_balance'] -= remaining
         log_money(amount, category, "expense")
         return f"⚠️ Wallet empty. Took ${remaining:.2f} from Tank."
+    paid_tank = st.session_state.data['tank_balance']
+    remaining -= paid_tank
     st.session_state.data['tank_balance'] = 0.0
     st.session_state.data['house_fund'] -= remaining 
     log_money(amount, category, "expense")
@@ -251,7 +172,7 @@ def check_decision(key, title):
             st.session_state[key]["stage"] = 0
             st.rerun()
         if c2.button("🎒 Save for Later"):
-            log_event(f"SAVED FOR LATER: {title}")
+            log_event(f"SAVED: {title}")
             st.session_state.data["inventory"].append(title)
             save_data(st.session_state.data)
             st.session_state.turn_state = "PRIZE_DONE"
@@ -259,6 +180,63 @@ def check_decision(key, title):
             st.rerun()
         return True
     return False
+
+def enter_state(state, role, text): type_out(text)
+
+# --- SMART BANKER BRAIN (THE CHAT LOGIC) ---
+def smart_banker(text):
+    text = text.lower()
+    amount = 0.0
+    import re
+    match = re.search(r'\$?(\d+(\.\d{2})?)', text)
+    if match: amount = float(match.group(1))
+    
+    if amount == 0 and any(x in text for x in ["spent", "add", "transfer", "move"]):
+        return "I need a number, pet. 'Spent 20', 'Added 50'."
+
+    if any(x in text for x in ["spent", "bought", "cost", "paid", "expense"]):
+        if st.session_state.data['wallet_balance'] >= amount:
+            st.session_state.data['wallet_balance'] -= amount
+            log_money(amount, f"Quick Spend: {text}", "expense")
+            return f"💸 **-${amount:.2f}** deducted. You better have bought something for me."
+        else:
+            remaining = amount - st.session_state.data['wallet_balance']
+            st.session_state.data['wallet_balance'] = 0
+            if st.session_state.data['tank_balance'] >= remaining:
+                st.session_state.data['tank_balance'] -= remaining
+                log_money(amount, f"Overdraft: {text}", "expense")
+                return f"⚠️ Wallet empty. I took **${remaining:.2f}** from the Tank."
+            else: return "❌ You're broke. Access denied."
+
+    elif any(x in text for x in ["side", "tips", "found", "sold", "won", "add"]):
+        st.session_state.data['wallet_balance'] += amount
+        log_money(amount, "Quick Income", "income")
+        return f"💰 **+${amount:.2f}** added. Good boy."
+
+    elif "paycheck" in text:
+        bills = 350 + 50 + 100 
+        safe = amount - bills
+        if safe < 0: return "Check too small for bills. Work harder."
+        st.session_state.data["wallet_balance"] += safe
+        st.session_state.data["house_fund"] += 100
+        st.session_state.data["bridge_fund"] += 50
+        log_money(amount, "Paycheck (Chat)", "income")
+        return f"💰 Paycheck processed. Bills paid. Safe spend: **${safe:.2f}**."
+
+    elif "tank" in text:
+        if "to" in text and "wallet" in text:
+            if st.session_state.data["tank_balance"] >= amount:
+                st.session_state.data["tank_balance"] -= amount
+                st.session_state.data["wallet_balance"] += amount
+                log_money(amount, "Tank -> Wallet", "transfer")
+                return f"🛡️ Moved **${amount:.2f}** to Wallet."
+            else: return "Not enough in Tank."
+        elif "add" in text or "fill" in text:
+            st.session_state.data["tank_balance"] += amount
+            log_money(amount, "Added to Tank", "income")
+            return f"🛡️ Locked **${amount:.2f}** into the Tank."
+
+    return "I didn't catch that. Say 'Spent 20', 'Added 50', or 'Tank to Wallet 10'."
 
 # ==========================================
 #       PART 5: SIDEBAR
@@ -280,7 +258,7 @@ with st.sidebar:
                 st.session_state.admin_unlocked = True
                 st.success("Unlocked!")
         if st.session_state.get("admin_unlocked"):
-            if st.button("🕵️ VIEW ACTIVITY LOG"):
+            if st.button("🕵️ VIEW SPY LOGS"):
                 st.session_state.turn_state = "ADMIN_SPY_MODE"; st.rerun()
             if st.button("🔴 RESET ALL DATA"):
                 st.session_state.data = load_data()
@@ -325,6 +303,14 @@ if st.session_state.turn_state == "WALLET_CHECK":
     if q1.button("💋 Quicky"): st.session_state.turn_state = "THE_QUICKIE"; st.rerun()
     if q2.button("🛍️ Store"): st.session_state.turn_state = "THE_STORE"; st.rerun()
     if q3.button("📝 Ledger"): st.session_state.turn_state = "VIEW_LEDGER"; st.rerun()
+    
+    # CHAT BOX ON HOME SCREEN
+    user_input = st.chat_input("Talk to Paige (e.g. 'Spent 20', 'Added 50')")
+    if user_input:
+        type_out(f"You: {user_input}")
+        response = smart_banker(user_input)
+        type_out(response)
+        st.rerun()
 
 elif st.session_state.turn_state == "THE_BANK_MENU":
     st.subheader("🏦 Dashboard")
@@ -333,6 +319,15 @@ elif st.session_state.turn_state == "THE_BANK_MENU":
     c2.metric("Tank", f"${st.session_state.data['tank_balance']:.0f}")
     c3.metric("House", f"${st.session_state.data['house_fund']:.0f}")
     st.write("---")
+    
+    # CHAT BOX ON BANK SCREEN
+    user_input = st.chat_input("Talk to Paige (e.g. 'Spent 20', 'Added 50')")
+    if user_input:
+        type_out(f"You: {user_input}")
+        response = smart_banker(user_input)
+        type_out(response)
+        st.rerun()
+
     c1, c2 = st.columns(2)
     with c1:
         st.caption("INCOME")
@@ -348,14 +343,15 @@ elif st.session_state.turn_state == "THE_BANK_MENU":
     if st.button("⬅️ Home"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 elif st.session_state.turn_state == "ADMIN_SPY_MODE":
-    st.subheader("🕵️ Spy Log (Activity)")
-    logs = st.session_state.data.get("admin_log", [])
+    st.subheader("🕵️ Spy Log")
+    logs = st.session_state.data.get("chat_log", [])
     if logs:
         for log in reversed(logs): st.text(log); st.divider()
-    else: st.info("No activity recorded yet.")
-    if st.button("Clear Logs"): st.session_state.data["admin_log"] = []; save_data(st.session_state.data); st.rerun()
+    else: st.info("No logs.")
+    if st.button("Clear Logs"): st.session_state.data["chat_log"] = []; save_data(st.session_state.data); st.rerun()
     if st.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
+# --- INPUTS & STORE ---
 elif st.session_state.turn_state == "INPUT_PAYCHECK":
     st.subheader("💰 Process Paycheck")
     amount = st.number_input("Check Amount ($)", step=10.0)
@@ -431,8 +427,8 @@ elif st.session_state.turn_state == "THE_STORE":
 elif st.session_state.turn_state == "THE_QUICKIE":
     st.subheader("💋 Quicky")
     if st.button("Claim"):
-        st.session_state.data["tickets"] += 5; save_data(st.session_state.data)
-        log_event("Claimed Quicky (+5 Tix)")
+        st.session_state.data["tickets"] += 5
+        save_data(st.session_state.data)
         st.balloons(); type_out("Claimed 5 Tickets.")
     if st.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
@@ -485,303 +481,6 @@ elif st.session_state.turn_state == "SPIN_GOLD":
     c4, c5 = st.columns(2)
     if c4.button("Anal Fuck"): log_event("Won: Anal Fuck"); st.session_state.turn_state="PRIZE_ANAL_FUCK"; st.rerun()
     if c5.button("Doggy Style"): log_event("Won: Doggy Style"); st.session_state.turn_state="PRIZE_DOGGY_STYLE_READY"; st.rerun()
-
-# ==========================================
-#       PRIZE SCRIPTS
-# ==========================================
-elif st.session_state.turn_state == "PRIZE_NUDE_PIC":
-    if "nude_pic" not in st.session_state: st.session_state.nude_pic = {"stage": "DECISION", "focus": None}
-    if check_decision("nude_pic", "Custom Nude Pic"): pass
-    else:
-        data = st.session_state.nude_pic
-        if data["stage"] == 0:
-            type_out("You've won, your very own photo of me... which ever part you want to see...😈")
-            simulate_thinking(2.0)
-            show_media("nude_1.jpg")
-            type_out("Ready to collect your reward, daddy? Which piece of your slutty prize do you want to torture yourself with?")
-            c1, c2, c3 = st.columns(3)
-            if c1.button("Tits"): log_event("Choice: Tits"); data["focus"] = "TITS"; data["stage"] = 1; st.rerun()
-            if c2.button("Ass"): log_event("Choice: Ass"); data["focus"] = "TIGHT ASS"; data["stage"] = 1; st.rerun()
-            if c3.button("Pussy"): log_event("Choice: Pussy"); data["focus"] = "WET PUSSY"; data["stage"] = 1; st.rerun()
-        elif data["stage"] == 1:
-            if data["focus"] == "TITS":
-                type_out("Tits? Are you sure, daddy?")
-                simulate_thinking(2.0); show_media("nude_6.jpg")
-                if st.button("enough teasing, show me your tits"): data["stage"] = 2; st.rerun()
-            elif data["focus"] == "TIGHT ASS":
-                type_out("Ass? Are you sure, daddy?")
-                simulate_thinking(2.0); show_media("nude_4.jpg")
-                if st.button("Let me see it"): data["stage"] = 2; st.rerun()
-            elif data["focus"] == "WET PUSSY":
-                type_out("This little Pussy....Are you sure, daddy?")
-                simulate_thinking(2.0); show_media("nude_2.jpg") 
-                if st.button("Pull them down already"): data["stage"] = 2; st.rerun()
-        elif data["stage"] == 2:
-            simulate_thinking(2.0)
-            if data["focus"] == "TITS": show_media("Nude_7.jpg"); type_out("They would look so much better around your hard cock, huh?")
-            elif data["focus"] == "TIGHT ASS": show_media("nude_5.jpg"); type_out("All bare, spread, tight little holes all wet and ready....maybe next spin, they'll get fucked. 🍑")
-            elif data["focus"] == "WET PUSSY": show_media("nude_3.jpg"); type_out("wet and dripping...now")
-            if st.button("That's enough for now… claim this prize now?"): del st.session_state.nude_pic; st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_LICK_PUSSY":
-    if "lick_pussy" not in st.session_state: st.session_state.lick_pussy = {"stage": "DECISION", "position": None, "tease_level": 0}
-    if check_decision("lick_pussy", "Lick My Pussy"): pass
-    else:
-        data = st.session_state.lick_pussy
-        if data["stage"] == 0:
-            type_out("hey daddy… 💕"); simulate_thinking(1.5)
-            type_out("guess what you just won… your tongue… on this needy little pussy… all night if you want 😈")
-            show_media("lick_it.jpeg")
-            simulate_thinking(2.2)
-            type_out("so… how do you wanna taste it first, baby? tell me exactly how…")
-            positions = ["From behind… face buried deep", "Me on my back… thighs squeezing your head", "I lower myself onto your face…", "Standing over you… one leg up"]
-            data["position"] = st.radio("How should I give you this pussy, daddy?", positions)
-            if st.button("I’m dripping just waiting for your choice… 👅"): 
-                log_event(f"Choice: {data['position']}")
-                data["stage"] = 1; data["tease_level"] = 0; st.rerun()
-        elif data["stage"] == 1:
-            type_out(f"oh fuck… {data['position']}? 🥵")
-            if "behind" in data["position"].lower(): show_media("from_behind.jpeg"); type_out("ass up high… cheeks spread… pussy glistening right in your face")
-            elif "back" in data["position"].lower(): show_media("front_eat.jpeg"); type_out("legs spread wide… knees by my ears… pussy swollen and begging")
-            elif "face" in data["position"].lower(): show_media("face_sit.jpeg"); type_out("lowering myself down slow… feeling your nose brush my clit")
-            elif "standing" in data["position"].lower(): show_media("standing_pussy.jpeg"); type_out("standing over you… one foot up… lips parted so you see every pink inch")
-            simulate_thinking(2.0); type_out("god I’m trembling… circle my clit with just the tip…")
-            if st.button("I’m right fucking there… make me squirt all over you daddy 💦"):
-                show_media("Cumming1.jpeg"); type_out("ohhh fuck—yesyesyes—I’m cumming—I’m squirting everywhereeee 💦💦💦")
-                if st.button("Come fuck your messy girl now? 🍆"): st.session_state.pop("lick_pussy", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_ANAL_FUCK":
-    if "anal_fuck" not in st.session_state: st.session_state.anal_fuck = {"stage": "DECISION", "position": None, "substage": 0}
-    if check_decision("anal_fuck", "Anal Fuck"): pass
-    else:
-        data = st.session_state.anal_fuck
-        if data["stage"] == 0:
-            type_out("Daddy… you fucking won **Anal Fuck** 😩🍑 My greedy little asshole is already soaked thinking about it.")
-            show_media("anal_opening1.JPG")
-            type_out("So when I saw you won 'Anal Fuck' my cunt dripped instantly.")
-            c1, c2 = st.columns(2)
-            if c1.button("Missionary – legs hooked over your shoulders…"): log_event("Choice: Missionary"); data["position"] = "missionary"; data["stage"] = 1; data["substage"] = 0; st.rerun()
-            if c2.button("Doggy – ass up high, full view"): log_event("Choice: Doggy"); data["position"] = "doggy"; data["stage"] = 1; data["substage"] = 0; st.rerun()
-        elif data["stage"] == 1:
-            if data["position"] == "missionary":
-                if data["substage"] == 0:
-                    show_media("anal_opening6.jpeg"); type_out("Like this, Daddy? Legs pinned back…")
-                    if st.button("Fuck ya show me more"): data["substage"] = 1; st.rerun()
-                elif data["substage"] == 1:
-                    show_media("anal_opening7.jpeg"); type_out("Ohhh fuck yes… that thick head popping past my rim…")
-                    if st.button("Fuck it, I'm gonna cum"): data["substage"] = 2; st.rerun()
-                elif data["substage"] == 2:
-                    show_media("anal_opening8.jpeg"); type_out("Oh god—yes—Daddy—thank you for wrecking my tight little ass…")
-                    if st.button("Prize complete"): st.session_state.pop("anal_fuck", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-            elif data["position"] == "doggy":
-                if data["substage"] == 0:
-                    show_media("anal_opening_doggystyle1.JPG"); type_out("Like this, Daddy? Ass up…")
-                    if st.button("Show me more"): data["substage"] = 1; st.rerun()
-                elif data["substage"] == 1:
-                    show_media("anal_opening_doggystyle3.JPG"); type_out("Mmm you perv… look at this greedy asshole")
-                    if st.button("Touch it"): data["substage"] = 2; st.rerun()
-                elif data["substage"] == 2:
-                    show_media("anal_opening_doggystyle2.JPG"); type_out("That’s it, Daddy—slam that fat cock balls-deep")
-                    if st.button("FUCK IT I’m cumming"): data["substage"] = 4; st.rerun()
-                elif data["substage"] == 4:
-                    show_media("anal_oppening_doggystyle_last.JPG"); type_out("Oh fuck yes… pulling out slow…")
-                    if st.button("Prize complete"): st.session_state.pop("anal_fuck", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_BEND_OVER":
-    if "bend_over" not in st.session_state: st.session_state.bend_over = {"stage": "DECISION"}
-    if check_decision("bend_over", "Bend Over"): pass
-    else:
-        data = st.session_state.bend_over
-        if data.get("stage") == 0:
-            type_out("You've won Bend Over! Rules are simple.")
-            if st.button("Ok what are the rules?"): data["stage"] = 1; st.rerun()
-        elif data["stage"] == 1:
-            type_out("Whenever you say \"Bend over\" out loud or text it... I stop everything and bend over for 60 seconds.")
-            if st.button("Like what?"): data["stage"] = 2; st.rerun()
-        elif data["stage"] == 2:
-            type_out("Grab, spank, spread, tease... but no penetration.")
-            if st.button("Can I have an example?"): data["stage"] = 3; st.rerun()
-        elif data["stage"] == 3:
-            type_out("Imagine I’m in the bedroom doing laundry...")
-            if st.button("I need visuals"): data["stage"] = 4; st.rerun()
-        elif data["stage"] == 4:
-            show_media("laundry1.jpg"); type_out("You walk in and say it.")
-            if st.button("Bend over."): data["stage"] = 5; st.rerun()
-        elif data["stage"] == 5:
-            show_media("laundry3.jpg"); type_out("I freeze. Ass up high. 60 seconds starts now.")
-            if st.button("What can I do?"): data["stage"] = 6; st.rerun()
-        elif data["stage"] == 6:
-            show_media("laundry4.jpg"); type_out("Spank me, rub me, grind against me... what will you do?")
-            if st.button("Prize Complete"): st.session_state.pop("bend_over", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_FLASH_ME":
-    if "flash_me" not in st.session_state: st.session_state.flash_me = {"stage": "DECISION"}
-    if check_decision("flash_me", "Flash Me"): pass
-    else:
-        enter_state("PRIZE_FLASH_ME", "assistant", "Fuck yes baby… you just won “Flash Me” 😈")
-        if st.button("I’m pretty sure I know what this means…"): st.session_state.turn_state = "PRIZE_FLASH_TWIST"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_FLASH_TWIST":
-    enter_state("PRIZE_FLASH_TWIST", "assistant", "Mmm… maybe not exactly what you're thinking.")
-    if st.button("Oh, yeah?"): type_out("Just say the word… flash tits or pussy?"); st.session_state.turn_state = "PRIZE_FLASH_CHOICE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_FLASH_CHOICE":
-    c1, c2 = st.columns(2)
-    if c1.button("Show me your tits"):
-        log_event("Choice: Tits"); show_media("Nude_7.jpg", 3.0); type_out("There they are daddy…")
-        st.session_state.pop("flash_me", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-    if c2.button("Show me your pussy"):
-        log_event("Choice: Pussy"); show_media("flash_pussy1.jpg", 3.0); type_out("Mmm fuck… here’s your sneak peek.")
-        st.session_state.pop("flash_me", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_JACKOFF_PASS":
-    if "jackoff_pass" not in st.session_state: st.session_state.jackoff_pass = {"stage": "DECISION"}
-    if check_decision("jackoff_pass", "Jackoff Pass"): pass
-    else:
-        type_out("You just won the **Jackoff Pass** 😈 I give you full permission to stroke that thick cock while I tease you.")
-        show_media("jackoff3.jpeg") 
-        if st.button("Ready..."): st.session_state.turn_state = "PRIZE_JACKOFF_FUN"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_JACKOFF_FUN":
-    type_out("Pick how you want your jackoff session to go, daddy.")
-    c1, c2 = st.columns(2)
-    if c1.button("Just talk dirty to me"):
-        log_event("Choice: Talk Dirty")
-        type_out("Mmm perfect… keep that hand moving slow and tight around your cock...")
-        st.session_state.pop("jackoff_pass", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-    if c2.button("Visual Recap"):
-        log_event("Choice: Visual Recap")
-        show_media("Jackkoff1.jpeg"); type_out("Cum for me now baby…")
-        st.session_state.pop("jackoff_pass", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_SHOWER_SHOW":
-    type_out("Mmm daddy… you won the Shower Show.")
-    show_media("shower_water.jpg")  
-    if st.button("Start the show…"): st.session_state.turn_state = "PRIZE_SHOWER_ACTION"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_SHOWER_ACTION":
-    show_media("shower_finger.jpeg")  
-    type_out("Fuck yes… hands all over – squeezing these soapy tits...")
-    if st.button("End the shower"):
-        show_media("shower_towel3.jpeg"); type_out("Mmm… pat me down slow...")
-        st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_ALL_3_HOLES":
-    if "all_3_holes" not in st.session_state: st.session_state.all_3_holes = {"current_hole": None, "claimed": {"pussy": False, "ass": False, "mouth": False}, "step": "intro", "tool": None}
-    if check_decision("all_3_holes", "All 3 Holes"): pass
-    else:
-        data = st.session_state.all_3_holes
-        if data["step"] == "intro":
-            type_out("Baby… you actually fucking did it. Tonight you get ALL 3 holes."); show_media("3_holes_opening.jfif")
-            c1, c2, c3 = st.columns(3)
-            if c1.button("Pussy first"): data["current_hole"] = "pussy"; data["step"] = "choose_tool"; st.rerun()
-            if c2.button("Ass first"): data["current_hole"] = "ass"; data["step"] = "choose_tool"; st.rerun()
-            if c3.button("Mouth first"): data["current_hole"] = "mouth"; data["step"] = "choose_tool"; st.rerun()
-        elif data["step"] == "choose_tool":
-            if data["current_hole"] == "ass": show_media("3_holes_opening_ass1.jfif")
-            elif data["current_hole"] == "pussy": show_media("3_holes_opening_pussy1.jfif")
-            else: show_media("3_holes_opening_mouth_choice1.jpeg")
-            c1, c2 = st.columns(2)
-            if c1.button("Your cock"): data["tool"] = "dick"; data["step"] = "action"; st.rerun()
-            if c2.button("A toy"): data["tool"] = "toy"; data["step"] = "action"; st.rerun()
-        elif data["step"] == "action":
-            hole = data["current_hole"]
-            tool = data["tool"]
-            if tool == "dick":
-                if hole == "ass": show_media("3_holes_opening_ass_dick_choice1.jfif"); type_out("Fuck this little ass...")
-                elif hole == "pussy": show_media("3_holes_opening_pussy_dick_fucking1.jfif"); type_out("Pound it deep...")
-                elif hole == "mouth": show_media("3_holes_opening_mouth2.jfif"); type_out("Throat goat...")
-            if st.button("Finish this hole"): 
-                log_event(f"Finished Hole: {hole} with {tool}")
-                data["claimed"][hole] = True; data["step"] = "next"; st.rerun()
-        elif data["step"] == "next":
-            remaining = [h for h in ["pussy", "ass", "mouth"] if not data["claimed"][h]]
-            if remaining:
-                cols = st.columns(len(remaining))
-                for i, hole in enumerate(remaining):
-                    if cols[i].button(f"Next: {hole}"): data["current_hole"] = hole; data["step"] = "choose_tool"; st.rerun()
-            else:
-                type_out("You claimed them all... I'm yours."); st.session_state.pop("all_3_holes", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_UPSIDE_DOWN_THROAT_FUCK":
-    if "upside_throat_fuck" not in st.session_state: st.session_state.upside_throat_fuck = {"stage": 0}
-    data = st.session_state.upside_throat_fuck
-    if data["stage"] == 0:
-        type_out("Okay baby, you've fucking leveled up. Upside-down throat fuck."); c1, c2 = st.columns(2)
-        if c1.button("Save for later"): 
-            log_event("SAVED: Upside Down Throat")
-            st.session_state.data["inventory"].append("Upside Down Throat"); save_data(st.session_state.data); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-        if c2.button("Play scene"): 
-            log_event("CLAIMED: Upside Down Throat")
-            data["stage"] = 1; st.rerun()
-    elif data["stage"] == 1:
-        type_out("I’m lying on my back right at the edge of the bed..."); show_media("upside_down_1.jpeg")
-        if st.button("See more"): data["stage"] = 2; st.rerun()
-    elif data["stage"] == 2:
-        show_media("upside_down_3.jpeg"); type_out("You press that thick cock against my lips...")
-        if st.button("Finish"): st.session_state.pop("upside_throat_fuck", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_TONGUE_TEASE":
-    if "tongue_tease" not in st.session_state: st.session_state.tongue_tease = {"stage": "DECISION", "edging_level": 0}
-    if check_decision("tongue_tease", "Tongue Tease"): pass
-    else:
-        data = st.session_state.tongue_tease
-        if data["stage"] == 0:
-            type_out("Mmm daddy… you won the **Tongue Tease**"); show_media("tongue_tease_tip12.JPG")
-            if st.button("Start teasing"): data["stage"] = 1; st.rerun()
-        elif data["stage"] == 1:
-            show_media("tongue_tease_tip2.JPG"); type_out("Licking just the tip...")
-            if st.button("Cum for me"): st.session_state.pop("tongue_tease", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_ROAD_HEAD":
-    if "road_head" not in st.session_state: st.session_state.road_head = {"stage": "DECISION"}
-    if check_decision("road_head", "Road Head"): pass
-    else:
-        type_out("Fuck yes baby… you just won **Road Head**"); show_media("car2.jpeg")
-        if st.button("Start the drive"): st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_PLUG_TEASE":
-    if "plug_tease" not in st.session_state: st.session_state.plug_tease = {"stage": "DECISION"}
-    if check_decision("plug_tease", "Plug Tease"): pass
-    else:
-        show_media("plug_tease_preview.jpeg"); type_out("Your filthy little girlfriend is gonna wear a plug all day...")
-        if st.button("Put it in"): st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_TOY_PIC":
-    if "toy_pic" not in st.session_state: st.session_state.toy_pic = {"stage": "DECISION"}
-    if check_decision("toy_pic", "Toy Pic"): pass
-    else:
-        type_out("Oh fuck baby… you won the **Toy Pic** tease"); show_media("toy_butt_in5.jpeg")
-        if st.button("Show me"): st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_DOGGY_STYLE_READY":
-    if "doggy_ready" not in st.session_state: st.session_state.doggy_ready = {"stage": "DECISION"}
-    if check_decision("doggy_ready", "Doggy Style Ready"): pass
-    else:
-        type_out("Daddy… you won **Doggy Style Ready**"); show_media("doggy_ready_opening2.jpeg")
-        if st.button("See the position"): show_media("doggy_ready_opening5.jpeg"); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_FLASHBACK":
-    if "flashback" not in st.session_state: st.session_state.flashback = {"stage": "PRE_INTRO", "substage": 0, "mode": None}
-    if check_decision("flashback", "Flashback"): pass
-    else:
-        data = st.session_state.flashback
-        if data["stage"] == "PRE_INTRO":
-            type_out("You've won the jackpot: “FLASHBACK”."); show_media("coffee_gallaxy1.jfif")
-            c1, c2 = st.columns(2)
-            if c1.button("Home (24h)"): log_event("Choice: Home 24h"); data["mode"] = "home_24"; data["stage"] = "INTRO"; st.rerun()
-            if c2.button("Hotel (10h)"): log_event("Choice: Hotel 10h"); data["mode"] = "hotel_10"; data["stage"] = "INTRO"; st.rerun()
-        elif data["stage"] == "INTRO":
-            type_out(f"Mode: {data.get('mode')}. I'm waiting."); show_media("flashback_invite1.jfif")
-            if st.button("Start"): st.session_state.pop("flashback", None); st.session_state.turn_state = "PRIZE_DONE"; st.rerun()
-
-elif st.session_state.turn_state == "PRIZE_DONE":
-    st.balloons()
-    st.markdown(f"<h1 style='text-align: center; color: #FF4B4B;'>🎉 PRIZE CLAIMED 🎉</h1>", unsafe_allow_html=True)
-    st.info("Paige has been notified. Check your log.")
-    c1, c2 = st.columns(2)
-    if c1.button("🎰 Spin Again"): st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
-    if c2.button("🏦 Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 # ==========================================
 #       PRIZE SCRIPTS 
@@ -2358,6 +2057,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
