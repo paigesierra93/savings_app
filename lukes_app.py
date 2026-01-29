@@ -183,7 +183,7 @@ def check_decision(key, title):
 
 def enter_state(state, role, text): type_out(text)
 
-# --- SMART BANKER BRAIN (THE CHAT LOGIC) ---
+# --- SMART BANKER BRAIN (CORRECTED TICKET REWARDS) ---
 def smart_banker(text):
     text = text.lower()
     amount = 0.0
@@ -209,18 +209,23 @@ def smart_banker(text):
                 return f"⚠️ Wallet empty. I took **${remaining:.2f}** from the Tank."
             else: return "❌ You're broke. Access denied."
 
-    # 2. SIDE HUSTLE (Now adds tickets)
+    # 2. SIDE HUSTLE (UPDATED TIERS)
     elif any(x in text for x in ["side", "tips", "found", "sold", "won", "add"]):
         st.session_state.data['wallet_balance'] += amount
         
-        # TICKET REWARD
-        st.session_state.data["tickets"] += 15 
+        # NEW TICKET LOGIC
+        if amount >= 150: tix = 100
+        elif amount >= 100: tix = 50
+        elif amount >= 50: tix = 25
+        else: tix = 15
+        
+        st.session_state.data["tickets"] += tix
         save_data(st.session_state.data)
         
         log_money(amount, "Quick Income", "income")
-        return f"💰 **+${amount:.2f}** added to Wallet. (+15 Tickets). Good boy."
+        return f"💰 **+${amount:.2f}** added. Good boy. (+{tix} Tickets)."
 
-    # 3. PAYCHECK (Now adds tickets)
+    # 3. PAYCHECK (CONFIRMED LOGIC)
     elif "paycheck" in text:
         bills = 350 + 50 + 100 
         safe = amount - bills
@@ -230,10 +235,11 @@ def smart_banker(text):
         st.session_state.data["house_fund"] += 100
         st.session_state.data["bridge_fund"] += 50
         
-        # TICKET REWARD LOGIC
+        # PAYCHECK TICKET LOGIC
         if amount >= 600: tix = 100
         elif amount >= 500: tix = 50
         else: tix = 25
+        
         st.session_state.data["tickets"] += tix
         save_data(st.session_state.data)
         
@@ -252,7 +258,7 @@ def smart_banker(text):
         elif "add" in text or "fill" in text:
             st.session_state.data["tank_balance"] += amount
             
-            # TICKET REWARD (Dayforce Bonus)
+            # Dayforce Bonus (Standard 10)
             st.session_state.data["tickets"] += 10
             save_data(st.session_state.data)
             
@@ -2090,6 +2096,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
