@@ -8,101 +8,107 @@ import base64
 import streamlit.components.v1 as components
 
 # ==========================================
-#       PART 0: CONFIG & STYLING (REDESIGN)
+#       PART 0: CONFIG & STYLING
 # ==========================================
 st.set_page_config(
     page_title="The Bank",
     page_icon="💋",
-    layout="wide",
-    initial_sidebar_state="expanded" 
+    layout="centered", # Changed to centered for better mobile view
+    initial_sidebar_state="collapsed"
 )
 
 st.markdown("""
 <style>
-    /* IMPORT FONTS */
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
+    /* 1. FORCE LIGHT BACKGROUND (Overrides Phone Dark Mode) */
+    .stApp {
+        background-color: #E5E5E5 !important;
+        color: #000000 !important;
+    }
     
-    html, body, [class*="css"] {
-        font-family: 'Montserrat', sans-serif;
-    }
-
-    /* 1. LIGHT BACKGROUND */
-    .stApp { 
-        background-color: #F0F2F6; /* Light Grey */
-        color: #333333;
-    }
-
-    /* 2. SIDEBAR (Keeping Olive/Dark for contrast) */
+    /* 2. SIDEBAR STYLING (Olive Green) */
     section[data-testid="stSidebar"] {
-        background-color: #3B4432; 
-        color: white;
+        background-color: #3B4432 !important;
+        color: #FFFFFF !important;
     }
-    
-    /* Sidebar Text Fix */
-    [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {
-        color: white !important;
+    [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label {
+        color: #FFFFFF !important;
     }
 
-    /* 3. CHAT BUBBLES (Dark Mode) */
+    /* 3. CHAT BUBBLES (Dark Mode Contrast) */
     .chat-container {
-        background: #1E1E1E; /* Dark Grey Container */
-        border-radius: 15px;
-        padding: 20px;
+        background-color: #1E1E1E;
+        border-radius: 12px;
+        padding: 15px;
         margin-bottom: 20px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    
-    /* User Message */
+    /* User/Paige Message Styling */
     [data-testid="stChatMessage"] {
-        background-color: #2D2D2D;
+        background-color: #2D2D2D !important;
         border: 1px solid #444;
-        color: white;
+        padding: 10px;
+        border-radius: 10px;
     }
-    [data-testid="stChatMessage"] p { color: white !important; }
+    [data-testid="stChatMessage"] p {
+        color: #FFFFFF !important;
+    }
+    [data-testid="stChatMessageAvatar"] {
+        background-color: #000000;
+    }
 
-    /* 4. BUTTONS (Smaller, Symmetrical, Clean) */
+    /* 4. BUTTONS (SMALLER & SYMMETRICAL) */
     div.stButton > button {
         width: 100%;
-        height: 80px; /* Smaller fixed height */
-        border-radius: 12px; /* Less round */
-        border: 2px solid #ddd;
+        height: 55px !important; /* Much shorter */
+        min-height: 55px !important;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-weight: 600;
         font-size: 16px;
-        font-weight: 700;
-        color: #333;
-        background-color: white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        transition: all 0.2s;
+        background-color: #FFFFFF;
+        color: #333333;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 5px;
     }
-    
     div.stButton > button:hover {
         border-color: #FF4B4B;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    div.stButton > button:active {
-        transform: translateY(0);
+        color: #FF4B4B;
     }
 
-    /* 5. BANNER FIXES */
+    /* 5. BANNER SIZING (Restricted Height) */
     .banner-container {
         width: 100%;
-        max-width: 800px;
-        margin: 0 auto 20px auto;
-        border-radius: 15px;
+        max-height: 180px; /* Force it shorter */
         overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border-radius: 12px;
+        border: 2px solid #333;
         position: relative;
+        margin-bottom: 15px;
+    }
+    .banner-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Crops image cleanly */
+    }
+
+    /* 6. ADMIN & METRICS FIXES */
+    [data-testid="stMetricValue"] {
+        font-size: 24px !important;
+        color: #333 !important;
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 14px !important;
+        color: #666 !important;
     }
     
-    /* 6. HIDE HEADER / MENU FIX */
-    [data-testid="stHeader"] {background: transparent;}
+    /* Hide Default Header elements */
+    header {visibility: hidden;}
     .stAppDeployButton {display: none;}
     [data-testid="stDecoration"] {display: none;}
     
-    /* Make Hamburger Menu Visible (Dark on Light BG) */
-    [data-testid="collapsedControl"] {color: #333 !important;}
-    
+    /* Make Hamburger Menu Visible (Black) */
+    [data-testid="collapsedControl"] {color: #000000 !important;}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -134,7 +140,7 @@ if "data" not in st.session_state: st.session_state.data = load_data()
 if "history" not in st.session_state: 
     st.session_state.history = [{
         "type": "chat", "role": "assistant", 
-        "content": "Systems Online. 💋\n\nI'm ready. Did we get a full Paycheck, Dayforce Daily, or some **Side Cash**?"
+        "content": "Systems Online. 💋"
     }]
 if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_CHECK"
 
@@ -145,21 +151,14 @@ def add_chat(role, content):
     if "history" not in st.session_state: st.session_state.history = []
     st.session_state.history.append({"type": "chat", "role": role, "content": content})
 
-def type_out(*args):
-    if len(args) == 1: text = args[0]
-    elif len(args) == 2: text = args[1]
-    else: return
-    
-    if st.session_state.history:
-        if st.session_state.history[-1].get('content', '').strip() == text.strip(): return 
-
-    with st.chat_message("assistant", avatar="paige.png"):
-        st.write(text)
+def type_out(text):
+    if st.session_state.history and st.session_state.history[-1].get('content', '').strip() == text.strip(): return 
+    with st.chat_message("assistant", avatar="paige.png"): st.write(text)
     add_chat("assistant", text)
 
 def log_money(amount, note, category="income"):
     if "ledger" not in st.session_state.data: st.session_state.data["ledger"] = []
-    entry = {"date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), "amount": amount, "note": note, "category": category}
+    entry = {"date": datetime.datetime.now().strftime("%Y-%m-%d"), "amount": amount, "note": note, "category": category}
     st.session_state.data["ledger"].insert(0, entry)
     save_data(st.session_state.data)
 
@@ -167,17 +166,7 @@ def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f: data = f.read()
     return base64.b64encode(data).decode()
 
-def get_paige_line(mood):
-    # Simple responses for now to keep code clean
-    if mood == "sexy": return "Good boy. That turns me on."
-    if mood == "mean": return "Pathetic. Try harder."
-    return "Noted."
-
-def get_ticket_save_response():
-    return "Tickets saved. Don't keep me waiting."
-
 def spend_waterfall(amount, category):
-    # Spending Logic: Wallet -> Tank -> House -> Bridge
     if amount <= 0: return "Zero? Okay."
     remaining = amount
     
@@ -187,7 +176,7 @@ def spend_waterfall(amount, category):
         log_money(amount, category, "expense")
         return f"💸 Paid ${amount:.2f} for {category} from Wallet."
     
-    # Wallet Drained, check Tank
+    # Wallet Drained -> Tank
     paid = st.session_state.data['wallet_balance']
     remaining -= paid
     st.session_state.data['wallet_balance'] = 0.0
@@ -197,62 +186,65 @@ def spend_waterfall(amount, category):
         log_money(amount, category, "expense")
         return f"⚠️ Wallet empty. Took ${remaining:.2f} from Tank."
         
-    # Tank Drained, check House
+    # Tank Drained -> House
     paid_tank = st.session_state.data['tank_balance']
     remaining -= paid_tank
     st.session_state.data['tank_balance'] = 0.0
     
-    st.session_state.data['house_fund'] -= remaining # Can go negative
+    st.session_state.data['house_fund'] -= remaining 
     log_money(amount, category, "expense")
     return f"🛑 TANK EMPTY. Took ${remaining:.2f} from HOUSE FUND."
 
 # ==========================================
-#       PART 5: SIDEBAR
+#       PART 5: SIDEBAR (FIXED ADMIN)
 # ==========================================
 with st.sidebar:
-    if os.path.exists("my_banner2.JPG"): st.image("my_banner2.JPG", use_container_width=True)
-    elif os.path.exists("my_banner2.jpg"): st.image("my_banner2.jpg", use_container_width=True)
+    st.image("my_banner2.JPG" if os.path.exists("my_banner2.JPG") else "my_banner2.jpg", use_container_width=True)
+    st.write("---")
     
-    st.markdown("### 🏦 STATUS")
+    # Override styles just for sidebar metrics to look good on dark
+    st.markdown("""<style>[data-testid="stSidebar"] [data-testid="stMetricValue"] {color: #FFFFFF !important;}</style>""", unsafe_allow_html=True)
     
-    col1, col2 = st.columns(2)
-    col1.metric("Wallet", f"${st.session_state.data.get('wallet_balance', 0.0):,.0f}")
-    col2.metric("Tank", f"${st.session_state.data.get('tank_balance', 0.0):,.0f}")
+    st.metric("💳 Wallet", f"${st.session_state.data['wallet_balance']:,.2f}")
+    st.metric("🛡️ Tank", f"${st.session_state.data['tank_balance']:,.2f}")
+    st.metric("🏠 House", f"${st.session_state.data['house_fund']:,.2f}")
+    st.metric("🎟️ Tickets", st.session_state.data['tickets'])
     
-    st.metric("🏠 House Fund", f"${st.session_state.data.get('house_fund', 0.0):,.2f}")
-    st.metric("🎟️ Tickets", st.session_state.data.get('tickets', 0))
+    st.write("---")
     
-    st.markdown("---")
-    
-    # ADMIN FIXED
-    with st.expander("🔐 Admin"):
-        admin_code = st.text_input("Code", type="password")
-        if admin_code == "1234":
-            st.success("Admin Unlocked")
-            if st.button("RESET ALL DATA", type="primary"):
-                st.session_state.data = load_data() # Reset to defaults
-                # Manually clear keys to be safe
+    # ADMIN FORM FIX
+    with st.expander("🔐 Admin Panel"):
+        with st.form("admin_form"):
+            code = st.text_input("Passcode", type="password")
+            submit = st.form_submit_button("Unlock")
+            
+            if submit and code == "1234":
+                st.session_state.admin_unlocked = True
+                st.success("Unlocked!")
+        
+        if st.session_state.get("admin_unlocked"):
+            if st.button("🔴 RESET ALL DATA"):
+                st.session_state.data = load_data()
                 st.session_state.data["wallet_balance"] = 0.0
                 st.session_state.data["tank_balance"] = 0.0
-                st.session_state.data["tickets"] = 0
                 save_data(st.session_state.data)
                 st.rerun()
 
 # ==========================================
-#       PART 6: MAIN CHAT INTERFACE
+#       PART 6: MAIN INTERFACE
 # ==========================================
-# 1. TOP BANNER (Fixed Size)
+# TOP BANNER
 if st.session_state.turn_state == "WALLET_CHECK":
     if os.path.exists("top_banner_blank.jpg"):
         img_base64 = get_base64_of_bin_file("top_banner_blank.jpg")
         real_tickets = st.session_state.data["tickets"]
         
-        # New CSS: max-width 600px to prevent it being huge
+        # Reduced height CSS + White Text
         banner_html = f"""
         <div class="banner-container">
-            <img src="data:image/jpeg;base64,{img_base64}" style="width:100%; display:block;">
-            <div style="position: absolute; top: 28%; right: 26%; transform: translate(50%, -50%); 
-                font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 30px; 
+            <img src="data:image/jpeg;base64,{img_base64}">
+            <div style="position: absolute; top: 30%; right: 25%; transform: translate(50%, -50%); 
+                font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 24px; 
                 color: #FFFFFF; text-shadow: 2px 2px 4px #000000;">
                 🎟️ {real_tickets}
             </div>
@@ -260,148 +252,129 @@ if st.session_state.turn_state == "WALLET_CHECK":
         """
         st.markdown(banner_html, unsafe_allow_html=True)
 
-# 2. CHAT
+# CHAT AREA
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-for item in st.session_state.history[-4:]: # Show last 4 messages to keep it clean
+for item in st.session_state.history[-3:]: # Only last 3 messages
     if item["type"] == "chat":
         name = "Paige" if item["role"] == "assistant" else "You"
         st.markdown(f"**{name}:** {item['content']}")
 st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
-#       PART 7: THE BRAIN (LOGIC)
+#       PART 7: LOGIC & LAYOUT
 # ==========================================
 
 # --- HOME SCREEN ---
 if st.session_state.turn_state == "WALLET_CHECK":
     c1, c2 = st.columns(2)
-    
     with c1:
-        # Bank Button (Green Accent)
-        if st.button("🏦\nTHE BANK"): 
+        if st.button("🏦 THE BANK"): 
             st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
-            
     with c2:
-        # Casino Button (Red Accent if closed, Gold if open)
-        if st.session_state.data["tickets"] > 0:
-            if st.button("🎰\nCASINO OPEN"): 
+        lbl = "🎰 CASINO OPEN" if st.session_state.data["tickets"] > 0 else "🎰 CASINO CLOSED"
+        if st.button(lbl):
+            if st.session_state.data["tickets"] > 0:
                 st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
-        else:
-            if st.button("🎰\nCASINO CLOSED"): 
-                type_out("You need tickets to enter, babe."); st.rerun()
-
-    # Quick Action Bar
-    st.markdown("<br>", unsafe_allow_html=True)
+            else:
+                type_out("You need tickets first.")
+    
+    st.markdown("###") # Spacer
+    
+    # Small Quick Links
     q1, q2, q3 = st.columns(3)
     if q1.button("💋 Quicky"): st.session_state.turn_state = "THE_QUICKIE"; st.rerun()
     if q2.button("🛍️ Store"): st.session_state.turn_state = "THE_STORE"; st.rerun()
     if q3.button("📝 Ledger"): st.session_state.turn_state = "VIEW_LEDGER"; st.rerun()
 
-
-# --- BANK MENU (Dashboard) ---
+# --- BANK DASHBOARD ---
 elif st.session_state.turn_state == "THE_BANK_MENU":
-    st.subheader("🏦 Financial Dashboard")
+    st.subheader("🏦 Dashboard")
     
-    # Metrics
-    m1, m2, m3 = st.columns(3)
-    m1.metric("Safe (Wallet)", f"${st.session_state.data['wallet_balance']:.2f}")
-    m2.metric("The Tank", f"${st.session_state.data['tank_balance']:.2f}")
-    m3.metric("House Fund", f"${st.session_state.data['house_fund']:.2f}")
+    # Financial Overview
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Wallet", f"${st.session_state.data['wallet_balance']:.0f}")
+    c2.metric("Tank", f"${st.session_state.data['tank_balance']:.0f}")
+    c3.metric("House", f"${st.session_state.data['house_fund']:.0f}")
     
-    st.markdown("---")
+    st.write("---")
     
-    # Input Tools
-    col1, col2 = st.columns(2)
-    with col1:
-        st.info("📥 **INCOME**")
+    # 2x2 Grid for Symmetry
+    c1, c2 = st.columns(2)
+    with c1:
+        st.caption("INCOME")
         if st.button("💵 Paycheck"): st.session_state.turn_state = "INPUT_PAYCHECK"; st.rerun()
         if st.button("💰 Side Hustle"): st.session_state.turn_state = "INPUT_SIDE_HUSTLE"; st.rerun()
         if st.button("🕒 Dayforce"): st.session_state.turn_state = "INPUT_DAILY"; st.rerun()
         
-    with col2:
-        st.warning("📤 **MANAGE**")
-        if st.button("🛡️ Move Tank Funds"): st.session_state.turn_state = "MANAGE_FUNDS"; st.rerun()
+    with c2:
+        st.caption("SPEND & SAVE")
+        if st.button("🛡️ Manage Tank"): st.session_state.turn_state = "MANAGE_FUNDS"; st.rerun()
         if st.button("🛍️ The Store"): st.session_state.turn_state = "THE_STORE"; st.rerun()
         if st.button("🗺️ Money Map"): 
-             st.graphviz_chart("""
-                digraph {
-                    rankdir=LR;
-                    Paycheck -> Wallet [color=gold];
-                    Dayforce -> Tank [color=blue];
-                    Tank -> Wallet [style=dashed];
-                    Tank -> House [style=dashed];
-                }
-             """)
+             st.graphviz_chart("""digraph{rankdir=LR; Pay->Wallet; Day->Tank; Tank->Wallet; Tank->House}""")
 
+    st.markdown("###")
     if st.button("⬅️ Home"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
-
-# --- INPUT: PAYCHECK ---
+# --- PAYCHECK ---
 elif st.session_state.turn_state == "INPUT_PAYCHECK":
     st.subheader("💰 Process Paycheck")
-    amount = st.number_input("Total Amount ($)", step=10.0)
+    amount = st.number_input("Check Amount ($)", step=10.0)
     
-    with st.expander("Deductions Settings"):
+    with st.expander("Adjust Deductions"):
         bills = st.number_input("Bills", value=350.0)
         blackout = st.number_input("Blackout", value=50.0)
         save = st.number_input("Savings", value=100.0)
     
-    remainder = amount - (bills + blackout + save)
-    
-    st.write(f"**To Wallet:** ${remainder:.2f}")
+    rem = amount - (bills + blackout + save)
+    st.info(f"To Wallet: ${rem:.2f}")
     
     if st.button("Process"):
         st.session_state.data["bridge_fund"] += blackout
         st.session_state.data["house_fund"] += save
-        st.session_state.data["wallet_balance"] += remainder
+        st.session_state.data["wallet_balance"] += rem
         
-        # Add Tickets
-        tix = 100 if amount >= 600 else (50 if amount >= 500 else 25)
+        tix = 100 if amount >= 600 else 25
         st.session_state.data["tickets"] += tix
         
         log_money(amount, "Paycheck", "income")
         save_data(st.session_state.data)
-        type_out(f"Done. ${remainder:.2f} is yours to spend.")
+        type_out(f"Processed. ${rem:.2f} added to wallet.")
         st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
         
     if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
-# --- INPUT: DAYFORCE ---
+# --- DAYFORCE ---
 elif st.session_state.turn_state == "INPUT_DAILY":
-    st.subheader("🕒 Dayforce Input")
+    st.subheader("🕒 Dayforce (To Tank)")
     amt = st.number_input("Amount ($)", step=5.0)
-    
-    if st.button("Add to Tank"):
+    if st.button("Add"):
         st.session_state.data["tank_balance"] += amt
         st.session_state.data["tickets"] += 10
         log_money(amt, "Dayforce", "income")
         save_data(st.session_state.data)
-        type_out("Locked in the Tank.")
+        type_out("Added to Tank.")
         st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
-        
     if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
-# --- INPUT: SIDE HUSTLE ---
+# --- SIDE HUSTLE ---
 elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
-    st.subheader("💰 Side Hustle")
+    st.subheader("💰 Side Hustle (To Wallet)")
     amt = st.number_input("Amount ($)", step=5.0)
-    
-    if st.button("Add to Wallet"):
+    if st.button("Add"):
         st.session_state.data["wallet_balance"] += amt
         st.session_state.data["tickets"] += 15
         log_money(amt, "Side Hustle", "income")
         save_data(st.session_state.data)
-        type_out("Cash added to Wallet.")
+        type_out("Added to Wallet.")
         st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
-        
     if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
-# --- MANAGE FUNDS ---
+# --- MANAGE TANK ---
 elif st.session_state.turn_state == "MANAGE_FUNDS":
-    st.subheader("🛡️ Manage Tank")
-    st.info(f"Available: ${st.session_state.data['tank_balance']:.2f}")
+    st.subheader("🛡️ Manage Tank Funds")
+    st.info(f"In Tank: ${st.session_state.data['tank_balance']:.2f}")
     move = st.number_input("Amount ($)", step=10.0)
-    
     c1, c2 = st.columns(2)
     if c1.button("To Wallet"):
         if move <= st.session_state.data['tank_balance']:
@@ -410,7 +383,6 @@ elif st.session_state.turn_state == "MANAGE_FUNDS":
             save_data(st.session_state.data)
             type_out("Moved to Wallet.")
             st.rerun()
-            
     if c2.button("To Savings"):
         if move <= st.session_state.data['tank_balance']:
             st.session_state.data['tank_balance'] -= move
@@ -418,80 +390,68 @@ elif st.session_state.turn_state == "MANAGE_FUNDS":
             save_data(st.session_state.data)
             type_out("Moved to Savings.")
             st.rerun()
-            
     if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
-# --- THE STORE ---
+# --- STORE ---
 elif st.session_state.turn_state == "THE_STORE":
     st.subheader("🛍️ Store")
-    st.metric("Safe to Spend", f"${st.session_state.data['wallet_balance']:.2f}")
-    
+    st.caption(f"Wallet: ${st.session_state.data['wallet_balance']:.2f}")
     cost = st.number_input("Cost ($)", step=1.0)
     c1, c2, c3 = st.columns(3)
-    
-    if c1.button("Food"): 
-        msg = spend_waterfall(cost, "Food"); type_out(msg); st.rerun()
-    if c2.button("Gas"): 
-        msg = spend_waterfall(cost, "Gas"); type_out(msg); st.rerun()
-    if c3.button("Bill"): 
-        msg = spend_waterfall(cost, "Bill"); type_out(msg); st.rerun()
-        
-    if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
-
-# --- LEDGER ---
-elif st.session_state.turn_state == "VIEW_LEDGER":
-    st.subheader("📜 Ledger")
-    for i in st.session_state.data["ledger"][:10]:
-        st.text(f"{i['date']} - ${i['amount']} ({i['note']})")
+    if c1.button("Food"): type_out(spend_waterfall(cost, "Food")); st.rerun()
+    if c2.button("Gas"): type_out(spend_waterfall(cost, "Gas")); st.rerun()
+    if c3.button("Bill"): type_out(spend_waterfall(cost, "Bill")); st.rerun()
     if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
 # --- QUICKY ---
 elif st.session_state.turn_state == "THE_QUICKIE":
-    st.subheader("💋 Quicky")
-    if st.button("Claim Daily Bonus"):
+    st.subheader("💋 Quicky Bonus")
+    if st.button("Claim"):
         st.session_state.data["tickets"] += 5
         save_data(st.session_state.data)
         st.balloons()
-        type_out("Caught me changing. Here's 5 tickets.")
+        type_out("Claimed 5 Tickets.")
+    if st.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
+# --- LEDGER ---
+elif st.session_state.turn_state == "VIEW_LEDGER":
+    st.subheader("📜 Ledger")
+    for i in st.session_state.data["ledger"][:8]:
+        st.text(f"{i['date']} | ${i['amount']} | {i['note']}")
     if st.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 # --- CASINO ---
 elif st.session_state.turn_state == "CHOOSE_TIER":
     st.subheader("🎰 Casino")
     st.metric("Tickets", st.session_state.data["tickets"])
-    
     c1, c2, c3 = st.columns(3)
     if c1.button("Bronze (25)"):
         if st.session_state.data["tickets"] >= 25:
             st.session_state.data["tickets"] -= 25; save_data(st.session_state.data)
             st.session_state.turn_state = "SPIN_BRONZE"; st.rerun()
-            
     if c2.button("Silver (50)"):
         if st.session_state.data["tickets"] >= 50:
             st.session_state.data["tickets"] -= 50; save_data(st.session_state.data)
             st.session_state.turn_state = "SPIN_SILVER"; st.rerun()
-            
     if c3.button("Gold (100)"):
         if st.session_state.data["tickets"] >= 100:
             st.session_state.data["tickets"] -= 100; save_data(st.session_state.data)
             st.session_state.turn_state = "SPIN_GOLD"; st.rerun()
-            
     if st.button("Exit"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 elif st.session_state.turn_state == "SPIN_BRONZE":
     components.iframe("https://spinthewheel.app/tmDneZ0rCW", height=500)
-    st.info("Spin then click below:")
     c1, c2 = st.columns(2)
     if c1.button("Bend Over"): type_out("Won: Bend Over"); st.session_state.turn_state="WALLET_CHECK"; st.rerun()
     if c2.button("Flash Me"): type_out("Won: Flash Me"); st.session_state.turn_state="WALLET_CHECK"; st.rerun()
 
 elif st.session_state.turn_state == "SPIN_SILVER":
     components.iframe("https://spinthewheel.app/1RLMB3g88K", height=500)
-    if st.button("Claim Prize"): st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+    if st.button("Finish"): st.session_state.turn_state="WALLET_CHECK"; st.rerun()
 
 elif st.session_state.turn_state == "SPIN_GOLD":
     components.iframe("https://spinthewheel.app/JIRFjfR66x", height=500)
-    if st.button("Claim Prize"): st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+    if st.button("Finish"): st.session_state.turn_state="WALLET_CHECK"; st.rerun()
 
 
 # ==========================================
@@ -2069,6 +2029,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
