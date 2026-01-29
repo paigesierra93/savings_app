@@ -131,6 +131,92 @@ def log_money(amount, note, category="income"):
     # Also save to Spy Log
     log_event(f"MONEY: {note} (${amount})")
     save_data(st.session_state.data)
+    # --- SMART BANKER BRAIN (SEXY/BOSSY VERSION) ---
+def smart_banker(text):
+    text = text.lower()
+    amount = 0.0
+    
+    # 1. Find the money number using Regex
+    import re
+    match = re.search(r'\$?(\d+(\.\d{2})?)', text)
+    if match:
+        amount = float(match.group(1))
+    
+    # If no number is found, scold him
+    if amount == 0 and any(x in text for x in ["spent", "add", "transfer", "move"]):
+        return "I need a number, pet. 'Spent 20', 'Added 50'. Focus."
+
+    # 2. DECIDE THE ACTION
+    
+    # --- SPENDING (Deducts from Wallet) ---
+    if any(x in text for x in ["spent", "bought", "cost", "paid", "expense", "lost"]):
+        if st.session_state.data['wallet_balance'] >= amount:
+            st.session_state.data['wallet_balance'] -= amount
+            log_money(amount, f"Quick Spend: {text}", "expense")
+            save_data(st.session_state.data)
+            return f"💸 **-${amount:.2f}** deducted. You better have bought something for me, or you're being a bad boy."
+        else:
+            # Overdraft Logic
+            remaining = amount - st.session_state.data['wallet_balance']
+            st.session_state.data['wallet_balance'] = 0
+            if st.session_state.data['tank_balance'] >= remaining:
+                st.session_state.data['tank_balance'] -= remaining
+                log_money(amount, f"Overdraft: {text}", "expense")
+                save_data(st.session_state.data)
+                return f"⚠️ Wallet empty. I had to take **${remaining:.2f}** from the Tank. Stop spending money we don't have."
+            else:
+                return "❌ You're broke. Access denied."
+
+    # --- INCOME (Adds to Wallet) ---
+    elif any(x in text for x in ["side hustle", "tips", "found", "sold", "gift", "won", "add"]):
+        st.session_state.data['wallet_balance'] += amount
+        log_money(amount, "Quick Income", "income")
+        
+        # Add Tickets for earning
+        tix = 10 if amount > 20 else 0
+        st.session_state.data["tickets"] += tix
+        save_data(st.session_state.data)
+        
+        return f"💰 **+${amount:.2f}** added. Good boy. Keep stacking cash for me and I might let you touch later."
+
+    # --- PAYCHECK (Trigger full logic) ---
+    elif "paycheck" in text:
+        # Simple math for quick chat
+        bills = 350 + 50 + 100 
+        safe = amount - bills
+        if safe < 0: return "That check is too small to cover bills. Work harder."
+        
+        st.session_state.data["wallet_balance"] += safe
+        st.session_state.data["house_fund"] += 100
+        st.session_state.data["bridge_fund"] += 50
+        log_money(amount, "Paycheck (Chat)", "income")
+        
+        tix = 100 if amount >= 600 else 25
+        st.session_state.data["tickets"] += tix
+        save_data(st.session_state.data)
+        
+        return f"💰 Paycheck processed. I took my cut for bills & savings. You have **${safe:.2f}** allowed for yourself."
+
+    # --- MOVING MONEY (Tank Logic) ---
+    elif "tank" in text:
+        if "to" in text and "wallet" in text:
+            # Move Tank -> Wallet
+            if st.session_state.data["tank_balance"] >= amount:
+                st.session_state.data["tank_balance"] -= amount
+                st.session_state.data["wallet_balance"] += amount
+                log_money(amount, "Tank -> Wallet", "transfer")
+                save_data(st.session_state.data)
+                return f"🛡️ Moved **${amount:.2f}** to Wallet. Don't waste it."
+            else: return "You don't have that much in the Tank, dummy."
+        elif "add" in text or "put" in text or "fill" in text:
+            # Add to Tank (Dayforce)
+            st.session_state.data["tank_balance"] += amount
+            log_money(amount, "Added to Tank", "income")
+            save_data(st.session_state.data)
+            return f"🛡️ Locked **${amount:.2f}** into the Tank. Safe from your sticky fingers."
+
+    return "I didn't catch that. Say 'Spent 20', 'Added 50', or 'Tank to Wallet 10'."
+    
 
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f: data = f.read()
@@ -2272,6 +2358,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
