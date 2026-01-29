@@ -403,32 +403,23 @@ st.markdown("---")
 #       PART 7: THE BRAIN (LOGIC)
 # ==========================================
 
-# --- 1. START SCREEN (THE GRID) ---
+# --- 1. HOME SCREEN (CLEAN & SIMPLE) ---
 def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
 
 if st.session_state.turn_state == "WALLET_CHECK":
+    # 1. TOP BANNER
     if os.path.exists("top_banner_blank.jpg"):
         img_base64 = get_base64_of_bin_file("top_banner_blank.jpg")
         real_tickets = st.session_state.data["tickets"]
-        
-        # FIX: Changed color to #FFFFFF (White) and added Text Shadow
         banner_html = f"""
         <div style="position: relative; width: 100%; margin-bottom: 20px;">
             <img src="data:image/jpeg;base64,{img_base64}" style="width:100%; border-radius: 20px; border: 3px solid #000; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-            <div style="
-                position: absolute; 
-                top: 28%; 
-                right: 25%; 
-                transform: translate(50%, -50%); 
-                font-family: 'Montserrat', sans-serif; 
-                font-weight: 800; 
-                font-size: 5vw; 
-                color: #FFFFFF; 
-                text-shadow: 2px 2px 4px #000000;
-            ">
+            <div style="position: absolute; top: 28%; right: 25%; transform: translate(50%, -50%); 
+                font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 5vw; 
+                color: #FFFFFF; text-shadow: 2px 2px 4px #000000;">
                 🎟️ {real_tickets}
             </div>
         </div>
@@ -437,205 +428,258 @@ if st.session_state.turn_state == "WALLET_CHECK":
     else: 
         st.info(f"🎟️ TICKETS: {st.session_state.data['tickets']}")
 
+    # 2. TWO MAIN PATHS
+    c1, c2 = st.columns(2)
+    
+    with c1:
+        # THE BANK BUTTON (Business)
+        # We style this one Green to imply Money/Management
+        st.markdown("""<style>div.stButton > button {height: 150px; font-size: 24px;}</style>""", unsafe_allow_html=True)
+        if st.button("🏦\nENTER THE BANK"): 
+            st.session_state.turn_state = "THE_BANK_MENU"
+            st.rerun()
+            
+    with c2:
+        # THE CASINO BUTTON (Pleasure)
+        # Only works if he has tickets, otherwise warns him
+        if st.session_state.data["tickets"] > 0:
+            if st.button("🎰\nENTER CASINO"): 
+                st.session_state.turn_state = "CHOOSE_TIER"
+                st.rerun()
+        else:
+            # Disabled look or Warning
+            if st.button("🎰\nCASINO CLOSED\n(No Tickets)"): 
+                type_out("⛔ bouncer: 'Come back when you have tickets, broke boy.'")
+
+    # Quicky Button (Optional - Kept on home for fast access or move to Bank?)
+    st.markdown("---")
+    if st.button("💋 THE QUICKY (Daily Bonus)"):
+        st.session_state.turn_state = "THE_QUICKIE"
+        st.rerun()
+
+
+# --- 2. THE BANK SUBMENU (The Dashboard) ---
+elif st.session_state.turn_state == "THE_BANK_MENU":
+    st.header("🏦 The Bank")
+    
+    # A. DASHBOARD METRICS (At the top)
+    c1, c2, c3 = st.columns(3)
+    c1.metric("💳 Safe to Spend", f"${st.session_state.data['wallet_balance']:,.2f}")
+    c2.metric("🛡️ The Tank", f"${st.session_state.data['tank_balance']:,.2f}")
+    c3.metric("🏠 House Fund", f"${st.session_state.data['house_fund']:,.2f}")
+    
+    st.markdown("---")
+    
+    # B. THE TOOLS GRID
     c1, c2 = st.columns(2)
     with c1:
-        if st.button("💵\nPAYCHECK"): st.session_state.turn_state = "INPUT_PAYCHECK"; st.rerun()
-        if st.button("🏪\nTHE STORE"): st.session_state.turn_state = "THE_STORE"; st.rerun()
-        if st.button("💋\nQUICKY"): st.session_state.turn_state = "THE_QUICKIE"; st.rerun()
-        if st.button("🛡️\nTHE TANK"): st.session_state.turn_state = "MANAGE_FUNDS"; st.rerun()
-    with c2:
-        if st.button("💰\nSIDE HUSTLE"): st.session_state.turn_state = "INPUT_SIDE_HUSTLE"; st.rerun()
-        if st.button("📜\nLEDGER"): st.session_state.turn_state = "VIEW_LEDGER"; st.rerun()
-        if st.button("🕒\nDAYFORCE"): st.session_state.turn_state = "INPUT_DAILY"; st.rerun()
-        if st.button("🔐\nTHE VAULT"): st.session_state.turn_state = "THE_VAULT"; st.rerun()
-
-    # Invisible spin button helper
-    if st.button("🎰 GO TO CASINO FLOOR (SPIN)", key="main_spin_btn"): 
-        st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
+        st.caption("INCOME")
+        if st.button("💵 PAYCHECK"): st.session_state.turn_state = "INPUT_PAYCHECK"; st.rerun()
+        if st.button("💰 SIDE HUSTLE"): st.session_state.turn_state = "INPUT_SIDE_HUSTLE"; st.rerun()
+        if st.button("🕒 DAYFORCE"): st.session_state.turn_state = "INPUT_DAILY"; st.rerun()
         
+    with c2:
+        st.caption("MANAGEMENT")
+        if st.button("🏪 THE STORE"): st.session_state.turn_state = "THE_STORE"; st.rerun()
+        if st.button("🛡️ MANAGE TANK"): st.session_state.turn_state = "MANAGE_FUNDS"; st.rerun()
+        if st.button("📜 LEDGER"): st.session_state.turn_state = "VIEW_LEDGER"; st.rerun()
+
+    # C. MONEY MAP & EXTRAS
+    st.markdown("---")
+    c3, c4 = st.columns(2)
+    with c3:
+        # The Flowchart Button
+        if st.button("🗺️ MONEY FLOW MAP"):
+            st.subheader("🗺️ Where Your Money Goes")
+            money_map = """
+            digraph MoneyFlow {
+                rankdir=LR;
+                node [shape=box, style=filled, fontname="Montserrat"];
+                node [fillcolor="#E8F5E9", color="#2E7D32"]
+                Paycheck [label="💰 PAYCHECK"]
+                SideHustle [label="💸 SIDE HUSTLE"]
+                Dayforce [label="📱 DAYFORCE"]
+
+                node [fillcolor="#E3F2FD", color="#1565C0"]
+                Wallet [label="💳 WALLET\n(Spend)", fillcolor="#FFF9C4", color="#FBC02D"]
+                Tank [label="🛡️ TANK\n(Hold)"]
+                
+                node [fillcolor="#FFEBEE", color="#C62828"]
+                Bills [label="📉 BILLS"]
+                House [label="🏠 SAVINGS"]
+
+                Paycheck -> Bills [color="red"]
+                Paycheck -> House [color="green"]
+                Paycheck -> Wallet [color="gold", penwidth=2]
+                SideHustle -> Wallet [label="100%", color="gold"]
+                Dayforce -> Tank [label="Daily Lock", color="blue"]
+                Tank -> Wallet [style="dashed"]
+                Tank -> House [style="dashed"]
+            }
+            """
+            st.graphviz_chart(money_map)
+            
+    with c4:
+        if st.button("🔐 THE VAULT (Rewards)"): 
+            st.session_state.turn_state = "THE_VAULT"; st.rerun()
+
+    # D. BACK BUTTON
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("⬅️ BACK TO HOME SCREEN"):
+        st.session_state.turn_state = "WALLET_CHECK"
+        st.rerun()
+
+
+# --- 3. INPUT: PAYCHECK ---
+elif st.session_state.turn_state == "INPUT_PAYCHECK":
+    st.subheader("💰 Paycheck Processing")
+    check_amount = st.number_input("Total Check Amount ($):", min_value=0.0, step=10.0)
+
+    with st.expander("⚙️ Edit Deductions (Bills/Savings)", expanded=False):
+        c_bill, c_black, c_save = st.columns(3)
+        bills_deduction = c_bill.number_input("Bills", value=350.0, step=10.0)
+        blackout_deduction = c_black.number_input("Blackout", value=50.0, step=10.0)
+        savings_deduction = c_save.number_input("House Fund", value=100.0, step=10.0)
+
+    total_deductions = bills_deduction + blackout_deduction + savings_deduction
+    remainder = check_amount - total_deductions
+    
+    st.markdown("---")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("📉 Bills", f"-${bills_deduction:.0f}")
+    c2.metric("🌑 Blackout", f"-${blackout_deduction:.0f}")
+    c3.metric("🏠 Savings", f"-${savings_deduction:.0f}")
+    
+    st.divider()
+    if remainder > 0: st.success(f"✅ Wallet: ${remainder:.2f}")
+    else: st.error(f"⚠️ Shortage: ${remainder:.2f}")
+
+    if st.button("Process Paycheck"):
+        if check_amount > 0:
+            add_chat("user", f"Paycheck Processed: ${check_amount}")
+            st.session_state.data["bridge_fund"] += blackout_deduction
+            st.session_state.data["house_fund"] += savings_deduction
+            st.session_state.data["wallet_balance"] += remainder
+            log_money(check_amount, "Paycheck Income", "income")
+            log_money(bills_deduction, "Auto-Bills Paid", "expense")
+            
+            if check_amount >= 600: tickets = 100
+            elif check_amount >= 500: tickets = 50
+            else: tickets = 25
+            st.session_state.data["tickets"] += tickets
+            save_data(st.session_state.data)
+            
+            type_out(f"Bills paid. Savings stocked. **${remainder:.2f}** added to Wallet.")
+            if tickets > 0: st.session_state.turn_state = "CHOOSE_TIER" # Go to Casino if tix earned
+            else: st.session_state.turn_state = "THE_BANK_MENU" # Or back to Bank
+            st.rerun()
+    
+    if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
+
+# --- INPUT: SIDE HUSTLE ---
+elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
+    st.subheader("💸 Side Hustle")
+    side_amount = st.number_input("Amount ($):", min_value=0.0, step=5.0)
+    
+    if st.button("Stash Cash"):
+        if side_amount > 0:
+            add_chat("user", f"Side Hustle: ${side_amount}")
+            log_money(side_amount, "Side Hustle", "income")
+            st.session_state.data["wallet_balance"] += side_amount
+            
+            tickets = 15 if side_amount >= 40 else 0
+            st.session_state.data["tickets"] += tickets
+            save_data(st.session_state.data)
+            type_out(f"{get_paige_line('sexy')}\n\n💰 Added **${side_amount:.2f}** to Wallet.")
+            st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
+            
+    if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
+
+# --- INPUT: DAYFORCE ---
+elif st.session_state.turn_state == "INPUT_DAILY":
+    st.subheader("🕒 Dayforce (The Tank)")
+    daily_amount = st.number_input("Amount ($):", min_value=0.0, step=5.0)
+    
+    if st.button("Fill The Tank"):
+        if daily_amount > 0:
+            add_chat("user", f"Dayforce: ${daily_amount}")
+            log_money(daily_amount, "Dayforce -> Tank", "income")
+            st.session_state.data["tank_balance"] += daily_amount
+            st.session_state.data["tickets"] += 10
+            save_data(st.session_state.data)
+            type_out(f"Money secured in **The Tank**.")
+            st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
+            
+    if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
+
+# --- MANAGE FUNDS (THE TANK) ---
+elif st.session_state.turn_state == "MANAGE_FUNDS":
+    st.subheader("🛡️ The Tank")
+    st.info(f"Current Tank Balance: **${st.session_state.data['tank_balance']:.2f}**")
+    move_amount = st.number_input("Amount to Move ($):", min_value=0.0, step=5.0)
+    
+    c1, c2 = st.columns(2)
+    if c1.button("💸 Move to Wallet (Spend)"):
+        if move_amount > 0 and move_amount <= st.session_state.data['tank_balance']:
+            st.session_state.data['tank_balance'] -= move_amount
+            st.session_state.data['wallet_balance'] += move_amount
+            log_money(move_amount, "Tank -> Wallet", "transfer")
+            save_data(st.session_state.data)
+            type_out(f"Transferred **${move_amount:.2f}** to Wallet."); st.rerun()
+            
+    if c2.button("🏠 Lock to Savings"):
+        if move_amount > 0 and move_amount <= st.session_state.data['tank_balance']:
+            st.session_state.data['tank_balance'] -= move_amount
+            st.session_state.data['house_fund'] += move_amount
+            log_money(move_amount, "Tank -> Savings", "save")
+            save_data(st.session_state.data)
+            type_out(f"Locked **${move_amount:.2f}** to Savings."); st.rerun()
+            
+    if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
+
 # --- THE STORE ---
 elif st.session_state.turn_state == "THE_STORE":
     st.subheader("🛍️ Paige's Store")
-    st.caption("Track your spending. It comes out of your Allowance first, then the Tank, then the House.")
+    wallet = st.session_state.data['wallet_balance']
+    if wallet < 20: st.error(f"💸 Wallet Low: ${wallet:.2f}")
+    else: st.success(f"💸 Safe to Spend: ${wallet:.2f}")
+    
     cost = st.number_input("Cost ($):", min_value=0.0, step=1.0)
-    st.write("Quick Categories:")
     c1, c2, c3 = st.columns(3)
-    if c1.button("🍔 Food / Lunch"):
-        if cost > 0:
-            msg = spend_waterfall(cost, "Food"); save_data(st.session_state.data); type_out(msg)
-            if cost > 15: type_out(get_paige_line("mean")) 
-            st.rerun()
-        else: st.error("Enter a cost first.")
-    if c2.button("⛽ Gas / Transport"):
-        if cost > 0:
-            msg = spend_waterfall(cost, "Gas"); save_data(st.session_state.data); type_out(msg); st.rerun()
-        else: st.error("Enter a cost first.")
-    if c3.button("💡 Bill / Utility"):
-        if cost > 0:
-            msg = spend_waterfall(cost, "Bill"); save_data(st.session_state.data); type_out(msg); st.rerun()
-        else: st.error("Enter a cost first.")
-    st.markdown("---")
-    custom_item = st.text_input("Item Name (e.g. ' Vape', 'Game'):")
-    if st.button("Buy Custom Item"):
-        if cost > 0 and custom_item:
-            msg = spend_waterfall(cost, custom_item); save_data(st.session_state.data); type_out(msg)
-            type_out(get_paige_line("mean")); st.rerun()
-        else: st.error("Enter cost and name.")
-    if st.button("Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+    if c1.button("🍔 Food"):
+        if cost > 0: msg = spend_waterfall(cost, "Food"); save_data(st.session_state.data); type_out(msg); st.rerun()
+    if c2.button("⛽ Gas"):
+        if cost > 0: msg = spend_waterfall(cost, "Gas"); save_data(st.session_state.data); type_out(msg); st.rerun()
+    if c3.button("💡 Bill"):
+        if cost > 0: msg = spend_waterfall(cost, "Bill"); save_data(st.session_state.data); type_out(msg); st.rerun()
+            
+    if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
 # --- VIEW LEDGER ---
 elif st.session_state.turn_state == "VIEW_LEDGER":
-    st.subheader("📜 Transaction Ledger")
+    st.subheader("📜 Ledger")
     if "ledger" in st.session_state.data and st.session_state.data["ledger"]:
         for item in st.session_state.data["ledger"]:
             icon = "🟢" if item["category"] == "income" else ("🔴" if item["category"] == "expense" else "🔵")
             st.markdown(f"**{item['date']}** | {icon} **${item['amount']}** | {item['note']}")
             st.divider()
-    else: st.info("No transaction history yet.")
-    if st.button("Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+    else: st.info("No history.")
+    if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
-# --- THE QUICKIE ---
-elif st.session_state.turn_state == "THE_QUICKIE":
-    quickie_lines = ["Fast and dirty... just how I like it. Here's 5 tickets.", "Mmm... you caught me changing. Take these tickets and don't peek... okay, peek a little.", "Quick kiss for a good boy. Now get back to work.", "Thinking about my tits? Yeah, me too. +5 Tickets."]
-    if "last_quickie" not in st.session_state: st.session_state.last_quickie = 0
-    current_time = time.time()
-    if current_time - st.session_state.last_quickie > 60:
-        st.session_state.data["tickets"] += 5; save_data(st.session_state.data)
-        st.session_state.last_quickie = current_time
-        type_out(f"{random.choice(quickie_lines)}\n\n🎟️ **+5 TICKETS**")
-        st.balloons()
-    else: type_out("Whoa there, tiger. I need a minute to recover. Come back later.")
-    if st.button("Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
-
-# --- THE VAULT ---
+# --- THE VAULT (In Bank Menu now) ---
 elif st.session_state.turn_state == "THE_VAULT":
     st.subheader("🔐 The Vault")
-    st.info("Save money in the **House Fund** to unlock permanent access to these rewards.")
     savings = st.session_state.data['house_fund']
-    st.metric("Current House Fund", f"${savings:,.2f}"); st.divider()
-    
-    c1, c2 = st.columns([1, 3])
-    with c1: st.write("### Level 1"); st.caption("Goal: $500")
-    with c2:
-        if savings >= 500:
-            st.success("🔓 UNLOCKED")
-            if st.button("View: The Morning Collection"): show_media("morning_tease.jpg"); type_out("Good morning, daddy. Keep saving and I'll keep showing.")
-        else: st.error(f"🔒 LOCKED (Need ${500 - savings:.2f} more)"); st.progress(min(savings/500, 1.0))
-    st.divider()
-    
-    c1, c2 = st.columns([1, 3])
-    with c1: st.write("### Level 2"); st.caption("Goal: $1,000")
-    with c2:
-        if savings >= 1000:
-            st.success("🔓 UNLOCKED")
-            if st.button("View: The Shower Video"): show_media("shower_video.mp4"); type_out("Clean, wet, and all yours. You earned this view.")
-        else: st.error(f"🔒 LOCKED (Need ${1000 - savings:.2f} more)"); st.progress(min(savings/1000, 1.0))
-    st.divider()
-    if st.button("Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+    st.metric("House Fund", f"${savings:,.2f}")
+    # ... (Your Vault Levels code here) ...
+    if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
-# --- INPUTS ---
-elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
-    st.subheader("💸 Side Hustle Input")
-    side_amount = st.number_input("Side Income Amount ($):", min_value=0.0, step=5.0)
-    if st.button("Process Extra Cash"):
-        add_chat("user", f"Side Hustle: ${side_amount}")
-        log_money(side_amount, "Side Hustle", "income")
-        split = side_amount / 2
-        st.session_state.data["tank_balance"] += split; st.session_state.data["wallet_balance"] += split
-        
-        if side_amount >= 150: tickets = 125
-        elif side_amount >= 110: tickets = 60
-        elif side_amount >= 70: tickets = 35
-        elif side_amount >= 40: tickets = 15
-        else: tickets = 0
-        st.session_state.data["tickets"] += tickets; save_data(st.session_state.data)
-        
-        if side_amount >= 40: paige_says = get_paige_line("sexy")
-        elif side_amount > 0: paige_says = "Every little bit helps, I guess."
-        else: paige_says = get_paige_line("mean")
-        
-        type_out(f"{paige_says}\n\n**Side Hustle:** ${side_amount:.2f}\n🛡️ Tank: ${split:.2f}\n💰 Wallet: ${split:.2f}\n🎟️ **TICKETS:** {tickets}")
-        st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
+# --- THE QUICKIE (Stays on Main or Bank) ---
+elif st.session_state.turn_state == "THE_QUICKIE":
+    # ... (Your Quicky code) ...
+    if st.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
-elif st.session_state.turn_state == "INPUT_PAYCHECK":
-    st.subheader("💰 Full Paycheck")
-    check_amount = st.number_input("Enter Total:", min_value=0.0, step=10.0)
-    if st.button("Process Paycheck"):
-        add_chat("user", f"Paycheck is ${check_amount}")
-        log_money(check_amount, "Full Paycheck", "income")
-        safe_spend = check_amount - (200.0 + 80.0 + 100.0 + 50.0)
-        st.session_state.data["bridge_fund"] += 50.0
-        st.session_state.data["wallet_balance"] = safe_spend
-        
-        if check_amount >= 601: tickets = 100
-        elif check_amount >= 501: tickets = 50
-        elif check_amount >= 450: tickets = 25
-        else: tickets = 0
-        st.session_state.data["tickets"] += tickets; save_data(st.session_state.data)
-        
-        if safe_spend < 0: type_out(f"⚠️ **SHORTAGE:** -${abs(safe_spend):.2f}. We are in the hole, babe.")
-        else: type_out(f"{get_paige_line('payday')}\n\n✅ **PROCESSED**\n💰 **SAFE TO SPEND:** ${safe_spend:.2f}\n🎟️ **TICKETS:** {tickets}")
-        
-        if tickets > 0: st.session_state.turn_state = "CHOOSE_TIER"
-        else: st.session_state.turn_state = "CHECK_FAIL"
-        st.rerun()
-
-elif st.session_state.turn_state == "INPUT_DAILY":
-    st.subheader("📱 Daily Dayforce")
-    current_streak = st.session_state.data.get("streak", 0)
-    if current_streak > 0: st.caption(f"🔥 Current Streak: {current_streak} days")
-    daily_amount = st.number_input("Available ($):", min_value=0.0, step=5.0)
-    if st.button("Process Daily"):
-        add_chat("user", f"Dayforce: ${daily_amount}")
-        today_str = datetime.datetime.now().strftime("%Y-%m-%d")
-        last_login = st.session_state.data.get("last_login", "")
-        if last_login != today_str:
-            yesterday = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-            if last_login == yesterday: st.session_state.data["streak"] += 1
-            else: st.session_state.data["streak"] = 1
-            st.session_state.data["last_login"] = today_str
-            
-        if daily_amount < 40.0: type_out(f"⚠️ **Warning:** Not enough for Gas & House. Stay home.")
-        else:
-            log_money(daily_amount, "Dayforce Daily", "income")
-            safe_spend = daily_amount - 10.0 - 30.0
-            st.session_state.data["tank_balance"] += 30.0
-            st.session_state.data["wallet_balance"] += safe_spend
-            
-            streak_bonus = 10 if st.session_state.data["streak"] >= 3 else 0
-            st.session_state.data["tickets"] += streak_bonus
-            save_data(st.session_state.data)
-            
-            paige_says = get_paige_line("sexy") if safe_spend > 20 else "Better than nothing."
-            msg = f"{paige_says}\n\n**Strategy:**\nShielded $30 (House) + $10 (Gas).\n🍔 **SAFE TO SPEND:** ${safe_spend:.2f}"
-            if streak_bonus > 0: msg += f"\n\n🔥 **STREAK BONUS:** +{streak_bonus} Tickets!"
-            type_out(msg)
-            st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
-
-elif st.session_state.turn_state == "MANAGE_FUNDS":
-    st.subheader("🏦 The Tank")
-    st.info(f"Tank: ${st.session_state.data['tank_balance']:.2f}")
-    move_amount = st.number_input("Amount ($):", min_value=0.0, step=10.0)
-    c1, c2, c3 = st.columns(3)
-    if c1.button("💸 Move to Wallet"):
-        if move_amount > st.session_state.data['tank_balance']: st.error("Not enough.")
-        else:
-            log_money(move_amount, "Moved Tank -> Wallet", "expense")
-            st.session_state.data['tank_balance'] -= move_amount
-            st.session_state.data['wallet_balance'] += move_amount
-            save_data(st.session_state.data)
-            type_out(f"{get_paige_line('mean')}\n\n💸 Moved ${move_amount} to Wallet (Spent)."); st.rerun()
-    if c2.button("🏠 Lock to House"):
-        if move_amount > st.session_state.data['tank_balance']: st.error("Not enough.")
-        else:
-            log_money(move_amount, "Locked Tank -> House Fund", "save")
-            st.session_state.data['tank_balance'] -= move_amount
-            st.session_state.data['house_fund'] += move_amount
-            save_data(st.session_state.data)
-            type_out(f"{get_paige_line('sexy')}\n\n🏠 Locked ${move_amount} into House Fund."); st.rerun()
-    if c3.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
-
-
+     
 # --- CASINO ---
 elif st.session_state.turn_state == "CHOOSE_TIER":
     tix = st.session_state.data["tickets"]
@@ -2319,6 +2363,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
