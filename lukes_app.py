@@ -283,11 +283,21 @@ with st.sidebar:
         if st.session_state.get("admin_unlocked"):
             if st.button("🕵️ VIEW SPY LOGS"):
                 st.session_state.turn_state = "ADMIN_SPY_MODE"; st.rerun()
+                
+            # FIXED RESET BUTTON
             if st.button("🔴 RESET ALL DATA"):
-                st.session_state.data = load_data()
+                # Force fresh defaults logic here
+                st.session_state.data = {
+                    "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, 
+                    "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0,
+                    "inventory": [], "history_log": [], "ledger": [],
+                    "chat_log": [], 
+                    "streak": 0, "last_login": ""
+                }
                 save_data(st.session_state.data)
+                st.success("Data wiped.")
+                time.sleep(1)
                 st.rerun()
-
 # ==========================================
 #       PART 6: MAIN INTERFACE
 # ==========================================
@@ -2080,6 +2090,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
