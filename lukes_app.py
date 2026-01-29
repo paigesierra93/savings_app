@@ -95,14 +95,10 @@ st.markdown("""
         background: transparent !important;
         visibility: visible !important;
     }
-    
-    /* Make the Hamburger Menu Button BLACK so you can see it */
     [data-testid="collapsedControl"] {
         color: #000000 !important;
         display: block !important;
     }
-    
-    /* Hide only the "Deploy" button and decoration line */
     .stAppDeployButton {display: none;}
     [data-testid="stDecoration"] {display: none;}
     
@@ -123,7 +119,7 @@ def load_data():
         "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, 
         "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0,
         "inventory": [], "history_log": [], "ledger": [],
-        "chat_log": [], # NEW: Tracks full chat history for Admin
+        "chat_log": [], 
         "streak": 0, "last_login": ""
     }
     if not os.path.exists(DATA_FILE): return default_data
@@ -152,8 +148,7 @@ if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_C
 def add_chat(role, content):
     if "history" not in st.session_state: st.session_state.history = []
     st.session_state.history.append({"type": "chat", "role": role, "content": content})
-    
-    # NEW: Log to persistent database for Admin Spy Mode
+    # Spy Mode Log
     ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
     if "chat_log" not in st.session_state.data: st.session_state.data["chat_log"] = []
     st.session_state.data["chat_log"].append(f"[{ts}] {role.upper()}: {content}")
@@ -163,6 +158,48 @@ def type_out(text):
     if st.session_state.history and st.session_state.history[-1].get('content', '').strip() == text.strip(): return 
     with st.chat_message("assistant", avatar="paige.png"): st.write(text)
     add_chat("assistant", text)
+
+def simulate_thinking(seconds=None):
+    if seconds is None: seconds = random.uniform(1.0, 2.0)
+    with st.chat_message("assistant", avatar="paige.png"):
+        with st.spinner("Paige is thinking..."):
+            time.sleep(seconds)
+
+def show_media(path, delay=1.0):
+    if st.session_state.history and st.session_state.history[-1].get("path") == path: return
+    with st.chat_message("assistant", avatar="paige.png"):
+        with st.spinner("Uploading..."): time.sleep(delay)
+        if os.path.exists(path):
+            if path.lower().endswith(('.mp4', '.mov', '.webm')): st.video(path)
+            else: st.image(path, width=300)
+        else:
+            st.warning(f"Media placeholder: {path}") 
+    if os.path.exists(path):
+        st.session_state.history.append({"type": "media", "role": "assistant", "path": path, "kind": "image"})
+
+def add_narrator(text):
+    st.markdown(f"<div style='text-align: center; color: #666; font-style: italic;'>{text}</div>", unsafe_allow_html=True)
+    add_chat("system", f"Narrator: {text}")
+
+def check_decision(key, title):
+    data = st.session_state.get(key, {})
+    if data.get("stage") == "DECISION":
+        st.subheader(f"🎉 You Won: {title}")
+        c1, c2 = st.columns(2)
+        if c1.button("🔥 Use Now"):
+            st.session_state[key]["stage"] = 0
+            st.rerun()
+        if c2.button("🎒 Save for Later"):
+            st.session_state.data["inventory"].append(title)
+            save_data(st.session_state.data)
+            st.session_state.turn_state = "PRIZE_DONE"
+            del st.session_state[key]
+            st.rerun()
+        return True
+    return False
+
+def enter_state(state, role, text):
+    type_out(text)
 
 def log_money(amount, note, category="income"):
     if "ledger" not in st.session_state.data: st.session_state.data["ledger"] = []
@@ -177,28 +214,20 @@ def get_base64_of_bin_file(bin_file):
 def spend_waterfall(amount, category):
     if amount <= 0: return "Zero? Okay."
     remaining = amount
-    
-    # 1. Wallet
     if st.session_state.data['wallet_balance'] >= remaining:
         st.session_state.data['wallet_balance'] -= remaining
         log_money(amount, category, "expense")
         return f"💸 Paid ${amount:.2f} for {category} from Wallet."
-    
-    # Wallet Drained -> Tank
     paid = st.session_state.data['wallet_balance']
     remaining -= paid
     st.session_state.data['wallet_balance'] = 0.0
-    
     if st.session_state.data['tank_balance'] >= remaining:
         st.session_state.data['tank_balance'] -= remaining
         log_money(amount, category, "expense")
         return f"⚠️ Wallet empty. Took ${remaining:.2f} from Tank."
-        
-    # Tank Drained -> House
     paid_tank = st.session_state.data['tank_balance']
     remaining -= paid_tank
     st.session_state.data['tank_balance'] = 0.0
-    
     st.session_state.data['house_fund'] -= remaining 
     log_money(amount, category, "expense")
     return f"🛑 TANK EMPTY. Took ${remaining:.2f} from HOUSE FUND."
@@ -209,32 +238,22 @@ def spend_waterfall(amount, category):
 with st.sidebar:
     st.image("my_banner2.JPG" if os.path.exists("my_banner2.JPG") else "my_banner2.jpg", use_container_width=True)
     st.write("---")
-    
-    # Override styles for sidebar metrics
     st.markdown("""<style>[data-testid="stSidebar"] [data-testid="stMetricValue"] {color: #FFFFFF !important;}</style>""", unsafe_allow_html=True)
-    
     st.metric("💳 Wallet", f"${st.session_state.data['wallet_balance']:,.2f}")
     st.metric("🛡️ Tank", f"${st.session_state.data['tank_balance']:,.2f}")
     st.metric("🏠 House", f"${st.session_state.data['house_fund']:,.2f}")
     st.metric("🎟️ Tickets", st.session_state.data['tickets'])
-    
     st.write("---")
-    
     with st.expander("🔐 Admin Panel"):
         with st.form("admin_form"):
             code = st.text_input("Passcode", type="password")
             submit = st.form_submit_button("Unlock")
-            
             if submit and code == "1234":
                 st.session_state.admin_unlocked = True
                 st.success("Unlocked!")
-        
         if st.session_state.get("admin_unlocked"):
-            # SPY BUTTON
             if st.button("🕵️ VIEW SPY LOGS"):
-                st.session_state.turn_state = "ADMIN_SPY_MODE"
-                st.rerun()
-
+                st.session_state.turn_state = "ADMIN_SPY_MODE"; st.rerun()
             if st.button("🔴 RESET ALL DATA"):
                 st.session_state.data = load_data()
                 st.session_state.data["wallet_balance"] = 0.0
@@ -245,12 +264,10 @@ with st.sidebar:
 # ==========================================
 #       PART 6: MAIN INTERFACE
 # ==========================================
-# TOP BANNER
 if st.session_state.turn_state == "WALLET_CHECK":
     if os.path.exists("top_banner_blank.jpg"):
         img_base64 = get_base64_of_bin_file("top_banner_blank.jpg")
         real_tickets = st.session_state.data["tickets"]
-        
         banner_html = f"""
         <div class="banner-container">
             <img src="data:image/jpeg;base64,{img_base64}">
@@ -259,17 +276,18 @@ if st.session_state.turn_state == "WALLET_CHECK":
                 color: #FFFFFF; text-shadow: 2px 2px 4px #000000;">
                 🎟️ {real_tickets}
             </div>
-        </div>
-        """
+        </div>"""
         st.markdown(banner_html, unsafe_allow_html=True)
 
-# CHAT AREA (Only show if NOT in Spy Mode)
-if st.session_state.turn_state != "ADMIN_SPY_MODE":
+if st.session_state.turn_state not in ["ADMIN_SPY_MODE", "SPIN_BRONZE", "SPIN_SILVER", "SPIN_GOLD"]:
     st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-    for item in st.session_state.history[-3:]: 
+    history_view = [h for h in st.session_state.history if h["type"] in ["chat", "media"]]
+    for item in history_view[-3:]: 
         if item["type"] == "chat":
             name = "Paige" if item["role"] == "assistant" else "You"
             st.markdown(f"**{name}:** {item['content']}")
+        elif item["type"] == "media":
+             if os.path.exists(item["path"]): st.image(item["path"], width=300)
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
@@ -280,18 +298,13 @@ if st.session_state.turn_state != "ADMIN_SPY_MODE":
 if st.session_state.turn_state == "WALLET_CHECK":
     c1, c2 = st.columns(2)
     with c1:
-        if st.button("🏦 THE BANK"): 
-            st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
+        if st.button("🏦 THE BANK"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
     with c2:
         lbl = "🎰 CASINO OPEN" if st.session_state.data["tickets"] > 0 else "🎰 CASINO CLOSED"
         if st.button(lbl):
-            if st.session_state.data["tickets"] > 0:
-                st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
-            else:
-                type_out("You need tickets first.")
-    
-    st.markdown("###") # Spacer
-    
+            if st.session_state.data["tickets"] > 0: st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
+            else: type_out("You need tickets first.")
+    st.markdown("###")
     q1, q2, q3 = st.columns(3)
     if q1.button("💋 Quicky"): st.session_state.turn_state = "THE_QUICKIE"; st.rerun()
     if q2.button("🛍️ Store"): st.session_state.turn_state = "THE_STORE"; st.rerun()
@@ -300,110 +313,81 @@ if st.session_state.turn_state == "WALLET_CHECK":
 # --- BANK DASHBOARD ---
 elif st.session_state.turn_state == "THE_BANK_MENU":
     st.subheader("🏦 Dashboard")
-    
     c1, c2, c3 = st.columns(3)
     c1.metric("Wallet", f"${st.session_state.data['wallet_balance']:.0f}")
     c2.metric("Tank", f"${st.session_state.data['tank_balance']:.0f}")
     c3.metric("House", f"${st.session_state.data['house_fund']:.0f}")
-    
     st.write("---")
-    
     c1, c2 = st.columns(2)
     with c1:
         st.caption("INCOME")
         if st.button("💵 Paycheck"): st.session_state.turn_state = "INPUT_PAYCHECK"; st.rerun()
         if st.button("💰 Side Hustle"): st.session_state.turn_state = "INPUT_SIDE_HUSTLE"; st.rerun()
         if st.button("🕒 Dayforce"): st.session_state.turn_state = "INPUT_DAILY"; st.rerun()
-        
     with c2:
         st.caption("SPEND & SAVE")
         if st.button("🛡️ Manage Tank"): st.session_state.turn_state = "MANAGE_FUNDS"; st.rerun()
         if st.button("🛍️ The Store"): st.session_state.turn_state = "THE_STORE"; st.rerun()
-        if st.button("🗺️ Money Map"): 
-             st.graphviz_chart("""digraph{rankdir=LR; Pay->Wallet; Day->Tank; Tank->Wallet; Tank->House}""")
-
+        if st.button("🗺️ Money Map"): st.graphviz_chart("""digraph{rankdir=LR; Pay->Wallet; Day->Tank; Tank->Wallet; Tank->House}""")
     st.markdown("###")
     if st.button("⬅️ Home"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
-# --- SPY MODE (ADMIN ONLY) ---
+# --- SPY MODE (ADMIN) ---
 elif st.session_state.turn_state == "ADMIN_SPY_MODE":
-    st.subheader("🕵️ Spy Log (Chat History)")
-    
+    st.subheader("🕵️ Spy Log")
     logs = st.session_state.data.get("chat_log", [])
     if logs:
-        # Show logs in reverse order (newest first)
-        for log in reversed(logs):
-            st.text(log)
-            st.divider()
-    else:
-        st.info("No logs recorded yet.")
-        
-    if st.button("Clear Logs"):
-        st.session_state.data["chat_log"] = []
-        save_data(st.session_state.data)
-        st.rerun()
-        
-    if st.button("Back to App"):
-        st.session_state.turn_state = "WALLET_CHECK"
-        st.rerun()
+        for log in reversed(logs): st.text(log); st.divider()
+    else: st.info("No logs.")
+    if st.button("Clear Logs"): st.session_state.data["chat_log"] = []; save_data(st.session_state.data); st.rerun()
+    if st.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
-# --- PAYCHECK ---
+# --- INPUTS & STORE ---
 elif st.session_state.turn_state == "INPUT_PAYCHECK":
     st.subheader("💰 Process Paycheck")
     amount = st.number_input("Check Amount ($)", step=10.0)
-    
     with st.expander("Adjust Deductions"):
         bills = st.number_input("Bills", value=350.0)
         blackout = st.number_input("Blackout", value=50.0)
         save = st.number_input("Savings", value=100.0)
-    
     rem = amount - (bills + blackout + save)
     st.info(f"To Wallet: ${rem:.2f}")
-    
     if st.button("Process"):
         st.session_state.data["bridge_fund"] += blackout
         st.session_state.data["house_fund"] += save
         st.session_state.data["wallet_balance"] += rem
-        
         tix = 100 if amount >= 600 else 25
         st.session_state.data["tickets"] += tix
-        
         log_money(amount, "Paycheck", "income")
         save_data(st.session_state.data)
         type_out(f"Processed. ${rem:.2f} added to wallet.")
         st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
-        
     if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
-# --- DAYFORCE ---
 elif st.session_state.turn_state == "INPUT_DAILY":
-    st.subheader("🕒 Dayforce (To Tank)")
+    st.subheader("🕒 Dayforce")
     amt = st.number_input("Amount ($)", step=5.0)
     if st.button("Add"):
         st.session_state.data["tank_balance"] += amt
         st.session_state.data["tickets"] += 10
         log_money(amt, "Dayforce", "income")
         save_data(st.session_state.data)
-        type_out("Added to Tank.")
-        st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
+        type_out("Added to Tank."); st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
     if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
-# --- SIDE HUSTLE ---
 elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
-    st.subheader("💰 Side Hustle (To Wallet)")
+    st.subheader("💰 Side Hustle")
     amt = st.number_input("Amount ($)", step=5.0)
     if st.button("Add"):
         st.session_state.data["wallet_balance"] += amt
         st.session_state.data["tickets"] += 15
         log_money(amt, "Side Hustle", "income")
         save_data(st.session_state.data)
-        type_out("Added to Wallet.")
-        st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
+        type_out("Added to Wallet."); st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
     if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
-# --- MANAGE TANK ---
 elif st.session_state.turn_state == "MANAGE_FUNDS":
-    st.subheader("🛡️ Manage Tank Funds")
+    st.subheader("🛡️ Manage Tank")
     st.info(f"In Tank: ${st.session_state.data['tank_balance']:.2f}")
     move = st.number_input("Amount ($)", step=10.0)
     c1, c2 = st.columns(2)
@@ -412,18 +396,15 @@ elif st.session_state.turn_state == "MANAGE_FUNDS":
             st.session_state.data['tank_balance'] -= move
             st.session_state.data['wallet_balance'] += move
             save_data(st.session_state.data)
-            type_out("Moved to Wallet.")
-            st.rerun()
+            type_out("Moved to Wallet."); st.rerun()
     if c2.button("To Savings"):
         if move <= st.session_state.data['tank_balance']:
             st.session_state.data['tank_balance'] -= move
             st.session_state.data['house_fund'] += move
             save_data(st.session_state.data)
-            type_out("Moved to Savings.")
-            st.rerun()
+            type_out("Moved to Savings."); st.rerun()
     if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
-# --- STORE ---
 elif st.session_state.turn_state == "THE_STORE":
     st.subheader("🛍️ Store")
     st.caption(f"Wallet: ${st.session_state.data['wallet_balance']:.2f}")
@@ -434,55 +415,71 @@ elif st.session_state.turn_state == "THE_STORE":
     if c3.button("Bill"): type_out(spend_waterfall(cost, "Bill")); st.rerun()
     if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
 
-# --- QUICKY ---
 elif st.session_state.turn_state == "THE_QUICKIE":
-    st.subheader("💋 Quicky Bonus")
+    st.subheader("💋 Quicky")
     if st.button("Claim"):
         st.session_state.data["tickets"] += 5
         save_data(st.session_state.data)
-        st.balloons()
-        type_out("Claimed 5 Tickets.")
+        st.balloons(); type_out("Claimed 5 Tickets.")
     if st.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
-# --- LEDGER ---
 elif st.session_state.turn_state == "VIEW_LEDGER":
     st.subheader("📜 Ledger")
-    for i in st.session_state.data["ledger"][:8]:
-        st.text(f"{i['date']} | ${i['amount']} | {i['note']}")
+    for i in st.session_state.data["ledger"][:8]: st.text(f"{i['date']} | ${i['amount']} | {i['note']}")
     if st.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
-# --- CASINO ---
+# ==========================================
+#       CASINO & PRIZE LOGIC (ROUTERS)
+# ==========================================
 elif st.session_state.turn_state == "CHOOSE_TIER":
     st.subheader("🎰 Casino")
     st.metric("Tickets", st.session_state.data["tickets"])
     c1, c2, c3 = st.columns(3)
     if c1.button("Bronze (25)"):
-        if st.session_state.data["tickets"] >= 25:
-            st.session_state.data["tickets"] -= 25; save_data(st.session_state.data)
-            st.session_state.turn_state = "SPIN_BRONZE"; st.rerun()
+        if st.session_state.data["tickets"] >= 25: st.session_state.data["tickets"] -= 25; save_data(st.session_state.data); st.session_state.turn_state = "SPIN_BRONZE"; st.rerun()
     if c2.button("Silver (50)"):
-        if st.session_state.data["tickets"] >= 50:
-            st.session_state.data["tickets"] -= 50; save_data(st.session_state.data)
-            st.session_state.turn_state = "SPIN_SILVER"; st.rerun()
+        if st.session_state.data["tickets"] >= 50: st.session_state.data["tickets"] -= 50; save_data(st.session_state.data); st.session_state.turn_state = "SPIN_SILVER"; st.rerun()
     if c3.button("Gold (100)"):
-        if st.session_state.data["tickets"] >= 100:
-            st.session_state.data["tickets"] -= 100; save_data(st.session_state.data)
-            st.session_state.turn_state = "SPIN_GOLD"; st.rerun()
+        if st.session_state.data["tickets"] >= 100: st.session_state.data["tickets"] -= 100; save_data(st.session_state.data); st.session_state.turn_state = "SPIN_GOLD"; st.rerun()
     if st.button("Exit"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 elif st.session_state.turn_state == "SPIN_BRONZE":
     components.iframe("https://spinthewheel.app/tmDneZ0rCW", height=500)
     c1, c2 = st.columns(2)
-    if c1.button("Bend Over"): type_out("Won: Bend Over"); st.session_state.turn_state="WALLET_CHECK"; st.rerun()
-    if c2.button("Flash Me"): type_out("Won: Flash Me"); st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+    if c1.button("Bend Over"): st.session_state.turn_state="PRIZE_BEND_OVER"; st.rerun()
+    if c2.button("Flash Me"): st.session_state.turn_state="PRIZE_FLASH_ME"; st.rerun()
+    c3, c4 = st.columns(2)
+    if c3.button("Jackoff Pass"): st.session_state.turn_state="PRIZE_JACKOFF_PASS"; st.rerun()
+    if c4.button("Shower Show"): st.session_state.turn_state="PRIZE_SHOWER_SHOW"; st.rerun()
 
 elif st.session_state.turn_state == "SPIN_SILVER":
     components.iframe("https://spinthewheel.app/1RLMB3g88K", height=500)
-    if st.button("Finish"): st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+    c1, c2, c3 = st.columns(3)
+    if c1.button("Toy Pic"): st.session_state.turn_state="PRIZE_TOY_PIC"; st.rerun()
+    if c2.button("Lick Pussy"): st.session_state.turn_state="PRIZE_LICK_PUSSY"; st.rerun()
+    if c3.button("Nude Pic"): st.session_state.turn_state="PRIZE_NUDE_PIC"; st.rerun()
+    c4, c5, c6 = st.columns(3)
+    if c4.button("Tongue Tease"): st.session_state.turn_state="PRIZE_TONGUE_TEASE"; st.rerun()
+    if c5.button("Road Head"): st.session_state.turn_state="PRIZE_ROAD_HEAD"; st.rerun()
+    if c6.button("Plug Tease"): st.session_state.turn_state="PRIZE_PLUG_TEASE"; st.rerun()
 
 elif st.session_state.turn_state == "SPIN_GOLD":
     components.iframe("https://spinthewheel.app/JIRFjfR66x", height=500)
-    if st.button("Finish"): st.session_state.turn_state="WALLET_CHECK"; st.rerun()
+    c1, c2, c3 = st.columns(3)
+    if c1.button("All 3 Holes"): st.session_state.turn_state="PRIZE_ALL_3_HOLES"; st.rerun()
+    if c2.button("Upside Down"): st.session_state.turn_state="PRIZE_UPSIDE_DOWN_THROAT_FUCK"; st.rerun()
+    if c3.button("Flashback"): st.session_state.turn_state="PRIZE_FLASHBACK"; st.rerun()
+    c4, c5 = st.columns(2)
+    if c4.button("Anal Fuck"): st.session_state.turn_state="PRIZE_ANAL_FUCK"; st.rerun()
+    if c5.button("Doggy Style"): st.session_state.turn_state="PRIZE_DOGGY_STYLE_READY"; st.rerun()
+
+elif st.session_state.turn_state == "PRIZE_DONE":
+    st.balloons()
+    st.markdown(f"<h1 style='text-align: center; color: #FF4B4B;'>🎉 PRIZE CLAIMED 🎉</h1>", unsafe_allow_html=True)
+    st.info("Paige has been notified. Check your log.")
+    c1, c2 = st.columns(2)
+    if c1.button("🎰 Spin Again"): st.session_state.turn_state = "CHOOSE_TIER"; st.rerun()
+    if c2.button("🏦 Back to Bank"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 # ==========================================
 #       PRIZE SCRIPTS 
@@ -2059,6 +2056,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
