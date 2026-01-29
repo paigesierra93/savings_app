@@ -1,4 +1,3 @@
-
 import json
 import os
 import random
@@ -124,6 +123,7 @@ def load_data():
         "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, 
         "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0,
         "inventory": [], "history_log": [], "ledger": [],
+        "chat_log": [], # NEW: Tracks full chat history for Admin
         "streak": 0, "last_login": ""
     }
     if not os.path.exists(DATA_FILE): return default_data
@@ -152,6 +152,12 @@ if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_C
 def add_chat(role, content):
     if "history" not in st.session_state: st.session_state.history = []
     st.session_state.history.append({"type": "chat", "role": role, "content": content})
+    
+    # NEW: Log to persistent database for Admin Spy Mode
+    ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    if "chat_log" not in st.session_state.data: st.session_state.data["chat_log"] = []
+    st.session_state.data["chat_log"].append(f"[{ts}] {role.upper()}: {content}")
+    save_data(st.session_state.data)
 
 def type_out(text):
     if st.session_state.history and st.session_state.history[-1].get('content', '').strip() == text.strip(): return 
@@ -224,6 +230,11 @@ with st.sidebar:
                 st.success("Unlocked!")
         
         if st.session_state.get("admin_unlocked"):
+            # SPY BUTTON
+            if st.button("🕵️ VIEW SPY LOGS"):
+                st.session_state.turn_state = "ADMIN_SPY_MODE"
+                st.rerun()
+
             if st.button("🔴 RESET ALL DATA"):
                 st.session_state.data = load_data()
                 st.session_state.data["wallet_balance"] = 0.0
@@ -252,13 +263,14 @@ if st.session_state.turn_state == "WALLET_CHECK":
         """
         st.markdown(banner_html, unsafe_allow_html=True)
 
-# CHAT AREA
-st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-for item in st.session_state.history[-3:]: 
-    if item["type"] == "chat":
-        name = "Paige" if item["role"] == "assistant" else "You"
-        st.markdown(f"**{name}:** {item['content']}")
-st.markdown('</div>', unsafe_allow_html=True)
+# CHAT AREA (Only show if NOT in Spy Mode)
+if st.session_state.turn_state != "ADMIN_SPY_MODE":
+    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+    for item in st.session_state.history[-3:]: 
+        if item["type"] == "chat":
+            name = "Paige" if item["role"] == "assistant" else "You"
+            st.markdown(f"**{name}:** {item['content']}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
 #       PART 7: LOGIC & LAYOUT
@@ -312,6 +324,28 @@ elif st.session_state.turn_state == "THE_BANK_MENU":
 
     st.markdown("###")
     if st.button("⬅️ Home"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
+
+# --- SPY MODE (ADMIN ONLY) ---
+elif st.session_state.turn_state == "ADMIN_SPY_MODE":
+    st.subheader("🕵️ Spy Log (Chat History)")
+    
+    logs = st.session_state.data.get("chat_log", [])
+    if logs:
+        # Show logs in reverse order (newest first)
+        for log in reversed(logs):
+            st.text(log)
+            st.divider()
+    else:
+        st.info("No logs recorded yet.")
+        
+    if st.button("Clear Logs"):
+        st.session_state.data["chat_log"] = []
+        save_data(st.session_state.data)
+        st.rerun()
+        
+    if st.button("Back to App"):
+        st.session_state.turn_state = "WALLET_CHECK"
+        st.rerun()
 
 # --- PAYCHECK ---
 elif st.session_state.turn_state == "INPUT_PAYCHECK":
@@ -2025,6 +2059,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
