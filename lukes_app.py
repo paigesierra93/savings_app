@@ -529,52 +529,66 @@ elif st.session_state.turn_state == "THE_BANK_MENU":
         st.session_state.turn_state = "WALLET_CHECK"
         st.rerun()
 
-
-# --- 3. INPUT: PAYCHECK ---
+# --- INPUT: PAYCHECK (THE BREAKDOWN) ---
 elif st.session_state.turn_state == "INPUT_PAYCHECK":
     st.subheader("💰 Paycheck Processing")
+    
+    # 1. ENTER TOTAL CHECK
     check_amount = st.number_input("Total Check Amount ($):", min_value=0.0, step=10.0)
 
+    # 2. EDITABLE DEDUCTIONS (Hidden in a dropdown to keep it clean)
     with st.expander("⚙️ Edit Deductions (Bills/Savings)", expanded=False):
+        st.caption("Change these amounts if this paycheck is different.")
         c_bill, c_black, c_save = st.columns(3)
+        
+        # We use 'value=' to set the default, but he can type over it
         bills_deduction = c_bill.number_input("Bills", value=350.0, step=10.0)
         blackout_deduction = c_black.number_input("Blackout", value=50.0, step=10.0)
         savings_deduction = c_save.number_input("House Fund", value=100.0, step=10.0)
 
+    # 3. DO THE MATH
     total_deductions = bills_deduction + blackout_deduction + savings_deduction
     remainder = check_amount - total_deductions
     
+    # 4. VISUAL BREAKDOWN
     st.markdown("---")
     c1, c2, c3 = st.columns(3)
-    c1.metric("📉 Bills", f"-${bills_deduction:.0f}")
-    c2.metric("🌑 Blackout", f"-${blackout_deduction:.0f}")
-    c3.metric("🏠 Savings", f"-${savings_deduction:.0f}")
+    c1.metric("📉 Bills (Auto)", f"-${bills_deduction:.0f}")
+    c2.metric("🌑 Blackout Fund", f"-${blackout_deduction:.0f}")
+    c3.metric("🏠 Savings Fund", f"-${savings_deduction:.0f}")
     
     st.divider()
-    if remainder > 0: st.success(f"✅ Wallet: ${remainder:.2f}")
-    else: st.error(f"⚠️ Shortage: ${remainder:.2f}")
+    
+    if remainder > 0:
+        st.success(f"✅ Safe to Spend (Wallet): ${remainder:.2f}")
+    else:
+        st.error(f"⚠️ Shortage: ${remainder:.2f}")
 
     if st.button("Process Paycheck"):
         if check_amount > 0:
             add_chat("user", f"Paycheck Processed: ${check_amount}")
+            
+            # 1. Distribute Money using his CUSTOM numbers
             st.session_state.data["bridge_fund"] += blackout_deduction
             st.session_state.data["house_fund"] += savings_deduction
             st.session_state.data["wallet_balance"] += remainder
+            
+            # 2. Log It
             log_money(check_amount, "Paycheck Income", "income")
             log_money(bills_deduction, "Auto-Bills Paid", "expense")
             
+            # 3. Tickets Logic
             if check_amount >= 600: tickets = 100
             elif check_amount >= 500: tickets = 50
             else: tickets = 25
             st.session_state.data["tickets"] += tickets
             save_data(st.session_state.data)
             
-            type_out(f"Bills paid. Savings stocked. **${remainder:.2f}** added to Wallet.")
-            if tickets > 0: st.session_state.turn_state = "CHOOSE_TIER" # Go to Casino if tix earned
-            else: st.session_state.turn_state = "THE_BANK_MENU" # Or back to Bank
+            type_out(f"Bills paid. Savings stocked. You have **${remainder:.2f}** in your Wallet to survive.")
+            if tickets > 0: st.session_state.turn_state = "CHOOSE_TIER"
+            else: st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
-    
-    if st.button("Back"): st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
+
 
 # --- INPUT: SIDE HUSTLE ---
 elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
@@ -2363,6 +2377,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
