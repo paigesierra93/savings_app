@@ -194,6 +194,7 @@ def smart_banker(text):
     if amount == 0 and any(x in text for x in ["spent", "add", "transfer", "move"]):
         return "I need a number, pet. 'Spent 20', 'Added 50'."
 
+    # 1. SPENDING
     if any(x in text for x in ["spent", "bought", "cost", "paid", "expense"]):
         if st.session_state.data['wallet_balance'] >= amount:
             st.session_state.data['wallet_balance'] -= amount
@@ -208,21 +209,38 @@ def smart_banker(text):
                 return f"⚠️ Wallet empty. I took **${remaining:.2f}** from the Tank."
             else: return "❌ You're broke. Access denied."
 
+    # 2. SIDE HUSTLE (Now adds tickets)
     elif any(x in text for x in ["side", "tips", "found", "sold", "won", "add"]):
         st.session_state.data['wallet_balance'] += amount
+        
+        # TICKET REWARD
+        st.session_state.data["tickets"] += 15 
+        save_data(st.session_state.data)
+        
         log_money(amount, "Quick Income", "income")
-        return f"💰 **+${amount:.2f}** added. Good boy."
+        return f"💰 **+${amount:.2f}** added to Wallet. (+15 Tickets). Good boy."
 
+    # 3. PAYCHECK (Now adds tickets)
     elif "paycheck" in text:
         bills = 350 + 50 + 100 
         safe = amount - bills
         if safe < 0: return "Check too small for bills. Work harder."
+        
         st.session_state.data["wallet_balance"] += safe
         st.session_state.data["house_fund"] += 100
         st.session_state.data["bridge_fund"] += 50
+        
+        # TICKET REWARD LOGIC
+        if amount >= 600: tix = 100
+        elif amount >= 500: tix = 50
+        else: tix = 25
+        st.session_state.data["tickets"] += tix
+        save_data(st.session_state.data)
+        
         log_money(amount, "Paycheck (Chat)", "income")
-        return f"💰 Paycheck processed. Bills paid. Safe spend: **${safe:.2f}**."
+        return f"💰 Paycheck processed. Bills paid. (+{tix} Tickets). Safe spend: **${safe:.2f}**."
 
+    # 4. MOVING TANK FUNDS
     elif "tank" in text:
         if "to" in text and "wallet" in text:
             if st.session_state.data["tank_balance"] >= amount:
@@ -233,8 +251,13 @@ def smart_banker(text):
             else: return "Not enough in Tank."
         elif "add" in text or "fill" in text:
             st.session_state.data["tank_balance"] += amount
+            
+            # TICKET REWARD (Dayforce Bonus)
+            st.session_state.data["tickets"] += 10
+            save_data(st.session_state.data)
+            
             log_money(amount, "Added to Tank", "income")
-            return f"🛡️ Locked **${amount:.2f}** into the Tank."
+            return f"🛡️ Locked **${amount:.2f}** into the Tank. (+10 Tickets)."
 
     return "I didn't catch that. Say 'Spent 20', 'Added 50', or 'Tank to Wallet 10'."
 
@@ -2057,6 +2080,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
