@@ -1,3 +1,4 @@
+
 import json
 import os
 import random
@@ -13,19 +14,19 @@ import streamlit.components.v1 as components
 st.set_page_config(
     page_title="The Bank",
     page_icon="💋",
-    layout="centered", # Changed to centered for better mobile view
+    layout="centered", 
     initial_sidebar_state="collapsed"
 )
 
 st.markdown("""
 <style>
-    /* 1. FORCE LIGHT BACKGROUND (Overrides Phone Dark Mode) */
+    /* 1. FORCE LIGHT BACKGROUND */
     .stApp {
         background-color: #E5E5E5 !important;
         color: #000000 !important;
     }
     
-    /* 2. SIDEBAR STYLING (Olive Green) */
+    /* 2. SIDEBAR STYLING */
     section[data-testid="stSidebar"] {
         background-color: #3B4432 !important;
         color: #FFFFFF !important;
@@ -34,14 +35,16 @@ st.markdown("""
         color: #FFFFFF !important;
     }
 
-    /* 3. CHAT BUBBLES (Dark Mode Contrast) */
+    /* 3. CHAT BUBBLES (DARK RED CONTAINER) */
     .chat-container {
-        background-color: #1E1E1E;
+        background-color: #4A0404; /* DARK RED */
         border-radius: 12px;
         padding: 15px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        border: 2px solid #220000;
     }
+    
     /* User/Paige Message Styling */
     [data-testid="stChatMessage"] {
         background-color: #2D2D2D !important;
@@ -52,14 +55,11 @@ st.markdown("""
     [data-testid="stChatMessage"] p {
         color: #FFFFFF !important;
     }
-    [data-testid="stChatMessageAvatar"] {
-        background-color: #000000;
-    }
 
-    /* 4. BUTTONS (SMALLER & SYMMETRICAL) */
+    /* 4. BUTTONS (Standard Size) */
     div.stButton > button {
         width: 100%;
-        height: 55px !important; /* Much shorter */
+        height: 55px !important; 
         min-height: 55px !important;
         border-radius: 8px;
         border: 1px solid #ccc;
@@ -75,10 +75,10 @@ st.markdown("""
         color: #FF4B4B;
     }
 
-    /* 5. BANNER SIZING (Restricted Height) */
+    /* 5. BANNER SIZING */
     .banner-container {
         width: 100%;
-        max-height: 180px; /* Force it shorter */
+        max-height: 180px;
         overflow: hidden;
         border-radius: 12px;
         border: 2px solid #333;
@@ -88,26 +88,28 @@ st.markdown("""
     .banner-container img {
         width: 100%;
         height: 100%;
-        object-fit: cover; /* Crops image cleanly */
+        object-fit: cover;
     }
 
-    /* 6. ADMIN & METRICS FIXES */
-    [data-testid="stMetricValue"] {
-        font-size: 24px !important;
-        color: #333 !important;
-    }
-    [data-testid="stMetricLabel"] {
-        font-size: 14px !important;
-        color: #666 !important;
+    /* 6. CRITICAL SIDEBAR FIX FOR MOBILE */
+    [data-testid="stHeader"] {
+        background: transparent !important;
+        visibility: visible !important;
     }
     
-    /* Hide Default Header elements */
-    header {visibility: hidden;}
+    /* Make the Hamburger Menu Button BLACK so you can see it */
+    [data-testid="collapsedControl"] {
+        color: #000000 !important;
+        display: block !important;
+    }
+    
+    /* Hide only the "Deploy" button and decoration line */
     .stAppDeployButton {display: none;}
     [data-testid="stDecoration"] {display: none;}
     
-    /* Make Hamburger Menu Visible (Black) */
-    [data-testid="collapsedControl"] {color: #000000 !important;}
+    /* Metrics Fix */
+    [data-testid="stMetricValue"] { font-size: 24px !important; color: #333 !important; }
+    [data-testid="stMetricLabel"] { font-size: 14px !important; color: #666 !important; }
 
 </style>
 """, unsafe_allow_html=True)
@@ -196,13 +198,13 @@ def spend_waterfall(amount, category):
     return f"🛑 TANK EMPTY. Took ${remaining:.2f} from HOUSE FUND."
 
 # ==========================================
-#       PART 5: SIDEBAR (FIXED ADMIN)
+#       PART 5: SIDEBAR
 # ==========================================
 with st.sidebar:
     st.image("my_banner2.JPG" if os.path.exists("my_banner2.JPG") else "my_banner2.jpg", use_container_width=True)
     st.write("---")
     
-    # Override styles just for sidebar metrics to look good on dark
+    # Override styles for sidebar metrics
     st.markdown("""<style>[data-testid="stSidebar"] [data-testid="stMetricValue"] {color: #FFFFFF !important;}</style>""", unsafe_allow_html=True)
     
     st.metric("💳 Wallet", f"${st.session_state.data['wallet_balance']:,.2f}")
@@ -212,7 +214,6 @@ with st.sidebar:
     
     st.write("---")
     
-    # ADMIN FORM FIX
     with st.expander("🔐 Admin Panel"):
         with st.form("admin_form"):
             code = st.text_input("Passcode", type="password")
@@ -239,7 +240,6 @@ if st.session_state.turn_state == "WALLET_CHECK":
         img_base64 = get_base64_of_bin_file("top_banner_blank.jpg")
         real_tickets = st.session_state.data["tickets"]
         
-        # Reduced height CSS + White Text
         banner_html = f"""
         <div class="banner-container">
             <img src="data:image/jpeg;base64,{img_base64}">
@@ -254,7 +254,7 @@ if st.session_state.turn_state == "WALLET_CHECK":
 
 # CHAT AREA
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-for item in st.session_state.history[-3:]: # Only last 3 messages
+for item in st.session_state.history[-3:]: 
     if item["type"] == "chat":
         name = "Paige" if item["role"] == "assistant" else "You"
         st.markdown(f"**{name}:** {item['content']}")
@@ -280,7 +280,6 @@ if st.session_state.turn_state == "WALLET_CHECK":
     
     st.markdown("###") # Spacer
     
-    # Small Quick Links
     q1, q2, q3 = st.columns(3)
     if q1.button("💋 Quicky"): st.session_state.turn_state = "THE_QUICKIE"; st.rerun()
     if q2.button("🛍️ Store"): st.session_state.turn_state = "THE_STORE"; st.rerun()
@@ -290,7 +289,6 @@ if st.session_state.turn_state == "WALLET_CHECK":
 elif st.session_state.turn_state == "THE_BANK_MENU":
     st.subheader("🏦 Dashboard")
     
-    # Financial Overview
     c1, c2, c3 = st.columns(3)
     c1.metric("Wallet", f"${st.session_state.data['wallet_balance']:.0f}")
     c2.metric("Tank", f"${st.session_state.data['tank_balance']:.0f}")
@@ -298,7 +296,6 @@ elif st.session_state.turn_state == "THE_BANK_MENU":
     
     st.write("---")
     
-    # 2x2 Grid for Symmetry
     c1, c2 = st.columns(2)
     with c1:
         st.caption("INCOME")
@@ -452,7 +449,6 @@ elif st.session_state.turn_state == "SPIN_SILVER":
 elif st.session_state.turn_state == "SPIN_GOLD":
     components.iframe("https://spinthewheel.app/JIRFjfR66x", height=500)
     if st.button("Finish"): st.session_state.turn_state="WALLET_CHECK"; st.rerun()
-
 
 # ==========================================
 #       PRIZE SCRIPTS 
@@ -2029,6 +2025,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
