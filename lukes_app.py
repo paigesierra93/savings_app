@@ -5,7 +5,6 @@ import time
 import datetime
 import streamlit as st
 import base64
-
 # ==========================================
 #       PART 0: CONFIG & STYLING
 # ==========================================
@@ -14,7 +13,7 @@ st.set_page_config(
     page_title="The Bank",
     page_icon="💋",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded" 
 )
 
 # 2. GLOBAL CSS
@@ -34,7 +33,23 @@ st.markdown("""
         color: #ffffff;
     }
 
-    /* SIDEBAR STYLING */
+    /* --- SIDEBAR FIX FOR MOBILE --- */
+    /* We make the header transparent instead of hidden, so the button still works */
+    [data-testid="stHeader"] {
+        background-color: transparent; 
+        color: white;
+    }
+    
+    /* We hide the "Deploy" button and the colored decoration line */
+    .stAppDeployButton {display: none;}
+    [data-testid="stDecoration"] {display: none;}
+    
+    /* Ensure the Hamburger Menu is White and Visible */
+    [data-testid="collapsedControl"] {
+        color: #FFFFFF !important;
+    }
+
+    /* --- SIDEBAR STYLING --- */
     section[data-testid="stSidebar"] {
         background-color: #3B4432; /* Olive Green */
         border-right: 2px solid #282f22;
@@ -73,22 +88,19 @@ st.markdown("""
         box-shadow: 0 4px 0 #222;
         transition: all 0.1s;
         text-transform: uppercase;
-        background-color: #ffffff; /* Default */
+        background-color: #ffffff;
     }
     div.stButton > button:active {
         transform: translateY(4px);
         box-shadow: none;
     }
 
-    /* --- FORCED BUTTON COLORS (Using !important) --- */
-    
-    /* Column 1 Buttons */
+    /* --- FORCED BUTTON COLORS --- */
     div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(1) button { background-color: #4F5D53 !important; color: white !important; } /* Paycheck */
     div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(2) button { background-color: #4A9CA6 !important; color: white !important; } /* Store */
     div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(3) button { background-color: #F4A6A6 !important; color: black !important; } /* Quicky */
     div[data-testid="column"]:nth-of-type(1) div.stButton:nth-of-type(4) button { background-color: #965A3E !important; color: white !important; } /* Tank */
 
-    /* Column 2 Buttons */
     div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(1) button { background-color: #A8D1A8 !important; color: black !important; } /* Side Hustle */
     div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(2) button { background-color: #C27E68 !important; color: white !important; } /* Ledger */
     div[data-testid="column"]:nth-of-type(2) div.stButton:nth-of-type(3) button { background-color: #FACC6B !important; color: black !important; } /* Dayforce */
@@ -103,13 +115,12 @@ st.markdown("""
         margin-bottom: 20px;
     }
     
-    /* HIDE DEFAULT TITLE & HEADER */
+    /* HIDE DEFAULT MENU ITEMS */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
-    .stApp > header {display: none;}
 </style>
 """, unsafe_allow_html=True)
+
 
 # ==========================================
 #       PART 2: DATA ENGINE
@@ -2377,6 +2388,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
