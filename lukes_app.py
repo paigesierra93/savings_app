@@ -7,7 +7,7 @@ import streamlit as st
 import base64
 import re
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials # <--- NEW MODERN LIBRARY
 
 # ==========================================
 #       PART 0: CONFIG & STYLING
@@ -57,14 +57,21 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-#       PART 2: DATA ENGINE (GOOGLE SHEETS)
+#       PART 2: DATA ENGINE (GOOGLE SHEETS - FIXED)
 # ==========================================
 SHEET_NAME = "BankOfPaigeDB"
 
 def get_sheet():
-    # Connects to Google Sheets using Secrets
-    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
+    # Use the Modern Google Auth (Fixes "Seekable Bit Stream" error)
+    scope = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
+    # Create credentials from the Streamlit secrets
+    creds = Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"], 
+        scopes=scope
+    )
     client = gspread.authorize(creds)
     return client.open(SHEET_NAME).sheet1
 
@@ -78,7 +85,7 @@ def load_data():
     try:
         sheet = get_sheet()
         # We store the ENTIRE database in Cell A1 as a JSON string
-        val = sheet.cell(1, 1).value
+        val = sheet.acell('A1').value
         if val:
             data = json.loads(val)
             # Merge defaults in case we added new features
@@ -88,15 +95,15 @@ def load_data():
         else:
             return default_data
     except Exception as e:
-        st.error(f"Cloud Connection Error: {e}")
+        st.error(f"Connection Error: {e}")
         return default_data
 
 def save_data(data):
     try:
         sheet = get_sheet()
-        # Dump the Python dict to a JSON string and save to Cell A1
         json_str = json.dumps(data)
-        sheet.update_cell(1, 1, json_str)
+        # Use update_acell for safer writing
+        sheet.update_acell('A1', json_str)
     except Exception as e:
         st.error(f"Save Failed: {e}")
 
@@ -111,7 +118,6 @@ if "turn_state" not in st.session_state: st.session_state.turn_state = "WALLET_C
 def add_chat(role, content):
     if "history" not in st.session_state: st.session_state.history = []
     st.session_state.history.append({"type": "chat", "role": role, "content": content})
-    # Save specific chat interactions to Spy Log only if needed (handled by log_event)
 
 def type_out(text):
     if st.session_state.history and st.session_state.history[-1].get('content', '').strip() == text.strip(): return 
@@ -190,7 +196,7 @@ def check_decision(key, title):
 
 def enter_state(state, role, text): type_out(text)
 
-# --- SMART BANKER BRAIN (THE CHAT LOGIC) ---
+# --- SMART BANKER BRAIN (CHAT LOGIC) ---
 def smart_banker(text):
     text = text.lower()
     amount = 0.0
@@ -218,14 +224,12 @@ def smart_banker(text):
     # 2. SIDE HUSTLE (TIERED)
     elif any(x in text for x in ["side", "tips", "found", "sold", "won", "add"]):
         st.session_state.data['wallet_balance'] += amount
-        
         if amount >= 150: tix = 100
         elif amount >= 100: tix = 50
         elif amount >= 50: tix = 25
         else: tix = 15
         st.session_state.data["tickets"] += tix
         save_data(st.session_state.data)
-        
         log_money(amount, "Quick Income", "income")
         return f"💰 **+${amount:.2f}** added. Good boy. (+{tix} Tickets)."
 
@@ -234,17 +238,14 @@ def smart_banker(text):
         bills = 350 + 50 + 100 
         safe = amount - bills
         if safe < 0: return "Check too small for bills. Work harder."
-        
         st.session_state.data["wallet_balance"] += safe
         st.session_state.data["house_fund"] += 100
         st.session_state.data["bridge_fund"] += 50
-        
         if amount >= 600: tix = 100
         elif amount >= 500: tix = 50
         else: tix = 25
         st.session_state.data["tickets"] += tix
         save_data(st.session_state.data)
-        
         log_money(amount, "Paycheck (Chat)", "income")
         return f"💰 Paycheck processed. Bills paid. (+{tix} Tickets). Safe spend: **${safe:.2f}**."
 
@@ -272,7 +273,6 @@ def smart_banker(text):
 with st.sidebar:
     st.image("my_banner2.JPG" if os.path.exists("my_banner2.JPG") else "my_banner2.jpg", use_container_width=True)
     
-    # SYSTEM CONTROLS
     if st.button("🔄 RELOAD DATA (SYNC)"):
         st.session_state.data = load_data()
         st.rerun()
@@ -299,8 +299,7 @@ with st.sidebar:
                     "tickets": 0, "tank_balance": 0.0, "tank_goal": 10000.0, 
                     "house_fund": 0.0, "wallet_balance": 0.0, "bridge_fund": 0.0,
                     "inventory": [], "history_log": [], "ledger": [],
-                    "chat_log": [], 
-                    "streak": 0, "last_login": ""
+                    "chat_log": [], "streak": 0, "last_login": ""
                 }
                 save_data(st.session_state.data)
                 st.success("Wiped.")
@@ -346,7 +345,6 @@ if st.session_state.turn_state == "WALLET_CHECK":
     if q2.button("🛍️ Store"): st.session_state.turn_state = "THE_STORE"; st.rerun()
     if q3.button("📝 Ledger"): st.session_state.turn_state = "VIEW_LEDGER"; st.rerun()
     
-    # CHAT BOX
     user_input = st.chat_input("Talk to Paige (e.g. 'Spent 20', 'Added 50')")
     if user_input:
         type_out(f"You: {user_input}")
@@ -355,9 +353,9 @@ if st.session_state.turn_state == "WALLET_CHECK":
         st.rerun()
     
     st.markdown("---")
-    if st.button("💾 FORCE SAVE"):
+    if st.button("💾 SAVE & END SESSION"):
         save_data(st.session_state.data)
-        st.success("Data synced to Cloud.")
+        st.success("Session Saved. You may close the app.")
 
 elif st.session_state.turn_state == "THE_BANK_MENU":
     st.subheader("🏦 Dashboard")
@@ -397,7 +395,6 @@ elif st.session_state.turn_state == "ADMIN_SPY_MODE":
     if st.button("Clear Logs"): st.session_state.data["chat_log"] = []; save_data(st.session_state.data); st.rerun()
     if st.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
-# --- INPUTS & STORE ---
 elif st.session_state.turn_state == "INPUT_PAYCHECK":
     st.subheader("💰 Process Paycheck")
     amount = st.number_input("Check Amount ($)", step=10.0)
@@ -435,13 +432,11 @@ elif st.session_state.turn_state == "INPUT_SIDE_HUSTLE":
     amt = st.number_input("Amount ($)", step=5.0)
     if st.button("Add"):
         st.session_state.data["wallet_balance"] += amt
-        
         if amt >= 150: tix = 100
         elif amt >= 100: tix = 50
         elif amt >= 50: tix = 25
         else: tix = 15
         st.session_state.data["tickets"] += tix
-        
         log_money(amt, "Side Hustle", "income")
         save_data(st.session_state.data)
         type_out("Added to Wallet."); st.session_state.turn_state = "THE_BANK_MENU"; st.rerun()
@@ -533,7 +528,6 @@ elif st.session_state.turn_state == "SPIN_GOLD":
     c4, c5 = st.columns(2)
     if c4.button("Anal Fuck"): log_event("Won: Anal Fuck"); st.session_state.turn_state="PRIZE_ANAL_FUCK"; st.rerun()
     if c5.button("Doggy Style"): log_event("Won: Doggy Style"); st.session_state.turn_state="PRIZE_DOGGY_STYLE_READY"; st.rerun()
-
 # ==========================================
 #       PRIZE SCRIPTS 
 # ======================================
@@ -2109,6 +2103,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
