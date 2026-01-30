@@ -485,49 +485,87 @@ elif st.session_state.turn_state == "VIEW_LEDGER":
     if st.button("Back"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 # ==========================================
-#       CASINO LOGIC
+#       CASINO LOGIC (WITH SIDE IMAGE)
 # ==========================================
 elif st.session_state.turn_state == "CHOOSE_TIER":
     st.subheader("🎰 Casino")
     st.metric("Tickets", st.session_state.data["tickets"])
     c1, c2, c3 = st.columns(3)
     if c1.button("Bronze (25)"):
-        if st.session_state.data["tickets"] >= 25: st.session_state.data["tickets"] -= 25; save_data(st.session_state.data); st.session_state.turn_state = "SPIN_BRONZE"; st.rerun()
+        if st.session_state.data["tickets"] >= 25: 
+            st.session_state.data["tickets"] -= 25
+            save_data(st.session_state.data)
+            st.session_state.turn_state = "SPIN_BRONZE"
+            st.rerun()
     if c2.button("Silver (50)"):
-        if st.session_state.data["tickets"] >= 50: st.session_state.data["tickets"] -= 50; save_data(st.session_state.data); st.session_state.turn_state = "SPIN_SILVER"; st.rerun()
+        if st.session_state.data["tickets"] >= 50: 
+            st.session_state.data["tickets"] -= 50
+            save_data(st.session_state.data)
+            st.session_state.turn_state = "SPIN_SILVER"
+            st.rerun()
     if c3.button("Gold (100)"):
-        if st.session_state.data["tickets"] >= 100: st.session_state.data["tickets"] -= 100; save_data(st.session_state.data); st.session_state.turn_state = "SPIN_GOLD"; st.rerun()
+        if st.session_state.data["tickets"] >= 100: 
+            st.session_state.data["tickets"] -= 100
+            save_data(st.session_state.data)
+            st.session_state.turn_state = "SPIN_GOLD"
+            st.rerun()
     if st.button("Exit"): st.session_state.turn_state = "WALLET_CHECK"; st.rerun()
 
 elif st.session_state.turn_state == "SPIN_BRONZE":
-    components.iframe("https://spinthewheel.app/tmDneZ0rCW", height=500)
-    c1, c2 = st.columns(2)
-    if c1.button("Bend Over"): log_event("Won: Bend Over"); st.session_state.turn_state="PRIZE_BEND_OVER"; st.rerun()
-    if c2.button("Flash Me"): log_event("Won: Flash Me"); st.session_state.turn_state="PRIZE_FLASH_ME"; st.rerun()
-    c3, c4 = st.columns(2)
-    if c3.button("Jackoff Pass"): log_event("Won: Jackoff Pass"); st.session_state.turn_state="PRIZE_JACKOFF_PASS"; st.rerun()
-    if c4.button("Shower Show"): log_event("Won: Shower Show"); st.session_state.turn_state="PRIZE_SHOWER_SHOW"; st.rerun()
+    # Layout: Wheel (Left) - Image (Right)
+    col_main, col_img = st.columns([2.5, 1.5]) 
+    
+    with col_main:
+        components.iframe("https://spinthewheel.app/tmDneZ0rCW", height=500)
+        c1, c2 = st.columns(2)
+        if c1.button("Bend Over"): log_event("Won: Bend Over"); st.session_state.turn_state="PRIZE_BEND_OVER"; st.rerun()
+        if c2.button("Flash Me"): log_event("Won: Flash Me"); st.session_state.turn_state="PRIZE_FLASH_ME"; st.rerun()
+        c3, c4 = st.columns(2)
+        if c3.button("Jackoff Pass"): log_event("Won: Jackoff Pass"); st.session_state.turn_state="PRIZE_JACKOFF_PASS"; st.rerun()
+        if c4.button("Shower Show"): log_event("Won: Shower Show"); st.session_state.turn_state="PRIZE_SHOWER_SHOW"; st.rerun()
+        
+    with col_img:
+        # Side Image
+        if os.path.exists("wheelspin.JPG"):
+            st.image("wheelspin.JPG", use_container_width=True)
+        else:
+            st.warning("Upload wheelspin.JPG")
 
 elif st.session_state.turn_state == "SPIN_SILVER":
-    components.iframe("https://spinthewheel.app/1RLMB3g88K", height=500)
-    c1, c2, c3 = st.columns(3)
-    if c1.button("Toy Pic"): log_event("Won: Toy Pic"); st.session_state.turn_state="PRIZE_TOY_PIC"; st.rerun()
-    if c2.button("Lick Pussy"): log_event("Won: Lick Pussy"); st.session_state.turn_state="PRIZE_LICK_PUSSY"; st.rerun()
-    if c3.button("Nude Pic"): log_event("Won: Nude Pic"); st.session_state.turn_state="PRIZE_NUDE_PIC"; st.rerun()
-    c4, c5, c6 = st.columns(3)
-    if c4.button("Tongue Tease"): log_event("Won: Tongue Tease"); st.session_state.turn_state="PRIZE_TONGUE_TEASE"; st.rerun()
-    if c5.button("Road Head"): log_event("Won: Road Head"); st.session_state.turn_state="PRIZE_ROAD_HEAD"; st.rerun()
-    if c6.button("Plug Tease"): log_event("Won: Plug Tease"); st.session_state.turn_state="PRIZE_PLUG_TEASE"; st.rerun()
+    col_main, col_img = st.columns([2.5, 1.5])
+    
+    with col_main:
+        components.iframe("https://spinthewheel.app/1RLMB3g88K", height=500)
+        c1, c2, c3 = st.columns(3)
+        if c1.button("Toy Pic"): log_event("Won: Toy Pic"); st.session_state.turn_state="PRIZE_TOY_PIC"; st.rerun()
+        if c2.button("Lick Pussy"): log_event("Won: Lick Pussy"); st.session_state.turn_state="PRIZE_LICK_PUSSY"; st.rerun()
+        if c3.button("Nude Pic"): log_event("Won: Nude Pic"); st.session_state.turn_state="PRIZE_NUDE_PIC"; st.rerun()
+        c4, c5, c6 = st.columns(3)
+        if c4.button("Tongue Tease"): log_event("Won: Tongue Tease"); st.session_state.turn_state="PRIZE_TONGUE_TEASE"; st.rerun()
+        if c5.button("Road Head"): log_event("Won: Road Head"); st.session_state.turn_state="PRIZE_ROAD_HEAD"; st.rerun()
+        if c6.button("Plug Tease"): log_event("Won: Plug Tease"); st.session_state.turn_state="PRIZE_PLUG_TEASE"; st.rerun()
+
+    with col_img:
+        if os.path.exists("wheelspin.JPG"):
+            st.image("wheelspin.JPG", use_container_width=True)
 
 elif st.session_state.turn_state == "SPIN_GOLD":
-    components.iframe("https://spinthewheel.app/JIRFjfR66x", height=500)
-    c1, c2, c3 = st.columns(3)
-    if c1.button("All 3 Holes"): log_event("Won: All 3 Holes"); st.session_state.turn_state="PRIZE_ALL_3_HOLES"; st.rerun()
-    if c2.button("Upside Down"): log_event("Won: Upside Down"); st.session_state.turn_state="PRIZE_UPSIDE_DOWN_THROAT_FUCK"; st.rerun()
-    if c3.button("Flashback"): log_event("Won: Flashback"); st.session_state.turn_state="PRIZE_FLASHBACK"; st.rerun()
-    c4, c5 = st.columns(2)
-    if c4.button("Anal Fuck"): log_event("Won: Anal Fuck"); st.session_state.turn_state="PRIZE_ANAL_FUCK"; st.rerun()
-    if c5.button("Doggy Style"): log_event("Won: Doggy Style"); st.session_state.turn_state="PRIZE_DOGGY_STYLE_READY"; st.rerun()
+    col_main, col_img = st.columns([2.5, 1.5])
+    
+    with col_main:
+        components.iframe("https://spinthewheel.app/JIRFjfR66x", height=500)
+        c1, c2, c3 = st.columns(3)
+        if c1.button("All 3 Holes"): log_event("Won: All 3 Holes"); st.session_state.turn_state="PRIZE_ALL_3_HOLES"; st.rerun()
+        if c2.button("Upside Down"): log_event("Won: Upside Down"); st.session_state.turn_state="PRIZE_UPSIDE_DOWN_THROAT_FUCK"; st.rerun()
+        if c3.button("Flashback"): log_event("Won: Flashback"); st.session_state.turn_state="PRIZE_FLASHBACK"; st.rerun()
+        c4, c5 = st.columns(2)
+        if c4.button("Anal Fuck"): log_event("Won: Anal Fuck"); st.session_state.turn_state="PRIZE_ANAL_FUCK"; st.rerun()
+        if c5.button("Doggy Style"): log_event("Won: Doggy Style"); st.session_state.turn_state="PRIZE_DOGGY_STYLE_READY"; st.rerun()
+
+    with col_img:
+        if os.path.exists("wheelspin.JPG"):
+            st.image("wheelspin.JPG", use_container_width=True)
+            
 # ==========================================
 #       PRIZE SCRIPTS 
 # ======================================
@@ -2103,6 +2141,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
