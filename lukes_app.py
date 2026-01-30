@@ -7,7 +7,8 @@ import streamlit as st
 import base64
 import re
 import gspread
-from google.oauth2.service_account import Credentials # <--- NEW MODERN LIBRARY
+import streamlit.components.v1 as components  # <--- THIS WAS MISSING
+from google.oauth2.service_account import Credentials
 
 # ==========================================
 #       PART 0: CONFIG & STYLING
@@ -2141,6 +2142,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
