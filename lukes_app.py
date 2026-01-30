@@ -527,10 +527,10 @@ elif st.session_state.turn_state == "SPIN_BRONZE":
         
     with col_img:
         # Side Image
-        if os.path.exists("wheelspin.JPG"):
-            st.image("wheelspin.JPG", use_container_width=True)
+        if os.path.exists("wheelspin.jpg"):
+            st.image("wheelspin.jpg", use_container_width=True)
         else:
-            st.warning("Upload wheelspin.JPG")
+            st.warning("Upload wheelspin.jpg")
 
 elif st.session_state.turn_state == "SPIN_SILVER":
     col_main, col_img = st.columns([2.5, 1.5])
@@ -547,8 +547,8 @@ elif st.session_state.turn_state == "SPIN_SILVER":
         if c6.button("Plug Tease"): log_event("Won: Plug Tease"); st.session_state.turn_state="PRIZE_PLUG_TEASE"; st.rerun()
 
     with col_img:
-        if os.path.exists("wheelspin.JPG"):
-            st.image("wheelspin.JPG", use_container_width=True)
+        if os.path.exists("wheelspin.jpg"):
+            st.image("wheelspin.jpg", use_container_width=True)
 
 elif st.session_state.turn_state == "SPIN_GOLD":
     col_main, col_img = st.columns([2.5, 1.5])
@@ -564,8 +564,8 @@ elif st.session_state.turn_state == "SPIN_GOLD":
         if c5.button("Doggy Style"): log_event("Won: Doggy Style"); st.session_state.turn_state="PRIZE_DOGGY_STYLE_READY"; st.rerun()
 
     with col_img:
-        if os.path.exists("wheelspin.JPG"):
-            st.image("wheelspin.JPG", use_container_width=True)
+        if os.path.exists("wheelspin.jpg"):
+            st.image("wheelspin.jpg", use_container_width=True)
             
 # ==========================================
 #       PRIZE SCRIPTS 
@@ -2142,6 +2142,7 @@ elif st.session_state.turn_state == "PRIZE_FLASHBACK":
             st.session_state.history = []
             st.session_state.turn_state = "WALLET_CHECK"
             st.rerun()
+
 
 
 
